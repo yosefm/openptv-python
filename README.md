@@ -34,9 +34,9 @@ One of the following distributions that include: Python, Cython, Numpy, Scipy, m
 Instructions:
 
 1. Download and install liboptv <https://github.com/yosefm/openptv/tree/fb_submission>
-2. Download the ZIP of this repository, unzip it and install from the pyptv_gui folder by:
+2. Download the ZIP of this repository, unzip it and install from the pyptv_gui folder by:  
     python setup.py install
-3. Run using 
+3. Run using   
     python pyptv_gui 
 
 This version is fully backward-compatible with the 3D-PTV software http://3dptv.github.com so the test folders and data 
