@@ -35,9 +35,9 @@ Instructions:
 
 1. Download and install liboptv <https://github.com/yosefm/openptv/tree/fb_submission>
 2. Download the ZIP of this repository, unzip it and install from the pyptv_gui folder by:  
-    python setup.py install
+    `python setup.py install`
 3. Run using   
-    python pyptv_gui 
+    `python pyptv_gui `
 
 This version is fully backward-compatible with the 3D-PTV software http://3dptv.github.com so the test folders and data 
 are the same. We do not destroy the parameters, we create new copies, so no worry about destroying the experiment.
