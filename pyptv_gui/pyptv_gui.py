@@ -51,7 +51,7 @@ if not os.path.isdir(src_path):
 sys.path.append(src_path)
 
 import ptv1 as ptv
-from tracking_framebuf import read_targets
+from optv.tracking_framebuf import read_targets
 
 # pyPTV specific imports
 import general

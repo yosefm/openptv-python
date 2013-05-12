@@ -24,16 +24,11 @@ ext_mods = [
         "ray_tracing.c", "imgcoord.c", "lsqadj.c", "orientation.c","sortgrid.c",
         "pointpos.c", "intersect.c", "track.c", "ttools.c", "draw.c",
         "mousefunction.c", "vec_utils.c", "parameters.c", "tracking_run.c"],
-        include_dirs=inc_dirs, libraries=['optv'], 
-        extra_compile_args=['-O3'],
-	pyrex_include_dirs=['.']),
-    Extension("tracking_framebuf", ["tracking_framebuf.pyx"], 
-    	libraries=['optv'], include_dirs=inc_dirs,
-	pyrex_include_dirs=['.']),
+        include_dirs=inc_dirs, libraries=['optv'], extra_compile_args=['-O3'],
+	    pyrex_include_dirs=['.']),
     Extension("tracking_run_py", ["tracking_run_py.pyx", 
         "tracking_run.c", "parameters.c"], 
-	libraries=['optv'], include_dirs=inc_dirs,
-	pyrex_include_dirs=['.']) 
+        libraries=['optv'], include_dirs=inc_dirs, pyrex_include_dirs=['.'])
     ]
 
 setup(
