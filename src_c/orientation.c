@@ -25,6 +25,7 @@ Related routines:
 #include <optv/tracking_frame_buf.h>
 #include "parameters.h"
 #include "lsqadj.h"
+#include "vec_utils.h"
 #include "ptv.h"
 
 #define MAX_TARGETS 20000
@@ -588,6 +589,59 @@ I[3].yh = 0.0;*/
   
 }
 
+
+/*  num_deriv_exterior() calculates the partial numerical derivative of image
+    coordinates of a given 3D position, aver each of the 6 exterior orientation
+    parameters (3 position parameters, 3 rotation angles).
+    
+    TODO: orientation would be much faster if we use analytic instead of numeric
+    derivation, and we definitely won't be the first to do so, so code for that
+    exists in the wild.
+   
+    Arguments:
+    Exterior ext - an object describing current exterior orientation. Changed
+        in place during run, but restored back.
+    Interior I0, Glass G0, ap_52 ap0, mm_np mm - rest of calibration 
+        parameters, passed directly to img_coord(). Interim measure before
+        we can pass a pointer to a Calibration object.
+    double dpos, double dang - the step size for numerical differentiation,
+        dpos for the metric variables, dang for the angle variables. Units
+        are same as the units of the variables derived.
+    pos3d pos - the current 3D position represented on the image.
+    
+    Return parameters:
+    double x_ders[6], y_ders[6] respectively the derivatives of the x and y
+        image coordinates as function of each of the orientation parameters.
+ */
+void num_deriv_exterior(Exterior ext, Interior I0, Glass G0, ap_52 ap0, 
+    mm_np mm, double dpos, double dang, pos3d pos,
+    double x_ders[6], double y_ders[6])
+{
+    int pd; 
+    double step, xs, ys, xpd, ypd;
+    double* vars[6];
+    
+    vars[0] = &(ext.x0);
+    vars[1] = &(ext.y0);
+    vars[2] = &(ext.z0);
+    vars[3] = &(ext.omega);
+    vars[4] = &(ext.phi);
+    vars[5] = &(ext.kappa);
+    
+    /* Starting image position */
+	img_coord (pos[0], pos[1], pos[2], ext, I0, G0, ap0, mm, &xs,&ys);
+    
+    for (pd = 0; pd < 6; pd++) {
+        step = (pd > 2) ? dang : dpos;
+        
+        *(vars[pd]) += step;
+        img_coord(pos[0], pos[1], pos[2], ext, I0, G0, ap0, mm, &xpd,&ypd);
+        x_ders[pd] = (xpd - xs) / step;
+        y_ders[pd] = (ypd - ys) / step;
+        *(vars[pd]) -= step;
+    }
+}
+
 void orient_v3 (Ex0, I0, G0, ap0, mm, nfix, fix, crd, Ex, I, G, ap, nr)
 Exterior	Ex0, *Ex;	/* exterior orientation, approx and result */
 Interior	I0, *I;		/* interior orientation, approx and result */
@@ -608,10 +662,12 @@ int	       	nr;  		/* image number for residual display */
     XPX[19][19], XPy[19], beta[19], Xbeta[1800],
     resi[1800], omega=0, sigma0, sigmabeta[19],
     P[1800], p, sumP, pixnr[3600];
-  double 	Xp, Yp, Zp, xp, yp, xpd, ypd, r, qq;
+  double xp, yp, xpd, ypd, r, qq;
   FILE 	*fp1;
   int dummy, multi,numbers;
   double al,be,ga,nGl,e1_x,e1_y,e1_z,e2_x,e2_y,e2_z,n1,n2,safety_x,safety_y,safety_z;
+  
+  pos3d pos;
 
 
   /* read, which parameters shall be used */
@@ -695,9 +751,11 @@ int	       	nr;  		/* image number for residual display */
 
 
 	  pixnr[n/2] = i;		/* for drawing residuals */
-	  Xp = fix[i].x;  Yp = fix[i].y;  Zp = fix[i].z;
+	  pos[0] = fix[i].x;
+          pos[1] = fix[i].y;
+          pos[2] = fix[i].z;
 	  rotation_matrix (Ex0, Ex0.dm);
-	  img_coord (Xp,Yp,Zp, Ex0,I0, G0, ap0, mm, &xp,&yp);
+	  img_coord (pos[0], pos[1], pos[2], Ex0, I0, G0, ap0, mm, &xp,&yp);
 
 
 	  /* derivatives of add. parameters */
@@ -735,51 +793,12 @@ int	       	nr;  		/* image number for residual display */
 	  X[n+1][15] = -sin(ap0.she) * yp;
 
 
-
 	  /* numeric derivatives */
-
-	  Ex0.x0 += dm;
-	  img_coord (Xp,Yp,Zp, Ex0,I0, G0, ap0, mm, &xpd,&ypd);
-	  X[n][0]      = (xpd - xp) / dm;
-	  X[n+1][0] = (ypd - yp) / dm;
-	  Ex0.x0 -= dm;
-
-	  Ex0.y0 += dm;
-	  img_coord (Xp,Yp,Zp, Ex0,I0, G0, ap0, mm, &xpd,&ypd);
-	  X[n][1]      = (xpd - xp) / dm;
-	  X[n+1][1] = (ypd - yp) / dm;
-	  Ex0.y0 -= dm;
-
-	  Ex0.z0 += dm;
-	  img_coord (Xp,Yp,Zp, Ex0,I0, G0, ap0, mm, &xpd,&ypd);
-	  X[n][2]      = (xpd - xp) / dm;
-	  X[n+1][2] = (ypd - yp) / dm;
-	  Ex0.z0 -= dm;
-
-	  Ex0.omega += drad;
-	  rotation_matrix (Ex0, Ex0.dm);
-	  img_coord (Xp,Yp,Zp, Ex0,I0, G0, ap0, mm, &xpd,&ypd);
-	  X[n][3]      = (xpd - xp) / drad;
-	  X[n+1][3] = (ypd - yp) / drad;
-	  Ex0.omega -= drad;
-
-	  Ex0.phi += drad;
-	  rotation_matrix (Ex0, Ex0.dm);
-	  img_coord (Xp,Yp,Zp, Ex0,I0, G0, ap0, mm, &xpd,&ypd);
-	  X[n][4]      = (xpd - xp) / drad;
-	  X[n+1][4] = (ypd - yp) / drad;
-	  Ex0.phi -= drad;
-
-	  Ex0.kappa += drad;
-	  rotation_matrix (Ex0, Ex0.dm);
-	  img_coord (Xp,Yp,Zp, Ex0,I0, G0, ap0, mm, &xpd,&ypd);
-	  X[n][5]      = (xpd - xp) / drad;
-	  X[n+1][5] = (ypd - yp) / drad;
-	  Ex0.kappa -= drad;
+          num_deriv_exterior(Ex0, I0, G0, ap0, mm, dm, drad, pos, X[n], X[n + 1]);
 
 	  I0.cc += dm;
 	  rotation_matrix (Ex0, Ex0.dm);
-	  img_coord (Xp,Yp,Zp, Ex0,I0, G0, ap0, mm, &xpd,&ypd);
+	  img_coord (pos[0], pos[1], pos[2], Ex0,I0, G0, ap0, mm, &xpd,&ypd);
 	  X[n][6]      = (xpd - xp) / dm;
 	  X[n+1][6] = (ypd - yp) / dm;
 	  I0.cc -= dm;
@@ -790,7 +809,7 @@ int	       	nr;  		/* image number for residual display */
 	  //safety_z=G0.vec_z;
 	  al +=dm;
 	  G0.vec_x+=e1_x*nGl*al;G0.vec_y+=e1_y*nGl*al;G0.vec_z+=e1_z*nGl*al;
-	  img_coord (Xp,Yp,Zp, Ex0,I0, G0, ap0, mm, &xpd,&ypd);
+	  img_coord (pos[0], pos[1], pos[2], Ex0,I0, G0, ap0, mm, &xpd,&ypd);
 	  X[n][16]      = (xpd - xp) / dm;
 	  X[n+1][16] = (ypd - yp) / dm;
 	  //G0.vec_x -= dm;
@@ -803,7 +822,7 @@ int	       	nr;  		/* image number for residual display */
 	  //G0.vec_y += dm;
 	  be +=dm;
 	  G0.vec_x+=e2_x*nGl*be;G0.vec_y+=e2_y*nGl*be;G0.vec_z+=e2_z*nGl*be;
-	  img_coord (Xp,Yp,Zp, Ex0,I0, G0, ap0, mm, &xpd,&ypd);
+	  img_coord (pos[0], pos[1], pos[2], Ex0,I0, G0, ap0, mm, &xpd,&ypd);
 	  X[n][17]      = (xpd - xp) / dm;
 	  X[n+1][17] = (ypd - yp) / dm;
 	  //G0.vec_y -= dm;
@@ -816,7 +835,7 @@ int	       	nr;  		/* image number for residual display */
 	  //G0.vec_y += dm;
 	  ga +=dm;
 	  G0.vec_x+=G0.vec_x*nGl*ga;G0.vec_y+=G0.vec_y*nGl*ga;G0.vec_z+=G0.vec_z*nGl*ga;
-	  img_coord (Xp,Yp,Zp, Ex0,I0, G0, ap0, mm, &xpd,&ypd);
+	  img_coord (pos[0], pos[1], pos[2], Ex0,I0, G0, ap0, mm, &xpd,&ypd);
 	  X[n][18]      = (xpd - xp) / dm;
 	  X[n+1][18] = (ypd - yp) / dm;
 	  //G0.vec_y -= dm;
