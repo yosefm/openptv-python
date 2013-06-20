@@ -1050,6 +1050,7 @@ coord_2d  crd[];
   int     	i,j,n, itnum, stopflag, n_obs=0;
   double		dm = 0.0001,  drad = 0.000001;
   
+  pos3d pos;
   
   /* init X, y (set to zero) */
   for (i=0; i<10; i++)
@@ -1072,86 +1073,43 @@ coord_2d  crd[];
   if(only_show==1) stopflag=1;
 /////// Beat Lüthi 9. Mai 2007
 
-  
+  while ((stopflag == 0) && (itnum < 20)) {
+    ++itnum;
 
-  while ((stopflag == 0) && (itnum < 20))
-    {
-      ++itnum;
+    for (i = 0, n = 0; i < nfix; i++) if (crd[i].x != -999) {
+        pos[0] = fix[i].x;
+        pos[1] = fix[i].y;
+        pos[2] = fix[i].z;
 
-      for (i=0, n=0; i<nfix; i++)  if (crd[i].x != -999)
-	{
-	  Xp = fix[i].x;  Yp = fix[i].y;  Zp = fix[i].z;
-	  rotation_matrix (Ex0, Ex0.dm);
+	    rotation_matrix (Ex0, Ex0.dm);
+        num_deriv_exterior(Ex0, I, G0, ap, mm, dm, drad, pos, X[n], X[n + 1]);
+        
+        img_coord (Xp,Yp,Zp, Ex0,I, G0, ap, mm, &xp,&yp);
+	    y[n]   = crd[i].x - xp;
+	    y[n+1] = crd[i].y - yp;
 
-	  img_coord (Xp,Yp,Zp, Ex0,I, G0, ap, mm, &xp,&yp);
-
-	  /* numeric derivatives */
-
-	  Ex0.x0 += dm;
-	  img_coord (Xp,Yp,Zp, Ex0,I, G0, ap, mm, &xpd,&ypd);
-	  X[n][0]      = (xpd - xp) / dm;
-	  X[n+1][0] = (ypd - yp) / dm;
-	  Ex0.x0 -= dm;
-
-	  Ex0.y0 += dm;
-	  img_coord (Xp,Yp,Zp, Ex0,I, G0, ap, mm, &xpd,&ypd);
-	  X[n][1]	  = (xpd - xp) / dm;
-	  X[n+1][1] = (ypd - yp) / dm;
-	  Ex0.y0 -= dm;
-
-	  Ex0.z0 += dm;
-	  img_coord (Xp,Yp,Zp, Ex0,I, G0, ap, mm, &xpd,&ypd);
-	  X[n][2]	  = (xpd - xp) / dm;
-	  X[n+1][2] = (ypd - yp) / dm;
-	  Ex0.z0 -= dm;
-
-	  Ex0.omega += drad;
-	  rotation_matrix (Ex0, Ex0.dm);
-	  img_coord (Xp,Yp,Zp, Ex0,I, G0, ap, mm, &xpd,&ypd);
-	  X[n][3]	  = (xpd - xp) / drad;
-	  X[n+1][3] = (ypd - yp) / drad;
-	  Ex0.omega -= drad;
-
-	  Ex0.phi += drad;
-	  rotation_matrix (Ex0, Ex0.dm);
-	  img_coord (Xp,Yp,Zp, Ex0,I, G0, ap, mm, &xpd,&ypd);
-	  X[n][4]	  = (xpd - xp) / drad;
-	  X[n+1][4] = (ypd - yp) / drad;
-	  Ex0.phi -= drad;
-
-	  Ex0.kappa += drad;
-	  rotation_matrix (Ex0, Ex0.dm);
-	  img_coord (Xp,Yp,Zp, Ex0,I, G0, ap, mm, &xpd,&ypd);
-	  X[n][5]	  = (xpd - xp) / drad;
-	  X[n+1][5] = (ypd - yp) / drad;
-	  Ex0.kappa -= drad;
- 
-	  y[n]   = crd[i].x - xp;
-	  y[n+1] = crd[i].y - yp;
-
-	  n += 2;
+	    n += 2;
 	}
-      n_obs = n;
+    n_obs = n;
 
-      /* Gauss Markoff Model */
+    /* Gauss Markoff Model */
 
-      ata_v2 ((double *) X, (double *) XPX, n_obs, 6, 6);
-      matinv ((double *) XPX, 6);
-      atl ((double *) XPy, (double *) X, y, n_obs, 6);
-      matmul ((double *) beta, (double *) XPX, (double *) XPy, 6,6,1);
+    ata_v2 ((double *) X, (double *) XPX, n_obs, 6, 6);
+    matinv ((double *) XPX, 6);
+    atl ((double *) XPy, (double *) X, y, n_obs, 6);
+    matmul ((double *) beta, (double *) XPX, (double *) XPy, 6,6,1);
 
-      stopflag = 1;
-	  for (i=0; i<6; i++){
-		  if (fabs (beta[i]) > 0.1 )  stopflag = 0;
-	  }
+    stopflag = 1;
+	for (i = 0; i < 6; i++){
+        if (fabs (beta[i]) > 0.1 )  stopflag = 0;
+	}
 
-      Ex0.x0 += beta[0];  Ex0.y0 += beta[1];  Ex0.z0 += beta[2];
-      Ex0.omega += beta[3];  Ex0.phi += beta[4];
-      Ex0.kappa += beta[5];
-	  //G0.vec_x += beta[6];G0.vec_y += beta[7];//G0.vec_z += beta[8];
-	  stopflag =stopflag ;
-	  
-    }
+    Ex0.x0 += beta[0];  Ex0.y0 += beta[1];  Ex0.z0 += beta[2];
+    Ex0.omega += beta[3];  Ex0.phi += beta[4];
+    Ex0.kappa += beta[5];
+	//G0.vec_x += beta[6];G0.vec_y += beta[7];//G0.vec_z += beta[8];
+	stopflag =stopflag ;	  
+  }
 
   if (stopflag)
     {
