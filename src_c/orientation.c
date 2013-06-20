@@ -1084,7 +1084,7 @@ coord_2d  crd[];
 	    rotation_matrix (Ex0, Ex0.dm);
         num_deriv_exterior(Ex0, I, G0, ap, mm, dm, drad, pos, X[n], X[n + 1]);
         
-        img_coord (Xp,Yp,Zp, Ex0,I, G0, ap, mm, &xp,&yp);
+	    img_coord (pos[0], pos[1], pos[2], Ex0, I, G0, ap, mm, &xp,&yp);
 	    y[n]   = crd[i].x - xp;
 	    y[n+1] = crd[i].y - yp;
 
