@@ -657,7 +657,7 @@ int	       	nr;  		/* image number for residual display */
   int  	useflag, ccflag, scxflag, sheflag, interfflag, xhflag, yhflag,
     k1flag, k2flag, k3flag, p1flag, p2flag;
   int  	intx1, intx2, inty1, inty2;
-  double       	dm = 0.00001,  drad = 0.0000001,drad2 = 0.00001, dg=0.1;
+  double dm = 0.00001,  drad = 0.0000001;
   double       	X[1800][19], Xh[1800][19], y[1800], yh[1800], ident[10],
     XPX[19][19], XPy[19], beta[19], Xbeta[1800],
     resi[1800], omega=0, sigma0, sigmabeta[19],
@@ -1046,7 +1046,7 @@ coord_2d  crd[];
 {
   double		X[10][6], y[10],
     XPX[6][6], XPy[6], beta[6];
-  double 		Xp, Yp, Zp, xp, yp, xpd, ypd;
+  double xp, yp;
   int     	i,j,n, itnum, stopflag, n_obs=0;
   double		dm = 0.0001,  drad = 0.000001;
   
