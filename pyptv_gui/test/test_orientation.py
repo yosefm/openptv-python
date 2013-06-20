@@ -5,7 +5,7 @@ import os, shutil, glob
 import numpy as np
 
 from ptv1 import py_start_proc_c, py_init_proc_c, py_prepare_eval, get_pix_crd
-from ptv1 import py_calibration
+from ptv1 import py_calibration, get_xy_calib
 
 class TestOrient(unittest.TestCase):
     def setUp(self):
@@ -17,10 +17,16 @@ class TestOrient(unittest.TestCase):
             shutil.rmtree("scene83_event1/")
         
     def tearDown(self):
-        shutil.rmtree("res/")
+        if os.path.exists("res/"):
+            shutil.rmtree("res/")
+        
         shutil.rmtree("scene83_event1/")
-        shutil.copyfile("parameters/sequence_scene.par", "parameters/sequence.par")
-        os.remove("parameters/sequence_scene.par")
+        
+        if os.path.exists("parameters/sequence_scene.par"):
+            shutil.copyfile("parameters/sequence_scene.par",
+                "parameters/sequence.par")
+            os.remove("parameters/sequence_scene.par")
+        
         os.chdir("../")
     
     def test_prepare_eval(self):
@@ -73,6 +79,23 @@ class TestOrient(unittest.TestCase):
         for file in glob.glob("safety_*"):
             os.remove(file)
         
+    def test_raw_orient(self):
+        """Check that raw_orient doesn't ruin the results for just_plot()."""
+        shutil.copytree("db_targ/", "scene83_event1/")
+        
+        py_init_proc_c()
+        py_start_proc_c()
+        
+        py_calibration(9)
+        calib = get_xy_calib(4)
+
+        #np.savetxt('calib.dat', calib.reshape(-1, 2))
+        np.testing.assert_array_almost_equal(calib.reshape(-1, 2),
+            np.loadtxt('calib.dat'))
+        
+        for file in glob.glob("safety_*"):
+            os.remove(file)
+
 if __name__ == '__main__':
     unittest.main()
 
