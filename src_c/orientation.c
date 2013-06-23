@@ -591,13 +591,9 @@ I[3].yh = 0.0;*/
 
 
 /*  num_deriv_exterior() calculates the partial numerical derivative of image
-    coordinates of a given 3D position, aver each of the 6 exterior orientation
+    coordinates of a given 3D position, over each of the 6 exterior orientation
     parameters (3 position parameters, 3 rotation angles).
     
-    TODO: orientation would be much faster if we use analytic instead of numeric
-    derivation, and we definitely won't be the first to do so, so code for that
-    exists in the wild.
-   
     Arguments:
     Exterior ext - an object describing current exterior orientation. Changed
         in place during run, but restored back.
