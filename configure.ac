@@ -16,8 +16,10 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign 1.11 silent-rules])
 AM_SILENT_RULES
 
 # Checks for programs.
+AM_PROG_AR
 AC_PROG_CC
 AC_PROG_LIBTOOL
+AM_PROG_CC_C_O
 
 # Checks for libraries.
 
