@@ -631,6 +631,7 @@ void num_deriv_exterior(Exterior ext, Interior I0, Glass G0, ap_52 ap0,
         step = (pd > 2) ? dang : dpos;
         
         *(vars[pd]) += step;
+        if (pd > 2) rotation_matrix(ext, ext.dm);
         img_coord(pos[0], pos[1], pos[2], ext, I0, G0, ap0, mm, &xpd,&ypd);
         x_ders[pd] = (xpd - xs) / step;
         y_ders[pd] = (ypd - ys) / step;
