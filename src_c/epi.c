@@ -53,17 +53,25 @@ Glass     G1, G2;
 }
 
 
-
-int epi_mm (x1, y1, Ex1, I1, G1, Ex2, I2, G2, mmp, vpar, xmin, ymin, xmax, ymax)
-
-double     x1, y1;	  	/* input coord */
-Exterior   Ex1, Ex2;           	/* orientation data */
-Interior   I1, I2;	      	/* orientation data */
-Glass      G1, G2;	      	/* glass data */
-mm_np	   mmp;		        /* multimed param. (layers) */
-volume_par *vpar;
-double	   *xmin, *ymin, *xmax, *ymax;    /* output search window */
-
+/* epi_mm() finds epipolar line search window.
+   
+   Arguments:
+   int cam - number of the camera on which the epipolar line is drawn. Only
+      needed if the LUT structure is used.
+   double x1, y1 - image-plane coordinate of point in 1st image.
+   Exterior Ex1, Interior I1, Glass G1 - calibration of the camera from which
+      the line emanates
+   Exterior Ex2, Interior I2, Glass G2 - calibration of the camera on which 
+      the epipolar line is drawn.
+   mm_np mmp - multimed param. (layers)
+   volume_par *vpar - parameters of the observed volume
+   
+   Output parameters:
+   double *xmin, *ymin, *xmax, *ymax - output search window.
+*/
+int epi_mm (int cam, double x1, double y1, Exterior Ex1, Interior I1, Glass G1,
+    Exterior Ex2, Interior I2, Glass G2, mm_np mmp, volume_par *vpar, 
+    double *xmin, double *ymin, double *xmax, double *ymax)
 {
   /*  ray tracing gives the point of exit and the direction
       cosines at the waterside of the glass;
@@ -88,11 +96,11 @@ double	   *xmin, *ymin, *xmax, *ymax;    /* output search window */
 
   Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
   //img_xy_mm_geo_old (X,Y,Z, Ex2, I2,     mmp, &xa, &ya);
-  img_xy_mm_geo     (X,Y,Z, Ex2, I2, G2, mmp, &xa, &ya);
+  img_xy_mm_geo(cam, X, Y, Z, Ex2, I2, G2, mmp, &xa, &ya);
 
   Z = Zmax;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
   //img_xy_mm_geo_old (X,Y,Z, Ex2, I2,     mmp, &xb, &yb);
-  img_xy_mm_geo     (X,Y,Z, Ex2, I2, G2, mmp, &xb, &yb);
+  img_xy_mm_geo(cam, X, Y, Z, Ex2, I2, G2, mmp, &xb, &yb);
 
   /*  ==> window given by xa,ya,xb,yb  */
 

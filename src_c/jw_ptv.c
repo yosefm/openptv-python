@@ -766,7 +766,8 @@ int calibration_proc_c (int sel)
                 }
                 
                 /* raw orientation with 4 points */
-                raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i], &Ex[i],&G[i],1);
+                raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i], 
+                    &Ex[i],&G[i], i, 1);
                 
                 /* sorting of detected points by back-projection */
                 just_plot (Ex[i], I[i], G[i], ap[i], mmp,
@@ -812,7 +813,8 @@ int calibration_proc_c (int sel)
                 }
                 
                 /* raw orientation with 4 points */
-                raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i], &Ex[i],&G[i],0); //Beat Nov 2008
+                raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i], 
+                    &Ex[i], &G[i], i, 0);
                 sprintf (filename, "raw%d.ori", i);
                 write_ori (Ex[i], I[i], G[i], ap[i], filename, NULL); /*ap ignored*/
                 
@@ -909,7 +911,8 @@ int calibration_proc_c (int sel)
 				}
                 
 				/* raw orientation with 4 points */
-				raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i], &Ex[i],&G[i],1); /* correction 0 to 1 , al*/
+				raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i],
+                    &Ex[i], &G[i], i, 1); 
 				sprintf (filename, "raw%d.ori", i);
                 write_ori (Ex[i], I[i], G[i], ap[i], filename, NULL); /*ap ignored*/
                 

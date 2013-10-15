@@ -94,7 +94,7 @@ START_TEST(test_num_deriv_exterior)
     double x_ders_correct[] = {-1./300, 0., 0., 0., tan(dang)/dang, 0.};
     double y_ders_correct[] = {0., -1./300, 0., -tan(dang)/dang, 0., 0.};
     
-    num_deriv_exterior(cal.ext_par, cal.int_par, cal.glass_par, cal.added_par,
+    num_deriv_exterior(0, cal.ext_par, cal.int_par, cal.glass_par, cal.added_par,
         trivial_mm, dpos, dang, pos, x_ders, y_ders);
     
     for (der = 0; der < 6; der++) {

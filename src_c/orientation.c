@@ -595,6 +595,8 @@ I[3].yh = 0.0;*/
     parameters (3 position parameters, 3 rotation angles).
     
     Arguments:
+    int cam - number of camera currently processed. Only needed if the LUT 
+        structure is used, otherwise ignored.
     Exterior ext - an object describing current exterior orientation. Changed
         in place during run, but restored back.
     Interior I0, Glass G0, ap_52 ap0, mm_np mm - rest of calibration 
@@ -609,7 +611,7 @@ I[3].yh = 0.0;*/
     double x_ders[6], y_ders[6] respectively the derivatives of the x and y
         image coordinates as function of each of the orientation parameters.
  */
-void num_deriv_exterior(Exterior ext, Interior I0, Glass G0, ap_52 ap0, 
+void num_deriv_exterior(int cam, Exterior ext, Interior I0, Glass G0, ap_52 ap0, 
     mm_np mm, double dpos, double dang, pos3d pos,
     double x_ders[6], double y_ders[6])
 {
@@ -625,14 +627,14 @@ void num_deriv_exterior(Exterior ext, Interior I0, Glass G0, ap_52 ap0,
     vars[5] = &(ext.kappa);
     
     /* Starting image position */
-	img_coord (pos[0], pos[1], pos[2], ext, I0, G0, ap0, mm, &xs,&ys);
+	img_coord (cam, pos[0], pos[1], pos[2], ext, I0, G0, ap0, mm, &xs, &ys);
     
     for (pd = 0; pd < 6; pd++) {
         step = (pd > 2) ? dang : dpos;
         
         *(vars[pd]) += step;
         if (pd > 2) rotation_matrix(ext, ext.dm);
-        img_coord(pos[0], pos[1], pos[2], ext, I0, G0, ap0, mm, &xpd,&ypd);
+        img_coord(cam, pos[0], pos[1], pos[2], ext, I0, G0, ap0, mm, &xpd, &ypd);
         x_ders[pd] = (xpd - xs) / step;
         y_ders[pd] = (ypd - ys) / step;
         *(vars[pd]) -= step;
@@ -753,7 +755,7 @@ int	       	nr;  		/* image number for residual display */
           pos[1] = fix[i].y;
           pos[2] = fix[i].z;
 	  rotation_matrix (Ex0, Ex0.dm);
-	  img_coord (pos[0], pos[1], pos[2], Ex0, I0, G0, ap0, mm, &xp,&yp);
+	  img_coord (nr, pos[0], pos[1], pos[2], Ex0, I0, G0, ap0, mm, &xp,&yp);
 
 
 	  /* derivatives of add. parameters */
@@ -792,11 +794,11 @@ int	       	nr;  		/* image number for residual display */
 
 
 	  /* numeric derivatives */
-          num_deriv_exterior(Ex0, I0, G0, ap0, mm, dm, drad, pos, X[n], X[n + 1]);
+      num_deriv_exterior(nr, Ex0, I0, G0, ap0, mm, dm, drad, pos, X[n], X[n + 1]);
 
 	  I0.cc += dm;
 	  rotation_matrix (Ex0, Ex0.dm);
-	  img_coord (pos[0], pos[1], pos[2], Ex0,I0, G0, ap0, mm, &xpd,&ypd);
+	  img_coord (nr, pos[0], pos[1], pos[2], Ex0,I0, G0, ap0, mm, &xpd, &ypd);
 	  X[n][6]      = (xpd - xp) / dm;
 	  X[n+1][6] = (ypd - yp) / dm;
 	  I0.cc -= dm;
@@ -807,7 +809,7 @@ int	       	nr;  		/* image number for residual display */
 	  //safety_z=G0.vec_z;
 	  al +=dm;
 	  G0.vec_x+=e1_x*nGl*al;G0.vec_y+=e1_y*nGl*al;G0.vec_z+=e1_z*nGl*al;
-	  img_coord (pos[0], pos[1], pos[2], Ex0,I0, G0, ap0, mm, &xpd,&ypd);
+	  img_coord (nr, pos[0], pos[1], pos[2], Ex0,I0, G0, ap0, mm, &xpd, &ypd);
 	  X[n][16]      = (xpd - xp) / dm;
 	  X[n+1][16] = (ypd - yp) / dm;
 	  //G0.vec_x -= dm;
@@ -820,7 +822,7 @@ int	       	nr;  		/* image number for residual display */
 	  //G0.vec_y += dm;
 	  be +=dm;
 	  G0.vec_x+=e2_x*nGl*be;G0.vec_y+=e2_y*nGl*be;G0.vec_z+=e2_z*nGl*be;
-	  img_coord (pos[0], pos[1], pos[2], Ex0,I0, G0, ap0, mm, &xpd,&ypd);
+	  img_coord (nr, pos[0], pos[1], pos[2], Ex0,I0, G0, ap0, mm, &xpd, &ypd);
 	  X[n][17]      = (xpd - xp) / dm;
 	  X[n+1][17] = (ypd - yp) / dm;
 	  //G0.vec_y -= dm;
@@ -833,7 +835,7 @@ int	       	nr;  		/* image number for residual display */
 	  //G0.vec_y += dm;
 	  ga +=dm;
 	  G0.vec_x+=G0.vec_x*nGl*ga;G0.vec_y+=G0.vec_y*nGl*ga;G0.vec_z+=G0.vec_z*nGl*ga;
-	  img_coord (pos[0], pos[1], pos[2], Ex0,I0, G0, ap0, mm, &xpd,&ypd);
+	  img_coord (nr, pos[0], pos[1], pos[2], Ex0,I0, G0, ap0, mm, &xpd, &ypd);
 	  X[n][18]      = (xpd - xp) / dm;
 	  X[n+1][18] = (ypd - yp) / dm;
 	  //G0.vec_y -= dm;
@@ -1032,15 +1034,9 @@ printf("\ntest 1 inside orientation\n");
 }
 
 
-void raw_orient_v3 (Ex0, I, G0, ap, mm, nfix, fix, crd, Ex,G,only_show)
-Exterior  Ex0, *Ex;
-Interior  I;
-Glass     G0,*G;
-ap_52	  ap;
-mm_np	  mm;
-int	  nfix;
-coord_3d  fix[];
-coord_2d  crd[];
+void raw_orient_v3 (Exterior Ex0, Interior I, Glass G0, ap_52 ap, mm_np mm, 
+    int nfix, coord_3d fix[], coord_2d crd[], Exterior *Ex, Glass *G,
+    int nr, int only_show)
 {
   double		X[10][6], y[10],
     XPX[6][6], XPy[6], beta[6];
@@ -1080,9 +1076,9 @@ coord_2d  crd[];
         pos[2] = fix[i].z;
 
 	    rotation_matrix (Ex0, Ex0.dm);
-        num_deriv_exterior(Ex0, I, G0, ap, mm, dm, drad, pos, X[n], X[n + 1]);
+        num_deriv_exterior(nr, Ex0, I, G0, ap, mm, dm, drad, pos, X[n], X[n + 1]);
         
-	    img_coord (pos[0], pos[1], pos[2], Ex0, I, G0, ap, mm, &xp,&yp);
+	    img_coord (nr, pos[0], pos[1], pos[2], Ex0, I, G0, ap, mm, &xp, &yp);
 	    y[n]   = crd[i].x - xp;
 	    y[n+1] = crd[i].y - yp;
 

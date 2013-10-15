@@ -21,8 +21,6 @@ Description:	       	reads objects, detected by detection etc.,
 #include "ptv.h"
 #include "tools.h"
 
-//void just_plot (interp, Ex, I, G, ap, mm, imx,imy, pix_x,pix_y,
-//				   nfix,fix, field, n_img)
 void just_plot (Ex, I, G, ap, mm, imx,imy, pix_x,pix_y,
 				   nfix,fix, field, n_img)
 
@@ -57,7 +55,8 @@ coord_3d	fix[];
   
   for (i=0; i<nfix; i++)
     {
-      img_coord (fix[i].x, fix[i].y, fix[i].z,  Ex, I, G, ap, mm, &xp,&yp);
+      img_coord (n_img, fix[i].x, fix[i].y, fix[i].z,  Ex, I, G, ap, mm, 
+           &xp, &yp);
       metric_to_pixel (xp, yp, imx,imy, pix_x,pix_y, &xp, &yp, field);
       
       /* draw projected points for check purpuses */
@@ -131,7 +130,7 @@ target		pix[];
   
   for (i=0; i<nfix; i++)
     {
-      img_coord (fix[i].x, fix[i].y, fix[i].z,  Ex, I, G, ap, mm, &xp,&yp);
+      img_coord (n_img, fix[i].x, fix[i].y, fix[i].z,  Ex, I, G, ap, mm, &xp, &yp);
       metric_to_pixel (xp, yp, imx,imy, pix_x,pix_y, &xp, &yp, field);
       
       /* draw projected points for check purpuses */

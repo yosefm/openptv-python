@@ -77,10 +77,10 @@ int trajectories_c(int i, int num_cams)
         
 	  for (k=0; k<num_cams; k++)
 	    {
-	      img_coord (line1[j].x1, line1[j].y1, line1[j].z1, Ex[k],I[k], G[k], ap[k], mmp, &p1[k].x, &p1[k].y);
+	      img_coord (k, line1[j].x1, line1[j].y1, line1[j].z1, Ex[k],I[k], G[k], ap[k], mmp, &p1[k].x, &p1[k].y);
 	      metric_to_pixel (p1[k].x, p1[k].y, imx,imy, pix_x,pix_y, &p1[k].x, &p1[k].y, chfield);
 	      
-	      img_coord (line2[m].x1, line2[m].y1, line2[m].z1, Ex[k],I[k], G[k], ap[k], mmp, &p2[k].x, &p2[k].y);
+	      img_coord (k, line2[m].x1, line2[m].y1, line2[m].z1, Ex[k],I[k], G[k], ap[k], mmp, &p2[k].x, &p2[k].y);
 	      metric_to_pixel (p2[k].x, p2[k].y, imx,imy, pix_x,pix_y, &p2[k].x, &p2[k].y, chfield); 
 	      
 	      if ( fabs( p2[k].x-zoom_x[k]) < imx/(2*zoom_f[k])

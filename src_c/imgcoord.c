@@ -19,23 +19,23 @@ Routines contained:
 
 #include "ptv.h"
 
-void img_coord (X,Y,Z, Ex, I, G, ap, mm, x,y)
-
-double 	 X,Y,Z;
-Exterior Ex;
-Interior I;
-Glass    G;
-ap_52  	 ap;
-mm_np    mm;
-double 	 *x,*y;
-
+/* img_coord() calculates the coordinates on the iomage plane (metric) of a 3D
+   point in the observed volume.
+   
+   Arguments:
+   int cam - the camera number. This is needed only in cases where the LUT 
+        structure is used, otherwise it is ignored.
+   ...
+ */
+void img_coord (int cam, double X, double Y, double Z, 
+    Exterior Ex, Interior I, Glass G, ap_52 ap, mm_np mm, double *x, double *y)
 {
   double deno, r, dx, dy;
   Exterior Ex_t;
   double X_t,Y_t,Z_t,cross_p[3],cross_c[3];
   //trans
   trans_Cam_Point(Ex,mm,G,X,Y,Z,&Ex_t,&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
-  multimed_nlay_v2 (Ex_t, Ex, mm, X_t,Y_t,Z_t, &X_t,&Y_t);
+  multimed_nlay_v2 (Ex_t, Ex, mm, X_t, Y_t, Z_t, &X_t, &Y_t, cam);
   back_trans_Point(X_t,Y_t,Z_t,mm, G,cross_p,cross_c,&X,&Y,&Z);
 
   X -= Ex.x0;  Y -= Ex.y0;  Z -= Ex.z0;
@@ -82,21 +82,15 @@ Glass    G;
 		       + Ex.dm[2][1] * (Z-Ex.z0)) / deno;
 }
 
-void img_xy_mm_geo (X,Y,Z, Ex, I, G, mm, x,y)
-
-double   X,Y,Z, *x,*y;
-Exterior Ex;
-Interior I;
-Glass G;
-mm_np    mm;
-
+void img_xy_mm_geo (int cam, double X, double Y, double Z, 
+    Exterior Ex, Interior I, Glass G, mm_np mm, double *x, double *y)
 {
   double deno;
   Exterior Ex_t;
   double X_t,Y_t,Z_t,cross_p[3],cross_c[3],Xh,Yh,Zh;
 
   trans_Cam_Point(Ex,mm,G,X,Y,Z,&Ex_t,&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
-  multimed_nlay_v2 (Ex_t,Ex,mm,X_t,Y_t,Z_t,&X_t,&Y_t);
+  multimed_nlay_v2 (Ex_t, Ex, mm, X_t, Y_t, Z_t, &X_t, &Y_t, cam);
   back_trans_Point(X_t,Y_t,Z_t,mm, G,cross_p,cross_c,&X,&Y,&Z);
 
   deno = Ex.dm[0][2] * (X-Ex.x0)

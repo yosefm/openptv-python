@@ -148,7 +148,7 @@ n_tupel **correspondences(frame *frm, Calibration **calib, volume_par *vpar) {
             
             for (part = 0; part < frm->num_targets[part_img]; part++) {
                 /* Find epipolar line on corrected image */
-                epi_mm(corrected[part_img][part].x, corrected[part_img][part].y,
+                epi_mm(epi_img, corrected[part_img][part].x, corrected[part_img][part].y,
                     calib[part_img]->ext_par, calib[part_img]->int_par,
                     calib[part_img]->glass_par, calib[epi_img]->ext_par, 
                     calib[epi_img]->int_par, calib[epi_img]->glass_par, mmp, vpar,

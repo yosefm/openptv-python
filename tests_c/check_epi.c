@@ -25,7 +25,7 @@ START_TEST(test_epi_mm)
     
     xin = 10.;
     yin = 10.;
-    epi_mm(xin, yin,
+    epi_mm(0, xin, yin,
         cal[0]->ext_par, cal[0]->int_par, cal[0]->glass_par,
         cal[1]->ext_par, cal[1]->int_par, cal[1]->glass_par,
         media_par, vpar, &xmin, &ymin, &xmax, &ymax);

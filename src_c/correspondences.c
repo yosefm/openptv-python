@@ -95,7 +95,7 @@ void correspondences_4 (volume_par *vpar, control_par *cpar)
      /* establish correspondences from num[i1] points of img[i1] to img[i2] */
 
       for (i=0; i<num[i1]; i++)	if (geo[i1][i].x != -999) {
-      o = epi_mm (geo[i1][i].x,geo[i1][i].y,
+      o = epi_mm (i2, geo[i1][i].x,geo[i1][i].y,
 		      Ex[i1], I[i1], G[i1], Ex[i2], I[i2], G[i2], mmp, vpar,
 		      &xa12, &ya12, &xb12, &yb12);
 	  

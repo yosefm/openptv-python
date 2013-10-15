@@ -22,11 +22,15 @@ Routines contained:		-
 
 double get_mmf_from_mmLUT ();
 
-void  multimed_nlay_v2 (ex,ex_o,mm,X,Y,Z,Xq,Yq)
-Exterior	ex;
-Exterior	ex_o;
-mm_np		mm;
-double  	X, Y, Z, *Xq,*Yq;
+/* multimed_nlay_v2()
+   
+   Arguments:
+   ...
+   int cam - the camera number, for getting LUT data. If no LUT data is to be
+        used, then this variable is ignored.
+ */
+void  multimed_nlay_v2 (Exterior ex, Exterior ex_o, mm_np mm, 
+    double X, double Y, double Z, double *Xq, double *Yq, int cam)
 {
   
   //Beat Lüthi, Nov 2007 comment actually only Xq is affected since all Y and Yq are always zero
@@ -34,14 +38,8 @@ double  	X, Y, Z, *Xq,*Yq;
   double	beta1, beta2[32], beta3, r, rbeta, rdiff, rq, mmf;
   
   // interpolation in mmLUT, if selected (requires some global variables) 
-  if (mm.lut)
-    {    
-      // check, which is the correct image 
-      for (i=0; i<n_img; i++)
-	if (Ex[i].x0 == ex_o.x0  &&  Ex[i].y0 == ex_o.y0  &&  Ex[i].z0 == ex_o.z0)
-	  break;
-      
-      mmf = get_mmf_from_mmLUT (i, X,Y,Z);
+  if (mm.lut) {
+      mmf = get_mmf_from_mmLUT (cam, X, Y, Z);
       
       if (mmf > 0)
 	{
@@ -212,12 +210,15 @@ double *X,*Y,*Z;
     }
 }
 
-double multimed_r_nlay_v2 (ex,ex_o,mm,X,Y,Z)
-/* calculates and returns the radial shift */
-Exterior	ex;
-Exterior	ex_o;
-mm_np		mm;
-double		X, Y, Z;
+/* multimed_r_nlay_v2() alculates and returns the radial shift.
+   
+   Arguments:
+   ...
+   int cam - the camera number, for getting LUT data. If no LUT data is to be
+        used, then this variable is ignored.
+ */
+double multimed_r_nlay_v2 (Exterior ex, Exterior ex_o, mm_np mm,
+    double X, double Y, double Z, int cam)
 {
   int  	i, it=0;
   double beta1, beta2[32], beta3, r, rbeta, rdiff, rq, mmf;
@@ -238,17 +239,10 @@ double		X, Y, Z;
   
   
   // interpolation in mmLUT, if selected (requires some global variables) 
-  if (mm.lut)
-    {
-      // check, which is the correct image 
-      for (i=0; i<n_img; i++)
-	if (Ex[i].x0 == ex_o.x0  &&  Ex[i].y0 == ex_o.y0  &&  Ex[i].z0 == ex_o.z0)
-	  break;
-      
-      mmf = get_mmf_from_mmLUT (i, X,Y,Z);
-      
-      if (mmf > 0)	return (mmf);
-    }
+  if (mm.lut) {
+    mmf = get_mmf_from_mmLUT(cam, X, Y, Z);
+    if (mmf > 0) return (mmf);
+  }
  
   // iterative procedure 
   r = sqrt ((X-ex.x0)*(X-ex.x0)+(Y-ex.y0)*(Y-ex.y0));
@@ -451,7 +445,7 @@ int    	i_cam;
 	trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
       mmLUT[i_cam].data[i*nz + j]
 	= multimed_r_nlay_v2 (Ex_t[i_cam], Ex[i_cam], mmp, 
-		                  Ri[i]+Ex_t[i_cam].x0, Ex_t[i_cam].y0, Zi[j]);
+		                  Ri[i]+Ex_t[i_cam].x0, Ex_t[i_cam].y0, Zi[j], i_cam);
     }
 }
 
