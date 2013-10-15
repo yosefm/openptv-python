@@ -637,6 +637,7 @@ void num_deriv_exterior(Exterior ext, Interior I0, Glass G0, ap_52 ap0,
         y_ders[pd] = (ypd - ys) / step;
         *(vars[pd]) -= step;
     }
+    rotation_matrix(ext, ext.dm);
 }
 
 void orient_v3 (Ex0, I0, G0, ap0, mm, nfix, fix, crd, Ex, I, G, ap, nr)
