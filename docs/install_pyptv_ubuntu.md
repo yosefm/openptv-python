@@ -11,7 +11,7 @@ On Ubuntu we use package manager (`sudo apt-get install package-name`):
 
 		sudo apt-get install python-numpy python-scipy python-setuptools python-wxgtk2.8 cython swig  
 		python-imaging python-vtk python-pyrex python-matplotlib g++ libc6-dev libx11-dev python2.7-dev 
-		freeglut3-dev autoconf libtool git python-sphinx curl make cmake python-enable
+		freeglut3-dev libtool git python-sphinx curl make cmake python-enable
 
 if you get some error about `Gl/gl.h` or `GL/glu.h`, maybe also:
 
