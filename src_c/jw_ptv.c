@@ -329,7 +329,7 @@ int pre_processing_c ()
     /*if the checkmark is set, read mask-image and subtract it from the filtered-original image.*/
     if (mask==1)
     {//read mask image
-        for (i_img=0; i_img<n_img; i_img++)
+        for (i_img=0; i_img < cpar->num_cams; i_img++)
         {
             highpass (img[i_img], img[i_img], sup, 0, chfield);
             subtract_mask (img[i_img], img_mask[i_img], img_new[i_img]); //subtract mask from original image
@@ -341,7 +341,7 @@ int pre_processing_c ()
     
     if (mask==2)//Beat April 090402 was ==0
     {
-        for (i_img=0; i_img<n_img; i_img++)
+        for (i_img=0; i_img < cpar->num_cams; i_img++)
         {
             highpass (img[i_img], img[i_img], sup, 0, chfield);//highpass original image
         }
@@ -621,7 +621,7 @@ int calibration_proc_c (int sel)
             fclose (fp1);
             
             /*  create file names  */
-            for (i=0; i<n_img; i++)
+            for (i=0; i < cpar->num_cams; i++)
             {
                 strcpy (img_ori[i], img_name[i]);
                 strcat (img_ori[i], ".ori");
@@ -663,7 +663,7 @@ int calibration_proc_c (int sel)
             pre_processing_c ();
             
             /* reset zoom values */
-            for (i=0; i<n_img; i++)
+            for (i = 0; i < cpar->num_cams; i++)
             {
                 zoom_x[i] = imx/2; zoom_y[i] = imy/2; zoom_f[i] = 1;
             }
@@ -671,13 +671,13 @@ int calibration_proc_c (int sel)
             /* copy images because the target recognition
              will set greyvalues to zero */
             printf("\n after high pass inside detection");
-            for (i=0; i<n_img; i++)
+            for (i = 0; i < cpar->num_cams; i++)
             {
                 copy_images (img[i], img0[i]);
             }
             
             /* target recognition */
-            for (i=0; i<n_img; i++)
+            for (i = 0; i < cpar->num_cams; i++)
             {
                 targ_rec (img[i], img0[i], "parameters/detect_plate.par",
                           0, imx, 1, imy, pix[i], i, &num[i]);
@@ -690,7 +690,7 @@ int calibration_proc_c (int sel)
             }
             printf("\n after targ_rec inside detection");
             /* save pixel coord as approx. for template matching */
-            if (examine)	for (i=0; i<n_img; i++)
+            if (examine) for (i = 0; i < cpar->num_cams; i++)
             {
                 sprintf (filename, "%s_pix", img_name[i]);
                 fp1 = fopen (filename, "w");
@@ -714,7 +714,7 @@ int calibration_proc_c (int sel)
             
             /* read point numbers of pre-clicked points */
             fp1 = fopen_r ("parameters/man_ori.par");
-            for (i=0; i<n_img; i++)
+            for (i = 0; i < cpar->num_cams; i++)
             {
                 fscanf (fp1, "%d %d %d %d \n",
                         &nr[i][0], &nr[i][1], &nr[i][2], &nr[i][3]);
@@ -724,7 +724,7 @@ int calibration_proc_c (int sel)
             /* read coordinates of pre-clicked points */
             fp1 = fopen ("man_ori.dat", "r");
             if (! fp1)	break;
-            for (i_img=0; i_img<n_img; i_img++)	for (i=0; i<4; i++)
+            for (i_img = 0; i_img < cpar->num_cams; i_img++) for (i=0; i<4; i++)
             {
                 fscanf (fp1, "%lf %lf\n",
                         &pix0[i_img][i].x, &pix0[i_img][i].y);
@@ -734,7 +734,7 @@ int calibration_proc_c (int sel)
             
             break;
         case 9: puts ("Plot initial guess");
-            for (i=0; i<n_img; i++)
+            for (i=0; i < cpar->num_cams; i++)
             {
                 /* read control point coordinates for man_ori points */
                 fp1 = fopen_r (fixp_name);
@@ -781,7 +781,7 @@ int calibration_proc_c (int sel)
             
             break;
         case 5: puts ("Sort grid points - Alex test 18.5.11");
-            for (i=0; i<n_img; i++)
+            for (i = 0; i < cpar->num_cams; i++)
             {
                 /* read control point coordinates for man_ori points */
                 fp1 = fopen_r (fixp_name);
@@ -851,7 +851,7 @@ int calibration_proc_c (int sel)
                 {
                     fprintf (fp1, "%4d %10.3f %10.3f %10.3f   %d    ",
                              fix[i].pnr, fix[i].x, fix[i].y, fix[i].z, 0);
-                    for (i_img=0; i_img<n_img; i_img++)
+                    for (i_img=0; i_img < cpar->num_cams; i_img++)
                     {
                         if (pix[i_img][i].pnr >= 0)
                         {
@@ -879,7 +879,7 @@ int calibration_proc_c (int sel)
             
         case 14: puts ("Sortgrid = initial guess");
             
-            for (i=0; i<n_img; i++)
+            for (i=0; i < cpar->num_cams; i++)
             {
                 /* read control point coordinates for man_ori points */
                 fp1 = fopen_r (fixp_name);
@@ -956,7 +956,7 @@ int calibration_proc_c (int sel)
             strcpy (safety_addpar[3], "safety_3");
             strcat (safety_addpar[3], ".addpar");
             
-            for (i_img=0; i_img<n_img; i_img++)
+            for (i_img = 0; i_img < cpar->num_cams; i_img++)
             {
                 for (i=0; i<nfix ; i++)
                 {
@@ -1138,13 +1138,10 @@ int calibration_proc_c (int sel)
 			strcpy (safety_addpar[3], "safety_3");
 			strcat (safety_addpar[3], ".addpar");
 			
-            fpp = fopen_r ("parameters/ptv.par");
-            fscanf (fpp, "%d\n", &n_img);
-            fclose (fpp);
+            cpar = read_control_par("parameters/ptv.par");
+            prepare_eval_shake(cpar->num_cams);
             
-            prepare_eval_shake(n_img);
-            
-			for (i_img=0; i_img<n_img; i_img++)
+			for (i_img = 0; i_img < cpar->num_cams; i_img++)
 			{
 				orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], mmp,
 						   nfix, fix, crd[i_img],
@@ -1174,10 +1171,10 @@ int calibration_proc_c (int sel)
             
         case 12: puts ("Orientation from dumbbells"); strcpy(buf, "");
 			
-            prepare_eval(n_img,&nfix); //goes and looks up what sequence is defined and takes all cord. from rt_is
-            orient_v5 (n_img, nfix,&Ex, &I, &G, &ap);
+            prepare_eval(cpar->num_cams, &nfix); //goes and looks up what sequence is defined and takes all cord. from rt_is
+            orient_v5 (cpar->num_cams, nfix, &Ex, &I, &G, &ap);
 			
-            for(i_img=0;i_img<n_img;i_img++){
+            for(i_img = 0; i_img < cpar->num_cams; i_img++){
                 write_ori (Ex[i_img], I[i_img], G[i_img], ap[i_img],
                     img_ori[i_img], img_addpar[i_img]);
             }
