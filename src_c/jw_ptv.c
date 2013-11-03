@@ -376,7 +376,8 @@ int detection_proc_c()
     fpp = fopen ("parameters/pft_version.par", "r");
     if (fpp){
         fscanf (fpp, "%d\n", &pft_version);
-        pft_version=pft_version+3;
+        pft_version = pft_version + 3;
+        printf(" Peak fitting version is %d\n", pft_version);
         fclose (fpp);
     }
     else{
@@ -402,6 +403,7 @@ int detection_proc_c()
             case 3:	/* pft with profile and distance check */
                 /* newest version */
                 xmin=0; /* vertical line restriction */
+                
                 num[i_img] = peak_fit_new (img[i_img],
                                            "parameters/targ_rec.par",
                                            xmin, imx, 1, imy, pix[i_img], i_img);

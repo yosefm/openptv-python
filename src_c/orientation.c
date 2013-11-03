@@ -671,7 +671,10 @@ int	       	nr;  		/* image number for residual display */
 
 
   /* read, which parameters shall be used */
-  fp1 = fopen_r ("parameters/orient.par");
+  // fp1 = fopen_r ("parameters/orient.par");
+  printf("inside orient_v3\n");
+  fp1 = fopen ("parameters/orient.par","r");
+  if (fp1){
   fscanf (fp1,"%d", &useflag);
   fscanf (fp1,"%d", &ccflag);
   fscanf (fp1,"%d", &xhflag);
@@ -685,6 +688,10 @@ int	       	nr;  		/* image number for residual display */
   fscanf (fp1,"%d", &sheflag);
   fscanf (fp1,"%d", &interfflag);
   fclose (fp1);
+  }
+  else{
+  printf("problem opening parameters/orient.par\n");
+  }
 
 
   //if(interfflag){
@@ -991,16 +998,24 @@ int	       	nr;  		/* image number for residual display */
   printf ("shearing      = %8.5f   +/- %8.5f\n", ap0.she*ro, sigmabeta[15]*ro);
 
 
-  fp1 = fopen_r ("parameters/examine.par");
+  //fp1 = fopen_r ("parameters/examine.par");
+  fp1 = fopen("parameters/examine.par","r");
+  if (fp1){
   fscanf (fp1,"%d\n", &dummy);
   fscanf (fp1,"%d\n", &multi);
   fclose (fp1);
+  }
+  else{
+  printf("problem opening parameters/examine.par\n");
+  }
+  
   if (dummy==1){
       examine=4;
   }
   else{
       examine=0;
   }
+  
   
 
   /* show original images with residual vectors (requires globals) */

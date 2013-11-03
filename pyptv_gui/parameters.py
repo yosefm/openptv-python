@@ -3,7 +3,7 @@
 
 import os, sys, traceback, shutil
 # from traits.api import *
-import pyface.api as pyfaceapi
+# import pyface.api as pyfaceapi
 from traits.api \
 	import HasTraits, Str, Float, Int, List, Bool, Enum, Instance, Button, File, Any
 

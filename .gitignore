@@ -60,3 +60,4 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+tracking_run_py.c
