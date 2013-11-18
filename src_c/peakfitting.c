@@ -57,7 +57,8 @@ int	       	nr;		       	/* image number for display */
 
 /*------------------------------------------------------------------------*/
 
-  fpp = fopen_r (par_file);
+  fpp = fopen (par_file,"r");
+  if (fpp == NULL) printf (" Error opening %s file \n", par_file);
   fscanf (fpp, "%d", &gvthres[0]);      /* threshold for binarization 1.image */
   fscanf (fpp, "%d", &gvthres[1]);      /* threshold for binarization 2.image */
   fscanf (fpp, "%d", &gvthres[2]);      /* threshold for binarization 3.image */

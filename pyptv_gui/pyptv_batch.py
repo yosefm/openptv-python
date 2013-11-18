@@ -156,10 +156,10 @@ def run_batch(new_seq_first,new_seq_last):
 	par.SequenceParams(n_img, base_name,\
 									   new_seq_first, new_seq_last, path = par.temp_path).write()
 	# if you need sequence and tracking:
-	# sequence_tracking(n_img)
+	sequence_tracking(n_img)
 	
 	# if you need sequence only:
-	sequence(n_img)
+	# sequence(n_img)
 
 
 if __name__ == '__main__':
