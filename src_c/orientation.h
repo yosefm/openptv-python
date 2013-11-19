@@ -4,6 +4,7 @@ orientation.c */
 #ifndef ORIENTATION_H
 #define ORIENTATION_H
 
+#include <optv/parameters.h>
 #include "vec_utils.h"
 
 void prepare_eval(int n_img, int *n_fix);

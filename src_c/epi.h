@@ -1,10 +1,10 @@
 #ifndef EPI_H
 #define EPI_H
 
-#include "calibration.h"
 #include "typedefs.h"
+#include <optv/calibration.h>
 #include <optv/tracking_frame_buf.h>
-#include "parameters.h"
+#include <optv/parameters.h>
 
 typedef struct {
   int  	pnr;

@@ -7,10 +7,6 @@
 #include "typedefs.h"
 
 FILE *fopen_r(char *filename);
-void write_ori(Exterior Ex, Interior I, Glass G, ap_52 ap, char *filename, 
-    char *add_file);
-int read_ori (Exterior *Ex, Interior *I, Glass *G, char *ori_file, ap_52 *addp, 
-    char *add_file, char *add_fallback);
 
 void quicksort_con(n_tupel *con, int num);
 void sort(int n, float a[], int b[]);

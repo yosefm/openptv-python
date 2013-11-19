@@ -15,7 +15,7 @@ Description:	       	establishment of correspondences for 2/3/4 cameras
 ****************************************************************************/
 
 #include "ptv.h"
-#include "parameters.h"
+#include <optv/parameters.h>
 #include "epi.h"
 #include "tools.h"
 

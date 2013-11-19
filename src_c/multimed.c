@@ -19,6 +19,7 @@ Routines contained:		-
 ****************************************************************************/
 
 #include "ptv.h"
+#include <optv/parameters.h>
 
 double get_mmf_from_mmLUT ();
 

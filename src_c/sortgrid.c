@@ -20,6 +20,7 @@ Description:	       	reads objects, detected by detection etc.,
 
 #include "ptv.h"
 #include "tools.h"
+#include <optv/parameters.h>
 
 void just_plot (Ex, I, G, ap, mm, imx,imy, pix_x,pix_y,
 				   nfix,fix, field, n_img)

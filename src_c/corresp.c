@@ -9,10 +9,11 @@ References:
 
 #include "typedefs.h"
 #include "globals.h"
-#include "calibration.h"
-#include "parameters.h"
 #include "epi.h"
 #include "btree.h"
+
+#include <optv/calibration.h>
+#include <optv/parameters.h>
 
 /*  advance_nd_iterator() increments by 1 an iterator over n dimensions. The
     iterator is an array of counters, one for each dimension. Least significant

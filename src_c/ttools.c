@@ -16,7 +16,7 @@ Routines contained:     pix_in_next, candsearch_in_pix, searchposition,
 
 ****************************************************************************/
 #include "ptv.h"
-#include "parameters.h"
+#include <optv/parameters.h>
 
 int pix_in_next (next, num, x, y, dl, dr, du, dd, found)
 target  next[];

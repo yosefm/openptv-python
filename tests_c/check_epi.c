@@ -3,8 +3,9 @@
 #include <check.h>
 #include <stdlib.h>
 
-#include "../src_c/calibration.h"
-#include "../src_c/parameters.h"
+#include <optv/calibration.h>
+#include <optv/parameters.h>
+
 #include "../src_c/typedefs.h"
 #include "../src_c/epi.h"
 #include "../src_c/globals.h"

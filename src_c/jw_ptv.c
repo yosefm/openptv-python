@@ -17,7 +17,7 @@
  
  ****************************************************************************/
 #include "ptv.h"
-#include "parameters.h"
+#include <optv/parameters.h>
 #include "tools.h"
 #include "image_processing.h"
 #include "orientation.h"
@@ -279,7 +279,7 @@ int start_proc_c()
         /*  read orientation and additional parameters  */
         read_ori (&Ex[i], &I[i], &G[i], img_ori[i], &(ap[i]), img_addpar[i],
             NULL);
-        rotation_matrix (Ex[i], Ex[i].dm);
+        rotation_matrix(&(Ex[i]));
     
         /* read and display original images */
         sprintf(val, "camcanvas %d", i+1);

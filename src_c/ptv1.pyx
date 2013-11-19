@@ -25,7 +25,7 @@ cdef extern from "stdlib.h":
     void free(void *ptr)
     enum: NULL
 
-cdef extern from "parameters.h":
+cdef extern from "optv/parameters.h":
     ctypedef struct control_par:
         int num_cams
     ctypedef struct volume_par:

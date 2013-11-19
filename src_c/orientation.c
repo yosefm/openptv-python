@@ -15,7 +15,7 @@ Description:   	computes 6 parameters of exterior orientation
 	      	from given approximate values, fixpoint- and image
 	    	coordinates in ASCII files
 
-Functiones used:   	img_affin, rotation_matrix, adjlib.a
+Functiones used:   	img_affin, adjlib.a
 
 Routines contained:
 
@@ -23,7 +23,8 @@ Related routines:
 
 ******************************************************************/
 #include <optv/tracking_frame_buf.h>
-#include "parameters.h"
+#include <optv/parameters.h>
+
 #include "lsqadj.h"
 #include "vec_utils.h"
 #include "ptv.h"
@@ -443,15 +444,15 @@ I[3].yh = 0.0;*/
 		 }
 
 		 Ex[i_img].omega += drad;
-		 rotation_matrix (Ex[i_img], Ex[i_img].dm);
+		 rotation_matrix (&(Ex[i_img]));
 	     eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
 		 if(best_residual-residual < 0){ //then try other direction
 			 Ex[i_img].omega -= 2*drad;
-			 rotation_matrix (Ex[i_img], Ex[i_img].dm);
+			 rotation_matrix (&(Ex[i_img]));
 	         eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
 			 if(best_residual-residual < 0){// then leave it unchanged
                   Ex[i_img].omega += drad;
-				  rotation_matrix (Ex[i_img], Ex[i_img].dm);
+				  rotation_matrix(&(Ex[i_img]));
 			 }
 			 else{ // it was a success!
                   best_residual=residual;
@@ -462,15 +463,15 @@ I[3].yh = 0.0;*/
 		 }
 
 		 Ex[i_img].phi += drad;
-		 rotation_matrix (Ex[i_img], Ex[i_img].dm);
+		 rotation_matrix (&(Ex[i_img]));
 	     eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
 		 if(best_residual-residual < 0){ //then try other direction
 			 Ex[i_img].phi -= 2*drad;
-			 rotation_matrix (Ex[i_img], Ex[i_img].dm);
+			 rotation_matrix(&(Ex[i_img]));
 	         eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
 			 if(best_residual-residual < 0){// then leave it unchanged
                   Ex[i_img].phi += drad;
-				  rotation_matrix (Ex[i_img], Ex[i_img].dm);
+				  rotation_matrix(&(Ex[i_img]));
 			 }
 			 else{ // it was a success!
                   best_residual=residual;
@@ -481,15 +482,15 @@ I[3].yh = 0.0;*/
 		 }
 		 
 		 Ex[i_img].kappa += drad;
-		 rotation_matrix (Ex[i_img], Ex[i_img].dm);
+		 rotation_matrix(&(Ex[i_img]));
 	     eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
 		 if(best_residual-residual < 0){ //then try other direction
 			 Ex[i_img].kappa -= 2*drad;
-			 rotation_matrix (Ex[i_img], Ex[i_img].dm);
+			 rotation_matrix(&(Ex[i_img]));
 	         eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
 			 if(best_residual-residual < 0){// then leave it unchanged
                   Ex[i_img].kappa+= drad;
-				  rotation_matrix (Ex[i_img], Ex[i_img].dm);
+				  rotation_matrix(&(Ex[i_img]));
 			 }
 			 else{ // it was a success!
                   best_residual=residual;
@@ -633,13 +634,13 @@ void num_deriv_exterior(int cam, Exterior ext, Interior I0, Glass G0, ap_52 ap0,
         step = (pd > 2) ? dang : dpos;
         
         *(vars[pd]) += step;
-        if (pd > 2) rotation_matrix(ext, ext.dm);
+        if (pd > 2) rotation_matrix(&ext);
         img_coord(cam, pos[0], pos[1], pos[2], ext, I0, G0, ap0, mm, &xpd, &ypd);
         x_ders[pd] = (xpd - xs) / step;
         y_ders[pd] = (ypd - ys) / step;
         *(vars[pd]) -= step;
     }
-    rotation_matrix(ext, ext.dm);
+    rotation_matrix(&ext);
 }
 
 void orient_v3 (Ex0, I0, G0, ap0, mm, nfix, fix, crd, Ex, I, G, ap, nr)
@@ -761,7 +762,7 @@ int	       	nr;  		/* image number for residual display */
 	  pos[0] = fix[i].x;
           pos[1] = fix[i].y;
           pos[2] = fix[i].z;
-	  rotation_matrix (Ex0, Ex0.dm);
+	  rotation_matrix (&Ex0);
 	  img_coord (nr, pos[0], pos[1], pos[2], Ex0, I0, G0, ap0, mm, &xp,&yp);
 
 
@@ -804,7 +805,7 @@ int	       	nr;  		/* image number for residual display */
       num_deriv_exterior(nr, Ex0, I0, G0, ap0, mm, dm, drad, pos, X[n], X[n + 1]);
 
 	  I0.cc += dm;
-	  rotation_matrix (Ex0, Ex0.dm);
+	  rotation_matrix (&Ex0);
 	  img_coord (nr, pos[0], pos[1], pos[2], Ex0,I0, G0, ap0, mm, &xpd, &ypd);
 	  X[n][6]      = (xpd - xp) / dm;
 	  X[n+1][6] = (ypd - yp) / dm;
@@ -1038,12 +1039,10 @@ printf("\ntest 1 inside orientation\n");
 
 
   if (convergeflag){
-      rotation_matrix (Ex0, Ex0.dm);
+      rotation_matrix (&Ex0);
       *Ex = Ex0;	*I = I0;	*ap = ap0; *G = G0;
   }
   else{	
-	  //rotation_matrix (Ex0, Ex0.dm);//////carefullll!!!!
-      //*Ex = Ex0;	*I = I0;	*ap = ap0; *G = G0;//////carefullll!!!!
 	  puts ("orientation does not converge");
   }
 }
@@ -1090,7 +1089,7 @@ void raw_orient_v3 (Exterior Ex0, Interior I, Glass G0, ap_52 ap, mm_np mm,
         pos[1] = fix[i].y;
         pos[2] = fix[i].z;
 
-	    rotation_matrix (Ex0, Ex0.dm);
+	    rotation_matrix(&Ex0);
         num_deriv_exterior(nr, Ex0, I, G0, ap, mm, dm, drad, pos, X[n], X[n + 1]);
         
 	    img_coord (nr, pos[0], pos[1], pos[2], Ex0, I, G0, ap, mm, &xp, &yp);
@@ -1124,7 +1123,7 @@ void raw_orient_v3 (Exterior Ex0, Interior I, Glass G0, ap_52 ap, mm_np mm,
     {
       *Ex = Ex0;
 	  *G  = G0;
-      rotation_matrix (*Ex, Ex->dm);
+      rotation_matrix(Ex);
     }
   else {
 	  puts ("raw orientation impossible");

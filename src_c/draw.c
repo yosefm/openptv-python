@@ -16,7 +16,7 @@ Routines contained:     drawcross, drawvector, draw_pnr, mark_detections
 
 ****************************************************************************/
 #include "ptv.h"
-#include "parameters.h"
+#include <optv/parameters.h>
 
 int trajectories_c(int i, int num_cams) 
 /* draws crosses for detected points in a displayed image */
