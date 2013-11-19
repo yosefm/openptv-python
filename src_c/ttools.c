@@ -257,12 +257,12 @@ control_par *cpar;
       xl[i]=imx;
       yd[i]=0;
       yu[i]=imy;
-      img_coord (point.x, point.y, point.z, Ex[i], I[i], G[i], ap[i], mmp, &xz,&yz, i);
+      img_coord (i, point.x, point.y, point.z, Ex[i], I[i], G[i], ap[i], mmp, &xz,&yz);
       metric_to_pixel (xz,yz, imx,imy, pix_x,pix_y, &xz,&yz, chfield);
 
       for (k=0; k<8; k++)
 	{
-	  img_coord (quader[k].x, quader[k].y, quader[k].z, Ex[i], I[i], G[i], ap[i], mmp, &x,&y, i);
+	  img_coord (i, quader[k].x, quader[k].y, quader[k].z, Ex[i], I[i], G[i], ap[i], mmp, &x,&y);
 	  metric_to_pixel (x,y, imx,imy, pix_x,pix_y, &x,&y, chfield);
 
 	  if (x <xl[i] ) xl[i]=x;
