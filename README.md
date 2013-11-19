@@ -26,7 +26,7 @@ Enthought Python Distribution on all the platforms. If you want to build all the
 package manager, `apt-get` or Mac OS X `homebrew` or `ports`) then you need Python 2.7, Cython, Numpy, Scipy, Matplotlib, ETS tools (TraitsUI, Chaco, Enable and many sub-packages)  
 3. Download or clone the PyPTV repository: <http://github.com/openptv/openptv-python>. 
  * If you don't want to test, **skip** this step, proceed to PyPTV installation:
- * If you want to run the tests: use the same set of `autotools`. On Mac OS X you might need to add `CC="gcc -arch i386"` to the `./configure` command. 
+ * If you want to run the tests: use the same set of `autotools`. On Mac OS X you might need to add `CC="gcc -arch i386"` to the `./configure` command. However, on Mac it is strongly recommended to use ```homebrew``` with ``` brew install check ``` and ```brew install cmake``` out of the box. 
 
 			autoreconf --install
 			./configure
