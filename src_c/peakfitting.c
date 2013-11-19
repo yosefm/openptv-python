@@ -76,7 +76,7 @@ int	       	nr;		       	/* image number for display */
   else{
   	printf("problem opening %s\n", &par_file);
   }
-
+  
   /* give thres value refering to image number */
   thres=gvthres[nr];
 
