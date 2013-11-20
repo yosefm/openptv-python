@@ -1,6 +1,13 @@
 """ PyPTV_GUI is the GUI for the 3D-PTV (http://ptv.origo.ethz.ch) written in 
 Python/Enthought Traits GUI/Numpy/Chaco
+
+Copyright (c) 2008-2013, Tel Aviv University
+Copyright (c) 2013 - the OpenPTV team
+The software is distributed under the terms of MIT-like license
+http://opensource.org/licenses/MIT
+
 """
+
 from traits.api \
 	import HasTraits, Str, Int, List, Bool, Enum, Instance, Any
 from traitsui.api \
