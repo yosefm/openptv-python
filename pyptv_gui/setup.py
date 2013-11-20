@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+"""
+Copyright (c) 2008-2013, Tel Aviv University
+Copyright (c) 2013 - the OpenPTV team
+The software is distributed under the terms of MIT-like license
+http://opensource.org/licenses/MIT
+"""
+
 from distutils.core import setup
 from Cython.Distutils import build_ext
 from Cython.Distutils.extension import Extension
