@@ -7,4 +7,3 @@ Python/Enthought Traits GUI/Numpy/Chaco
 
 import os, sys
 sys.path.append(os.path.abspath('../src_c'))
-sys.path.append('/usr/local/lib')
