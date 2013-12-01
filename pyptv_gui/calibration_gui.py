@@ -1,3 +1,9 @@
+"""
+Copyright (c) 2008-2013, Tel Aviv University
+Copyright (c) 2013 - the OpenPTV team
+The software is distributed under the terms of MIT-like license
+http://opensource.org/licenses/MIT
+"""
 from traits.api \
 	import HasTraits, Str, Float, Int, List, Bool, Enum, Instance, Button, File
 from traitsui.api \

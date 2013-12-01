@@ -119,6 +119,7 @@ class PtvParams(Parameters):
 		cam2.100		image of fourth camera 
 		kal5	calibration data of fourth camera 
 		1		flag for highpass filtering, use (1) or not use (0) 
+		0               flag for using particles identified ONLY in all cameras (e.g. only quadruplets for 4 cameras)
 		1		flag for TIFF header (1) or raw data (0) 
 		720		image width in pixel 
 		576		image height in pixel 
