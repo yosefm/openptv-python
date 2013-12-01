@@ -55,7 +55,7 @@ src_path = os.path.join(os.path.split(software_path)[0],'src_c')
 print 'src_path=', src_path
 if not os.path.isdir(src_path):
 	print("Wrong src_c path %s" % src_path)
-sys.path.append(src_path)
+sys.path.append(src_path) 
 
 import ptv1 as ptv
 from tracking_framebuf import read_targets
