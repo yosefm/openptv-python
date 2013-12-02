@@ -61,3 +61,8 @@ nosetests.xml
 .project
 .pydevproject
 tracking_run_py.c
+
+# Testing logs
+tests_c/*.log
+tests_c/*.trs
+
