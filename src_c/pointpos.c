@@ -17,7 +17,6 @@ Routines contained:
 
 ****************************************************************************/
 #include "ptv.h"
-#include "lsqadj.h"
 #include <optv/parameters.h>
 
 void dist_to_ray(x, y, Ex, I, G, ap, mm, Xp,Yp,Zp, dist)

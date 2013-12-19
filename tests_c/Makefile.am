@@ -1,4 +1,5 @@
-TESTS = check_ptv check_vutils check_epi check_corresp
+TESTS = check_ptv check_vutils check_epi check_corresp 
+XFAIL_TESTS = check_corresp
 check_PROGRAMS = check_ptv check_vutils check_epi check_corresp
 
 check_ptv_SOURCES = check_ptv.c $(top_builddir)/src_c/ptv.h

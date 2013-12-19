@@ -4,7 +4,8 @@
 
 #include "epi.h"
 #include "globals.h"
-#include "lsqadj.h"
+
+#include <optv/lsqadj.h>
 
 int dumbbell_pyptv;
 
@@ -31,7 +32,7 @@ Glass     G1, G2;
   p1l[0] = xl;  p1l[1] = yl;	p1l[2] = - I1.cc;
 
   /* beam O1 -> P in space */
-  matmul (vect2, (double *) Ex1.dm, p1l, 3,3,1);
+  matmul(vect2, (double *) Ex1.dm, p1l, 3, 3, 1, 3, 3);
 
   /* normale to epipolar plane */
   crossprod (vect1,vect2,nk);
@@ -40,14 +41,14 @@ Glass     G1, G2;
   vect3[0] = 0;	vect3[1] = 0;	vect3[2] = - I2.cc;
 
   /* normale to image 2, in space */
-  matmul (n2, (double *) Ex2.dm, vect3, 3,3,1);
+  matmul(n2, (double *) Ex2.dm, vect3, 3, 3, 1, 3, 3);
 
   /* epipolar line in image2, in space */
   crossprod (nk,n2,K2);
 
   /* epipolar line in image2 */
   for (i=0; i<3; i++)  for (j=0; j<3; j++)  D2t[i][j] = Ex2.dm[j][i];
-  matmul (k2, (double *) D2t, K2, 3,3,1);
+  matmul(k2, (double *) D2t, K2, 3, 3, 1, 3, 3);
   m2 = k2[1] / k2[0];
   return (m2);
 }

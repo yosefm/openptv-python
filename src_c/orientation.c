@@ -24,8 +24,8 @@ Related routines:
 ******************************************************************/
 #include <optv/tracking_frame_buf.h>
 #include <optv/parameters.h>
+#include <optv/lsqadj.h>
 
-#include "lsqadj.h"
 #include "vec_utils.h"
 #include "ptv.h"
 
@@ -903,10 +903,10 @@ int	       	nr;  		/* image number for residual display */
          numbers=18;
 	  }
 	  
-	  ata_v2 ((double *) Xh, (double *) XPX, n_obs, numbers, 19 );
-      matinv_v2 ((double *) XPX, numbers, 19);
-      atl_v2 ((double *) XPy, (double *) Xh, yh, n_obs, numbers, 19);
-      matmul_v2 ((double *) beta, (double *) XPX, (double *) XPy, numbers,numbers,1,19,19);
+	  ata ((double *) Xh, (double *) XPX, n_obs, numbers, 19 );
+      matinv ((double *) XPX, numbers, 19);
+      atl ((double *) XPy, (double *) Xh, yh, n_obs, numbers, 19);
+      matmul ((double *) beta, (double *) XPX, (double *) XPy, numbers,numbers,1,19,19);
 	  
       stopflag = 1;
 	  convergeflag = 1;
@@ -950,7 +950,7 @@ int	       	nr;  		/* image number for residual display */
 
   /* compute residuals etc. */
 
-  matmul_v2 ( (double *) Xbeta, (double *) X, (double *) beta, n_obs, numbers, 1, n_obs, 19);
+  matmul( (double *) Xbeta, (double *) X, (double *) beta, n_obs, numbers, 1, n_obs, 19);
   omega = 0;
   for (i=0; i<n_obs; i++)
     {
@@ -1102,10 +1102,10 @@ void raw_orient_v3 (Exterior Ex0, Interior I, Glass G0, ap_52 ap, mm_np mm,
 
     /* Gauss Markoff Model */
 
-    ata_v2 ((double *) X, (double *) XPX, n_obs, 6, 6);
-    matinv ((double *) XPX, 6);
-    atl ((double *) XPy, (double *) X, y, n_obs, 6);
-    matmul ((double *) beta, (double *) XPX, (double *) XPy, 6,6,1);
+    ata ((double *) X, (double *) XPX, n_obs, 6, 6);
+    matinv ((double *) XPX, 6, 6);
+    atl ((double *) XPy, (double *) X, y, n_obs, 6, 6);
+    matmul ((double *) beta, (double *) XPX, (double *) XPy, 6, 6, 1, 6, 6);
 
     stopflag = 1;
 	for (i = 0; i < 6; i++){

@@ -20,11 +20,8 @@ Routines contained:		-
 ****************************************************************************/
 
 #include "ptv.h"
-#include "lsqadj.h"
+#include <optv/lsqadj.h>
 #include <optv/parameters.h>
-
-void modu(double a[3], double *m);
-void norm_cross(double a[3], double b[3], double *n1, double *n2, double *n3);
 
 void ray_tracing (x,y,Ex,I,mm,Xb2,Yb2,Zb2,a3,b3,c3)
 
@@ -45,7 +42,7 @@ double		*Xb2, *Yb2, *Zb2, *a3, *b3, *c3;
 	/* direction cosines in image coordinate system */
 	vect1[0] = x/s2;  vect1[1] = y/s2;	vect1[2] = -I.cc/s2;
 
-	matmul (vect2, (double *) Ex.dm, vect1, 3,3,1);
+	matmul(vect2, (double *) Ex.dm, vect1, 3, 3, 1, 3, 3);
  	
 	/* direction cosines in space coordinate system , medium n1 */
 	a1 = vect2[0];  b1 = vect2[1];  c1 = vect2[2];  
@@ -105,7 +102,7 @@ double		*x,*y,*z;
 	B[0]=gX1;B[1]=gY1;B[2]=gZ1;
     a[0]=a0;a[1]=b0;a[2]=c0;
 	b[0]=a1;b[1]=b1;b[2]=c1;
-	norm_cross(b,a,&n[0],&n[1],&n[2]);
+	norm_cross(b, a, n);
 	AB[0]=B[0]-A[0];
 	AB[1]=B[1]-A[1];
 	AB[2]=B[2]-A[2];
@@ -149,42 +146,6 @@ double		*x,*y,*z;
 	*z=0.5*(Ap[2]+App[2]);
 }
 
-void norm_cross(a,b,n1,n2,n3)
-
-double  a[3],b[3],*n1,*n2,*n3;
-//Beat Lüthi Nov 2008
-
-{
-	double  res[3],dummy;
-
-	res[0]=a[1]*b[2]-a[2]*b[1];
-	res[1]=a[2]*b[0]-a[0]*b[2];
-	res[2]=a[0]*b[1]-a[1]*b[0];
-	dummy=sqrt(pow(res[0],2)+pow(res[1],2)+pow(res[2],2));
-	
-	*n1=res[0]/dummy;
-	*n2=res[1]/dummy;
-	*n3=res[2]/dummy;
-}
-
-void dot(a,b,d)
-
-double  a[3],b[3],*d;
-//Beat Lüthi Nov 2008
-
-{
-	*d=a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
-}
-
-void modu(a,m)
-
-double  a[3],*m;
-//Beat Lüthi Nov 2008
-
-{
-	*m=sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]);
-}
-
 void ray_tracing_v2 (x,y,Ex,I,G,mm,Xb2,Yb2,Zb2,a3,b3,c3)
 
 double		x, y;
@@ -207,7 +168,7 @@ double		*Xb2, *Yb2, *Zb2, *a3, *b3, *c3;
 	/* direction cosines in image coordinate system */
 	vect1[0] = x/s2;  vect1[1] = y/s2;	vect1[2] = -I.cc/s2;
 
-	matmul (vect2, (double *) Ex.dm, vect1, 3,3,1);
+	matmul(vect2, (double *) Ex.dm, vect1, 3, 3, 1, 3, 3);
  	
 	/* direction cosines in space coordinate system , medium n1 */
 	a1 = vect2[0];  b1 = vect2[1];  c1 = vect2[2];  
