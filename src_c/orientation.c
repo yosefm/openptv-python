@@ -24,6 +24,7 @@ Related routines:
 ******************************************************************/
 #include <optv/tracking_frame_buf.h>
 #include <optv/parameters.h>
+#include <optv/ray_tracing.h>
 #include <optv/lsqadj.h>
 
 #include "vec_utils.h"
@@ -250,25 +251,25 @@ double *residual;
 			x = crd[0][i].x - I[0].xh;
 	        y = crd[0][i].y - I[0].yh;
 	        //correct_brown_affin (x, y, ap[0], &x, &y);
-		    ray_tracing_v2 (x,y, Ex[0], I[0], G[0], mmp, &X[0], &Y[0], &Z[0], &a[0], &b[0], &c[0]);
+		    ray_tracing(x,y, Ex[0], I[0], G[0], mmp, &X[0], &Y[0], &Z[0], &a[0], &b[0], &c[0]);
 		}		
 		if(crd[1][i].x>-999){
 			x = crd[1][i].x - I[1].xh;
 	        y = crd[1][i].y - I[1].yh;
 	        //correct_brown_affin (x, y, ap[1], &x, &y);
-		    ray_tracing_v2 (x,y, Ex[1], I[1], G[1], mmp, &X[1], &Y[1], &Z[1], &a[1], &b[1], &c[1]);
+		    ray_tracing(x,y, Ex[1], I[1], G[1], mmp, &X[1], &Y[1], &Z[1], &a[1], &b[1], &c[1]);
 		}		
 		if(crd[2][i].x>-999){
 			x = crd[2][i].x - I[2].xh;
 	        y = crd[2][i].y - I[2].yh;
 	        //correct_brown_affin (x, y, ap[2], &x, &y);
-		    ray_tracing_v2 (x,y, Ex[2], I[2], G[2], mmp, &X[2], &Y[2], &Z[2], &a[2], &b[2], &c[2]);
+		    ray_tracing(x,y, Ex[2], I[2], G[2], mmp, &X[2], &Y[2], &Z[2], &a[2], &b[2], &c[2]);
 		}		
 		if(crd[3][i].x>-999){
 			x = crd[3][i].x - I[3].xh;
 	        y = crd[3][i].y - I[3].yh;
 	        //correct_brown_affin (x, y, ap[3], &x, &y);
-		    ray_tracing_v2 (x,y, Ex[3], I[3], G[3], mmp, &X[3], &Y[3], &Z[3], &a[3], &b[3], &c[3]);
+		    ray_tracing(x,y, Ex[3], I[3], G[3], mmp, &X[3], &Y[3], &Z[3], &a[3], &b[3], &c[3]);
 		}
 
 		count_inner=0;

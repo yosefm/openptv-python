@@ -20,6 +20,7 @@ Routines contained:		-
 
 #include "ptv.h"
 #include <optv/parameters.h>
+#include <optv/ray_tracing.h>
 
 double get_mmf_from_mmLUT ();
 
@@ -310,7 +311,7 @@ int    	i_cam;
   x = x - I[i_cam].xh;
   y = y - I[i_cam].yh;
   correct_brown_affin (x, y, ap[i_cam], &x,&y);
-  ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
+  ray_tracing(x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
   Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
   //trans
   trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
@@ -336,7 +337,7 @@ int    	i_cam;
   x = x - I[i_cam].xh;
   y = y - I[i_cam].yh;
   correct_brown_affin (x, y, ap[i_cam], &x,&y);
-  ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
+  ray_tracing(x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
   Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
   //trans
   trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
@@ -362,7 +363,7 @@ int    	i_cam;
   x = x - I[i_cam].xh;
   y = y - I[i_cam].yh;
   correct_brown_affin (x, y, ap[i_cam], &x,&y);
-  ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
+  ray_tracing(x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
   Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
   //trans
   trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
@@ -389,7 +390,7 @@ int    	i_cam;
   x = x - I[i_cam].xh;
   y = y - I[i_cam].yh;
   correct_brown_affin (x, y, ap[i_cam], &x,&y);
-  ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
+  ray_tracing(x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
   Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
   //trans
   trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
@@ -528,7 +529,7 @@ int num_cams;
       x = x - I[i_cam].xh;
       y = y - I[i_cam].yh;
       correct_brown_affin (x, y, ap[i_cam], &x,&y);
-      ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
+      ray_tracing(x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
       Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
       R = sqrt (  (X-Ex[i_cam].x0)*(X-Ex[i_cam].x0)
 		  + (Y-Ex[i_cam].y0)*(Y-Ex[i_cam].y0));	
@@ -553,7 +554,7 @@ int num_cams;
       x = x - I[i_cam].xh;
       y = y - I[i_cam].yh;
       correct_brown_affin (x, y, ap[i_cam], &x,&y);
-      ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
+      ray_tracing(x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
       Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
       R = sqrt (  (X-Ex[i_cam].x0)*(X-Ex[i_cam].x0)
 		  + (Y-Ex[i_cam].y0)*(Y-Ex[i_cam].y0));
@@ -579,7 +580,7 @@ int num_cams;
       x = x - I[i_cam].xh;
       y = y - I[i_cam].yh;
       correct_brown_affin (x, y, ap[i_cam], &x,&y);
-      ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
+      ray_tracing(x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
       Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
       R = sqrt (  (X-Ex[i_cam].x0)*(X-Ex[i_cam].x0)
 		  + (Y-Ex[i_cam].y0)*(Y-Ex[i_cam].y0));
@@ -605,7 +606,7 @@ int num_cams;
       x = x - I[i_cam].xh;
       y = y - I[i_cam].yh;
       correct_brown_affin (x, y, ap[i_cam], &x,&y);
-      ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
+      ray_tracing(x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
       Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
       R = sqrt (  (X-Ex[i_cam].x0)*(X-Ex[i_cam].x0)
 		  + (Y-Ex[i_cam].y0)*(Y-Ex[i_cam].y0));	

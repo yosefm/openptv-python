@@ -6,6 +6,7 @@
 #include "globals.h"
 
 #include <optv/lsqadj.h>
+#include <optv/ray_tracing.h>
 
 int dumbbell_pyptv;
 
@@ -84,8 +85,7 @@ int epi_mm (int cam, double x1, double y1, Exterior Ex1, Interior I1, Glass G1,
   double X1,Y1,Z1, X, Y, Z;
   double Zmin, Zmax;
 
-  //ray_tracing    (x1,y1, Ex1, I1,     mmp, &X1, &Y1, &Z1, &a, &b, &c);
-  ray_tracing_v2 (x1,y1, Ex1, I1, G1, mmp, &X1, &Y1, &Z1, &a, &b, &c);
+  ray_tracing(x1,y1, Ex1, I1, G1, mmp, &X1, &Y1, &Z1, &a, &b, &c);
 
   /* calculate min and max depth for position (valid only for one setup) */
   Zmin = vpar->Zmin_lay[0]
@@ -133,7 +133,7 @@ double *xp, *yp, *zp;
   
   double Zmin, Zmax;
 
-  ray_tracing_v2 (x1,y1, Ex1, I1, G1, mmp, &X1, &Y1, &Z1, &a, &b, &c);
+  ray_tracing(x1,y1, Ex1, I1, G1, mmp, &X1, &Y1, &Z1, &a, &b, &c);
 
   /* calculate min and max depth for position (valid only for one setup) */
   Zmin = vpar->Zmin_lay[0]
