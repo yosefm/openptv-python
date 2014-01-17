@@ -170,6 +170,7 @@ class Main_Params (HasTraits):
 	pair_Flag = Bool(False, label = "Include pairs")
 	pair_enable_flag = Bool(True)
 	all_enable_flag = Bool(True)
+	hp_enable_flag = Bool(True)
 	
 	# add here also size of the images, e.g. 1280 x 1024 pix and the size of the pixels. 
 	# future option: name of the camera from the list with these parameters saved once somewhere, e.g. 
@@ -285,7 +286,7 @@ class Main_Params (HasTraits):
 							
 							Item(name='Accept_OnlyAllCameras',enabled_when='all_enable_flag'),
 							Item(name = 'pair_Flag',enabled_when='pair_enable_flag'),
-							
+							Item(name ='HighPass',enabled_when='hp_enable_flag'),
 							orientation='horizontal'
 									),
 							Group(
@@ -414,7 +415,7 @@ class Main_Params (HasTraits):
 							orientation='vertical'
 					),
 					orientation='horizontal',
-					label='Criteria for correspondances',
+					label='Criteria for correspondences',
 					show_border=True
 			)
 	
@@ -455,7 +456,7 @@ class Main_Params (HasTraits):
 		else:
 			
 			self.pair_enable_flag = True
-	
+
 	#TODO: underscore in Python signifies a private method (i.e. it shouldn't be accessed from outside this module).
 	# Answer: change it to the proper names. here it probably means just 'reload'
 	def _reload(self):
