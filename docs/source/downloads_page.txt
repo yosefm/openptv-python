@@ -1,0 +1,19 @@
+.. _downloads:
+
+Download OpenPTV files
+========================
+
+Test files
+--------------
+
+There is a zip file containing sample images and parameters for analysing them with OpenPTV. These files are also available from our Github repository. 
+
+
+Test 1: :download:`test 1 <../downloads/test1.zip>`
+
+
+
+Old documentation
+------------------
+
+

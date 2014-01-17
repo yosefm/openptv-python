@@ -34,7 +34,7 @@ extensions = ['sphinx.ext.autodoc']
 templates_path = ['_templates']
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = '.txt'
 
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
@@ -43,8 +43,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'pyptv_gui'
-copyright = u'2010, Denis Lepchev and Alex Liberzon'
+project = u'OpenPTV'
+copyright = u'2010, Denis Lepchev and Alex Liberzon, 2013, OpenPTV consortium'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
