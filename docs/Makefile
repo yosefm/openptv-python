@@ -130,13 +130,3 @@ doctest:
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
 	      
-gh-pages:
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
-	@echo
-	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
-	cd ../../docs/html
-	git add .
-	git commit -m " regenerated html "
-	git push origin gh-pages
-	@echo
-	@echo "Build finished. gh-pages pushed up to the origin"

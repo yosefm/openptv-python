@@ -1,27 +1,34 @@
-Documentation for the Code
-***************************
-
-pyptv_gui -- auto members
-=========================
+OpenPTV-Python source code
+==========================
 
 .. automodule:: pyptv_gui
+	:members:
 
 
-parameters -- auto members
-===========================
+Parameters I/O
+---------------------------
 
-Parameters
-
-.. automodule:: pyptv_gui.parameters
+.. automodule:: parameters
    :members:
 
-parameters_gui -- auto members
-===============================
+GUI for parameters:
+------------------------------
 
-This is something I want to say that is not in the docstring.
+.. automodule:: parameter_gui
+   :members: 
+   
+Batch processing
+------------------------------
 
-.. automodule:: pyptv_gui.parameters_gui
+.. automodule:: pyptv_batch
+   :members: 
+   
+
+External plug-ins: sequence/tracking
+-------------------------------------
+
+.. automodule:: ext_sequence_denis
    :members: 
 
-.. autoclass:: Parameters
+.. automodule:: ext_tracker_denis
    :members: 

@@ -3,14 +3,13 @@ Tutorials
 ========
 
 
-Follow the instructions in our screencasts and tutorials:
+Please, see our screencasts for the quick overview and the step-by-step tutorial:
 
 - Tutorial 1: <http://youtu.be/S2fY5WFsFwo>
 - Tutorial 2: <http://www.youtube.com/watch?v=_JxFxwVDSt0>
 - Tutorial 3: <http://www.youtube.com/watch?v=z1eqFL5JIJc>
 
-
-**Download** the necessary files from :ref:`downloads <downloads>` page
+If you want to practice, install the software and **download** the necessary files from :ref:`downloads <downloads>` page. 
 
 
 
@@ -20,49 +19,50 @@ Tutorial
 
 New experiment:
 
-• For a new set of experiments open a new file. The file should contain
-the following files: cal: for calibration, parameters, img and res
+* For a new set of experiments open a new folder. The file should contain
+the following sub-folders: ``cal``: for calibration, ``parameters``, ``img`` and ``res``
 
 a clean file for example (copy it and rename the file) is in
 ptv/fresh\_test .
 
-*Calibration:*
+Calibration files:
+^^^^^^^^^^^^
 
-• The cal file contains: 4 calibration pictures, one for each camera, 4
-ori files (orientaion files), and a calblock.txt file.
+* The ``cal`` folder contains: calibration images, one for each camera, e.g. ``cam1.tif``, ``cam2.tif`` and so on, orientation files ``cam1.ori``, ``cam2.ori`` ..., and a ``calblock.txt`` file that contains the x,y,z coordinates of the calibration target. 
 
-• The calblock.txt file contains the coordinates of each dot on the
-calibration target in x,y and z . calblock\_20.txt is for 20 dots, it
-can be changed to any number of dots, according to the calibration
-target and the calibration pictures.
+* ``ori`` files: camera’s orientation files
+::
 
-• Ori files: camera’s orientation files:
+	10.0 10.0 300.0
+	0.01 0.05 0.0002
 
-The first 9 parameters are the coordinates of the camera with respect to
-the reference calibration target and the camera angles:
+	1.0 0.0 0.0
+	0.0 1.0 0.0 
+	0.0 0.0 1.0
 
-First row: distance. Second row: the angle [radian].
+	0.0 0.0 
+	80.0
 
-First column :x. Second column: y. Third column: z.
+	0.0001 0.0001 100.0000
 
-3x3 matrix: rotation matrix
+* First row: x,y,z of the camera sensor from the calibration target origin (0,0,0)
+* Second row: the angles [radians], the first is around ``x`` axis, then ``y`` axis and the third is the angle of rotation around ``z`` direction which coincides with the imaging axis of the camera (the line that connects the sensor and the target)
+* The next three rows is the rotation matrix
+* next 2 parameters are the ``xp,yp`` positions of the pinhole in respect to the image center in millimeters. if the camera imaging axis is at 90 deg. to the sensor, then ``xp=yp=0.0``.
+* Next parameter is the back-focal distance, typically called ``f``. For example, if we have a ratio of world image to chip image of 500 mm to 65 mm (384 pixels is therefore corresponding to 17 microns), e.g. 1:8. The distance from lens to calibration target is about 800 mm. Hence the focal distance is about 100 mm.
+* Last row with the 3 parameters is the the position of the glass in respect to to the origin and in the coordinate system of the calibration target (``x`` is typically from left to right, ``y`` is from bottom to top and ``z`` is by definition the positive direction looking at the camera. so if the glass wall is perpendicular to the imaging axis and parallel to the calibration target, and the distance in water is about 100 mm the last row is ``0.0 0.0 100.0``. Since division by zero is not recommended we sugest to use a very tiny deviation from ``0.0``, e.g. ``0.0001``
 
-2 parameters: Xp and Yp of the pinhole
 
-focal distance: if we have a ratio of world image to chip image of 500mm
-to 65 mm( 384pixels is17microns), e.g. 1:8. The distance from lens to
-calibration target is about 800mm. Hence the focal distance is about
-100mm.
+Calibration best practice:
 
-3 parameters: the position of the glass according to the zero point.
 
 In the first run- choose reasonable parameters according to the cameras
 positions in the experiment.
 
-• Gain 4 calibration pictures, one for each camera, and copy them to the
+* Gain 4 calibration pictures, one for each camera, and copy them to the
 cal file.
 
-• right click on the current run. choose calibration parameters:
+* right click on the current run. choose calibration parameters:
 
 *Image data:*
 
@@ -100,7 +100,7 @@ order to improve the calibration.
 
  |image3|
 
-• In the upper toolbar choose : calibration and create calibration
+* In the upper toolbar choose : calibration and create calibration
 
 *load/show images*: shows the calibration images
 
@@ -165,12 +165,12 @@ in 2d, also defines the possible accuracy in 3d.
 
 *Processing:*
 
-• Copy at least 500 images of the dumbbell (for each camera) as a tiff
+* Copy at least 500 images of the dumbbell (for each camera) as a tiff
 file to a new file Prepare target files using matlab code:
 tau\_dumbbell\_detection\_db\_v3b .Every target file should contain only
 2 points.
 
-• Right click on the current run: choose main parameters.
+* Right click on the current run: choose main parameters.
 
 *Main parameters*:
 
@@ -212,12 +212,12 @@ the possible candidate [mm].
 
 *Processing of a single time step: *
 
-• In the upper toolbar choose: start and then pre-tracking ,image
+* In the upper toolbar choose: start and then pre-tracking ,image
 coordinate, after that the two points of the dumbbell are detected. Then
 choose pre-tacking, correspondence. This establish correspondences
 between the detected dumbbell from one camera to all other cameras
 
-• you can press one point of the dumbbell in each camera and to see the
+* you can press one point of the dumbbell in each camera and to see the
 epipolar lines.
 
 The processing of a single time step is necessary to adjust parameters
@@ -225,12 +225,12 @@ like grey value thresholds or tolerance to the epipolar line.
 
  |image9|
 
-• In the upper toolbar choose: sequence, sequence without display
+* In the upper toolbar choose: sequence, sequence without display
 
-• In the upper toolbar choose: tracking, detected particles. Then
+* In the upper toolbar choose: tracking, detected particles. Then
 tracking, tracking without display and then show trajectory.
 
-• Right click on the current run. choose calibration parameters:
+* Right click on the current run. choose calibration parameters:
 
 *Dumbbell calibration parameters:*
 
@@ -259,7 +259,7 @@ then 1 when the dumbbell recording is very long with successive images
 that are almost identical, then step size of 10 or so might be more
 appropriate.
 
-• In the upper toolbar choose : calibration and create calibration.
+* In the upper toolbar choose : calibration and create calibration.
 choose orient with dumbbell.
 
 *Shaking calibration: *
@@ -282,12 +282,12 @@ recognition parameters in order to find the particles.
 
  |image13|
 
-• Press start in the upper toolbar. the four picture images from
+* Press start in the upper toolbar. the four picture images from
 ````\ main parameters, general\ ```` will appear.
 
  |image14|
 
-• Under Pretracking the processing of a single time step regularly
+* Under Pretracking the processing of a single time step regularly
 starts with the application of a highpass filtering (Highpass). After
 that the particles are detected (Image Coord) and the\ * *\ position of
 each particle is determined with a weighted grey value operator. The
@@ -304,11 +304,11 @@ like grey value thresholds or tolerance to the epipolar line.
 After having optimized the parameters for a single time step the
 processing of the whole image sequence can be performed under Sequence .
 
-• Under main parameters, Sequence processing\ * *\ Fill in the numbers
+* Under main parameters, Sequence processing\ * *\ Fill in the numbers
 of the first and last picture in the sequence processing, and the base
 name for every camera.
 
-• In the upper toolbar choose sequence with or without display of the
+* In the upper toolbar choose sequence with or without display of the
 currently processed image data. It is not advisable to use the display
 option when long image sequences are processed. The display of detected
 particle positions and the established links can be very time consuming.
@@ -333,16 +333,16 @@ enhanced method. To derive a velocity field from the observed flow.
 
  |image16|
 
-• Tracking, Detected Particles displays the detected particles from the
+* Tracking, Detected Particles displays the detected particles from the
 sequence processing.
 
  |image17|
 
-• Choose tracking, tracking without display. Again it is not advisable
+* Choose tracking, tracking without display. Again it is not advisable
 to use the display option if long sequences are processed. The tracking
 procedure allows bidirectional tracking.
 
-• Tracking, show Trajectories displays the reconstructed trajectories in
+* Tracking, show Trajectories displays the reconstructed trajectories in
 all image display windows.
 
  |image18|

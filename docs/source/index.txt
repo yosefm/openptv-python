@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to OpenPTV documentation!
-===================================
+OpenPTV documentation
+=====================
 
 	|logo|
 
@@ -18,9 +18,18 @@ Contents:
    installation_instruction
    tutorial
    developers
+   howto
+   gui_doc
+   
+API:
+
+.. toctree::
+   :maxdepth: 3
+
    code
    api_reference
    downloads_page
+   
 
    
 
