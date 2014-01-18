@@ -12,7 +12,7 @@ OpenPTV documentation
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    
    intro
    installation_instruction
@@ -24,7 +24,7 @@ Contents:
 API:
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    code
    api_reference
