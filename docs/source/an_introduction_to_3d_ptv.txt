@@ -1,15 +1,4 @@
-============
-Introduction
-============
-
-**OpenPTV** is the abbreviation for the Open Source Particle Tracking Velocimetry consortium. The core of  this software is the 3D-PTV software originally developed at ETH Zurich. The consortium of the academic institutions  is working on improving the core algorithms, developing a stand-alone library with a simpler and clear API. We also develop the new user interface in Python, that started at the Tel Aviv University. Read more about the consortium on our website http://www.openptv.net 
-
-In the future we would like to allow everyone to add their algorithms to the OpenPTV 
-library, named ``liboptv`` and develop several interfaces, combining it with the pre- 
-and post-processing routines using Python/NumPy/SciPy/PIL/Matplotlib/Mayavi/etc. See the existing repositories on http://github.com/OpenPTV
-
-
-About 3D-PTV measurement method
+An introduction to 3D-PTV (a bit old ...)
 =========================================
 
 Slideshare.net presentation from Beat Luethi
@@ -223,4 +212,3 @@ References
 
 
 .. |3dptv| image:: ../images/3dptv.png
-
