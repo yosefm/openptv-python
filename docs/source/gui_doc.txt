@@ -1,5 +1,5 @@
 .. _gui:
 
 ====================================
-The OpenPIV graphical user interface
+The OpenPTV graphical user interface
 ====================================
