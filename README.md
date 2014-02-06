@@ -8,10 +8,9 @@ Both PyPTV and the OpenPTV library are in the development phase and continuously
 	openptv@googlegroups.com
 
 
-## Installation instructions
+## Documentation, including installation instructions
 
-http://alexlib.github.io/docs/installation_instruction.html
-
+http://alexlib.github.io/docs/index.html
 
 ## Getting started:
 
