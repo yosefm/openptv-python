@@ -157,6 +157,7 @@ Potential
 
 
 Real time image processing schemes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 + Real time image compression using a customized FPGA design,
@@ -190,7 +191,7 @@ test case (e.g. that you find difficult to track or to improve).
 See also
 --------
 
-+ `Particle image velocimetry <http://en.wikipedia.org/wiki/Particle_tracking_velocimetry#3D-PTV_schemes>`_
++ `Particle Tracking Velocimetry on Wikipedia <http://en.wikipedia.org/wiki/Particle_tracking_velocimetry#3D-PTV_schemes>`_
 
 
 References
