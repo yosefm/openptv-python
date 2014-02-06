@@ -40,7 +40,7 @@ Download from <http://sourceforge.net/projects/check/files/latest/download?sourc
 		$ curl -O http://sourceforge.net/projects/check/files/latest/download?source=files
 		$ ./configure 
 		$ make
-		$ make check
+		$ make verify
 		$ sudo make install 
 
 4. Download and install `liboptv`:  
@@ -51,7 +51,7 @@ Download from <http://sourceforge.net/projects/check/files/latest/download?sourc
 		CMake will ask you some questions about your system (accepting the 
 		defaults is usually ok)
 		$ make
-		$ make check
+		$ make verify
 		$ sudo make install
 		$ cd ~
 
@@ -71,6 +71,8 @@ Download from <http://sourceforge.net/projects/check/files/latest/download?sourc
 
 
 For Mac OS X I found this Gist very useful: <https://gist.github.com/satra/845545> and another copy here: <https://www.ibic.washington.edu/wiki/display/faq/How+do+I+install+EPD+Python+in+a+virtualenv>
+
+If you encounter the error 
 
 
 
