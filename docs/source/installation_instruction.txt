@@ -207,7 +207,7 @@ The tests of liboptv depend on the Check framework. You can get it from
 Installing Check is done roughly in the same way as on Linux, in the MSYS 
 shell::
 
-     $ ./configure
+     $ ./configure --prefix=/mingw
      $ make
      $ make install
 
