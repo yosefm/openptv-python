@@ -25,9 +25,7 @@ If you want to add/fix documentation, then:
 If you wish to see the result in HTML, then 
 
 1. download and install Sphinx http://sphinx-doc.org/latest/install.html
-2. create the local directory called ``docs`` **outside** the ``openptv-python`` directory 
-3. inside ``docs`` create sub-directory ``html``
-4. run `` make html `` from ``openptv-python/docs`` directory to generate your local copy of the documentation. Use your browser to see ``../docs/html/index.html``
+2. run `` make html `` from ``openptv-python/docs`` directory to generate your local copy of the documentation. Use your browser to see ``../../docs/html/index.html``
 
 
 For example:
@@ -35,8 +33,6 @@ For example:
 ::
 
 	cd /Users/alex/openptv-python/docs
-	mkdir ../../docs
-	mkdir ../../docs/html
 	make html
 	
 	
