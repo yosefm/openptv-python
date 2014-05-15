@@ -40,56 +40,49 @@ double		x, y,Xp,Yp,Zp, *dist;
 
 }
 
-void det_lsq_3d (Ex, I, G, ap, mm, x1, y1, x2, y2, x3, y3, x4, y4, Xp, Yp, Zp, num_cams)
-Exterior	Ex[4];
-Interior	I[4];
-Glass   	G[4];
-ap_52		ap[4];
-mm_np		mm;
-double		x1, y1, x2, y2, x3, y3, x4, y4, *Xp,*Yp,*Zp;
-int num_cams;
-{
-
-	    int     i,count_inner=0,n,m,flag[4];
+void det_lsq_3d (Calibration *cal, mm_np mm, double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, double *Xp, double *Yp, double *Zp, int num_cams) {
+	    int     i,count_inner=0,n,m, flag[4] = {0., 0., 0., 0.};
 	    double  d_inner=0.,x,y;
-	    double X[4],Y[4],Z[4],a[4],b[4],c[4],dist,dist_error,X_pos[6],Y_pos[6],Z_pos[6],XX,YY,ZZ,si0,sqX,sqY,sqZ;
+	    double X[4][3], a[4][3];
+        double dist,dist_error,X_pos[6],Y_pos[6],Z_pos[6],XX,YY,ZZ,si0,sqX,sqY,sqZ;
 	    
-        //new det_lsq function, bloody fast!
-		flag[0]=0;flag[1]=0;flag[2]=0;flag[3]=0;
 		if(x1>-999){
 			flag[0]=1;
 			x = x1 - I[0].xh;
 	        y = y1 - I[0].yh;
 	        //correct_brown_affin (x, y, ap[0], &x, &y);
-		    ray_tracing(x,y, Ex[0], I[0], G[0], mmp, &X[0], &Y[0], &Z[0], &a[0], &b[0], &c[0]);
+		    ray_tracing(x,y, &(cal[0]), mm, X[0], a[0]);
 		}		
 		if(x2>-999){
 			flag[1]=1;
 			x = x2 - I[1].xh;
 	        y = y2 - I[1].yh;
 	        //correct_brown_affin (x, y, ap[1], &x, &y);
-		    ray_tracing(x,y, Ex[1], I[1], G[1], mmp, &X[1], &Y[1], &Z[1], &a[1], &b[1], &c[1]);
+		    ray_tracing(x,y, &(cal[1]), mm, X[1], a[1]);
 		}		
 		if(x3>-999){
 			flag[2]=1;
 			x = x3 - I[2].xh;
 	        y = y3 - I[2].yh;
 	        //correct_brown_affin (x, y, ap[2], &x, &y);
-		    ray_tracing(x,y, Ex[2], I[2], G[2], mmp, &X[2], &Y[2], &Z[2], &a[2], &b[2], &c[2]);
+		    ray_tracing(x,y, &(cal[2]), mm, X[2], a[2]);
 		}		
 		if(x4>-999){
 			flag[3]=1;
 			x = x4 - I[3].xh;
 	        y = y4 - I[3].yh;
 	        //correct_brown_affin (x, y, ap[3], &x, &y);
-		    ray_tracing(x,y, Ex[3], I[3], G[3], mmp, &X[3], &Y[3], &Z[3], &a[3], &b[3], &c[3]);
+		    ray_tracing(x,y, &(cal[3]), mm, X[3], a[3]);
 		}
 
 		count_inner=0;
 		for (n = 0; n < num_cams; n++){
 			for(m = n+1; m < num_cams; m++){
 				if(flag[n]==1 && flag[m]==1){
-                    mid_point(X[n],Y[n],Z[n],a[n],b[n],c[n],X[m],Y[m],Z[m],a[m],b[m],c[m],&dist,&XX,&YY,&ZZ);
+                    mid_point(X[n][0], X[n][1], X[n][2],
+                        a[n][0], a[n][1], a[n][2], 
+                        X[m][0], X[m][1], X[m][2],
+                        a[m][0], a[m][1], a[m][2], &dist,&XX,&YY,&ZZ);
                     d_inner += dist;
 					X_pos[count_inner]=XX;Y_pos[count_inner]=YY;Z_pos[count_inner]=ZZ;
 					count_inner++;

@@ -2,6 +2,7 @@
 
 #include "typedefs.h"
 #include <optv/tracking_frame_buf.h>
+#include <optv/calibration.h>
 #include <stdio.h>
 
 #ifndef GLOBALS_H
@@ -94,6 +95,7 @@ extern Interior I[];        /* interior orientation *///previous -  Exterior  I[
 extern Glass    G[];        /* glass orientation *///previous -  Exterior  G[];
 extern ap_52    ap[];       /* add. parameters *///previous -  Exterior  ap[];
 extern mm_np    mmp;        /* 3-media parameters */
+Calibration glob_cal[4];  // Collect all the globals until it is safe to remove them.
 
 extern target   pix[4][nmax];  	/* target pixel data */
 extern target   pix0[4][12];    /* pixel data for man_ori points */

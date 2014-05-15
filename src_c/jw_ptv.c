@@ -17,7 +17,10 @@
  
  ****************************************************************************/
 #include "ptv.h"
+
+#include <optv/calibration.h>
 #include <optv/parameters.h>
+
 #include "tools.h"
 #include "image_processing.h"
 #include "orientation.h"
@@ -105,6 +108,15 @@ ap_52	       	ap[4],sap[4];	       	/* add. parameters k1,k2,k3,p1,p2,scx,she */
 mm_np	       	mmp;	       	/* n-media parameters */
 target	       	pix[4][nmax]; 	/* target pixel data */
 target	       	pix0[4][12];    	/* pixel data for man_ori points */
+
+// Intermediate measure while removing other globals:
+Calibration glob_cal[4];
+#define UPDATE_CALIBRATION(num_cam, extp, intp, gp, imgo, app, imga, fn) \
+  read_ori((extp), (intp), (gp), (imgo), (app), (imga), (fn));\
+  memcpy(&(glob_cal[num_cam].ext_par), (extp), sizeof(Exterior));\
+  memcpy(&(glob_cal[num_cam].int_par), (intp), sizeof(Interior));\
+  memcpy(&(glob_cal[num_cam].glass_par), (gp), sizeof(Glass));\
+  memcpy(&(glob_cal[num_cam].added_par), (app), sizeof(ap_52));\
 
 int             x_calib[4][1000];
 int             y_calib[4][1000];
@@ -277,8 +289,8 @@ int start_proc_c()
         strcpy (img_addpar[i], img_cal[i]); strcat (img_addpar[i],".addpar");
         
         /*  read orientation and additional parameters  */
-        read_ori (&Ex[i], &I[i], &G[i], img_ori[i], &(ap[i]), img_addpar[i],
-            NULL);
+        UPDATE_CALIBRATION(i, &Ex[i], &I[i], &G[i], img_ori[i], &(ap[i]),
+            img_addpar[i], NULL)
         rotation_matrix(&(Ex[i]));
     
         /* read and display original images */
@@ -753,8 +765,8 @@ int calibration_proc_c (int sel)
                 }
                 
                 /* get approx for orientation and ap */
-                read_ori (&Ex[i], &I[i], &G[i], img_ori0[i], &(ap[i]), 
-                    img_addpar0[i], "addpar.raw");
+                UPDATE_CALIBRATION(i, &Ex[i], &I[i], &G[i], img_ori0[i], &(ap[i]), 
+                    img_addpar0[i], "addpar.raw")
                 
                 /* transform clicked points */
                 for (j=0; j<4; j++)
@@ -800,8 +812,8 @@ int calibration_proc_c (int sel)
                 }
                 
                 /* get approx for orientation and ap */
-                read_ori (&Ex[i], &I[i], &G[i], img_ori0[i], &(ap[i]),
-                    img_addpar0[i], "addpar.raw");
+                UPDATE_CALIBRATION(i, &Ex[i], &I[i], &G[i], img_ori0[i], &(ap[i]),
+                    img_addpar0[i], "addpar.raw")
                 
                 /* transform clicked points */
                 for (j=0; j<4; j++)
@@ -898,7 +910,7 @@ int calibration_proc_c (int sel)
                 }
                 
                 /* get approx for orientation and ap */
-                read_ori (&Ex[i], &I[i], &G[i], img_ori0[i], &(ap[i]),
+                UPDATE_CALIBRATION(i, &Ex[i], &I[i], &G[i], img_ori0[i], &(ap[i]),
                     img_addpar0[i], "addpar.raw");
                 
 				/* transform clicked points */
@@ -1065,7 +1077,7 @@ int calibration_proc_c (int sel)
                     /* resection */
                     /*Beat Mai 2007*/
                     sprintf (filename, "raw%d.ori", i_img);
-                    read_ori (&Ex[i_img], &I[i_img], &G[i_img], filename,
+                    UPDATE_CALIBRATION(i_img, &Ex[i_img], &I[i_img], &G[i_img], filename,
                         &(ap[i_img]), "addpar.raw", NULL);
                     
                     /* markus 14.05.2007 show coordinates combined */
@@ -1105,9 +1117,9 @@ int calibration_proc_c (int sel)
                 fp1 = fopen( img_ori[i_img], "r" );
                 if(fp1 != NULL) {
                     fclose(fp1);
-                    read_ori (&sEx[i_img], &sI[i_img], &sG[i_img], 
+                    UPDATE_CALIBRATION(i_img, &sEx[i_img], &sI[i_img], &sG[i_img], 
                         img_ori[i_img], &(sap[i_img]), img_addpar0[i_img],
-                        "addpar.raw");
+                        "addpar.raw")
                     
                     write_ori (sEx[i_img], sI[i_img], sG[i_img], sap[i_img], 
                         safety[i_img], safety_addpar[i_img]);
@@ -1155,7 +1167,7 @@ int calibration_proc_c (int sel)
 				fp1 = fopen( img_ori[i_img], "r" );
 				if(fp1 != NULL) {
 					fclose(fp1);
-					read_ori(&sEx[i_img], &sI[i_img], &sG[i_img],
+					UPDATE_CALIBRATION(i_img, &sEx[i_img], &sI[i_img], &sG[i_img],
                         img_ori[i_img], &(sap[i_img]), img_addpar0[i_img],
                         "addpar.raw");
 					
@@ -1174,7 +1186,7 @@ int calibration_proc_c (int sel)
         case 12: puts ("Orientation from dumbbells"); strcpy(buf, "");
 			
             prepare_eval(cpar->num_cams, &nfix); //goes and looks up what sequence is defined and takes all cord. from rt_is
-            orient_v5 (cpar->num_cams, nfix, &Ex, &I, &G, &ap);
+            orient_v5 (cpar->num_cams, nfix, &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img]);
 			
             for(i_img = 0; i_img < cpar->num_cams; i_img++){
                 write_ori (Ex[i_img], I[i_img], G[i_img], ap[i_img],

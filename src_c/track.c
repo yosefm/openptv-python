@@ -75,7 +75,7 @@ tracking_run* trackcorr_c_init() {
     ret->lmax = norm((ret->tpar->dvxmin - ret->tpar->dvxmax), \
         (ret->tpar->dvymin - ret->tpar->dvymax), \
         (ret->tpar->dvzmin - ret->tpar->dvzmax));
-    volumedimension (&(ret->vpar->X_lay[1]), &(ret->vpar->X_lay[0]), &(ret->ymax), 
+    volumedimension (glob_cal, &(ret->vpar->X_lay[1]), &(ret->vpar->X_lay[0]), &(ret->ymax), 
         &(ret->ymin), &(ret->vpar->Zmax_lay[1]), &(ret->vpar->Zmin_lay[0]),
         ret->fb->num_cams);
 
@@ -807,7 +807,7 @@ int trackback_c ()
     
     lmax = norm((tpar->dvxmin - tpar->dvxmax), (tpar->dvymin - tpar->dvymax),
 	    (tpar->dvzmin - tpar->dvzmax));
-    volumedimension (&(vpar->X_lay[1]), &(vpar->X_lay[0]), &Ymax,
+    volumedimension (glob_cal, &(vpar->X_lay[1]), &(vpar->X_lay[0]), &Ymax,
         &Ymin, &(vpar->Zmax_lay[1]), &(vpar->Zmin_lay[0]), fb->num_cams);
 
     /* sequence loop */

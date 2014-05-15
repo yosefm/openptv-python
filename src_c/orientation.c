@@ -22,6 +22,7 @@ Routines contained:
 Related routines:
 
 ******************************************************************/
+#include <optv/calibration.h>
 #include <optv/tracking_frame_buf.h>
 #include <optv/parameters.h>
 #include <optv/ray_tracing.h>
@@ -227,8 +228,8 @@ double *dist,*XX,*YY,*ZZ;
 
 }
 
-void eval_ori_v2 (db_scale,weight_scale,n_img, nfix, d_outer,av_dist_error,residual)
-
+void eval_ori_v2 (cal, db_scale,weight_scale,n_img, nfix, d_outer,av_dist_error,residual)
+Calibration *cal;
 double db_scale;
 double weight_scale;
 int n_img,nfix;
@@ -239,7 +240,8 @@ double *residual;
 {
 	int     i_img,i,count_inner=0,count_outer=0,pair_count=0,count_dist=0,n,m;
 	double  xa,ya,xb,yb,temp,d_inner=0.,av_dist=0.,x,y;
-	double X[4],Y[4],Z[4],a[4],b[4],c[4],dist,dist_error,X_pos,Y_pos,Z_pos,XX,YY,ZZ,X1,Y1,Z1,X2,Y2,Z2;
+	double X[4][3], a[4][3];
+    double dist,dist_error,X_pos,Y_pos,Z_pos,XX,YY,ZZ,X1,Y1,Z1,X2,Y2,Z2;
 	double tmp_d=0.,tmp_dist=0.;
 	*d_outer=0.;
 	*av_dist_error=0.;
@@ -251,25 +253,25 @@ double *residual;
 			x = crd[0][i].x - I[0].xh;
 	        y = crd[0][i].y - I[0].yh;
 	        //correct_brown_affin (x, y, ap[0], &x, &y);
-		    ray_tracing(x,y, Ex[0], I[0], G[0], mmp, &X[0], &Y[0], &Z[0], &a[0], &b[0], &c[0]);
+		    ray_tracing(x,y, &(cal[0]), mmp, X[0], a[0]);
 		}		
 		if(crd[1][i].x>-999){
 			x = crd[1][i].x - I[1].xh;
 	        y = crd[1][i].y - I[1].yh;
 	        //correct_brown_affin (x, y, ap[1], &x, &y);
-		    ray_tracing(x,y, Ex[1], I[1], G[1], mmp, &X[1], &Y[1], &Z[1], &a[1], &b[1], &c[1]);
+		    ray_tracing(x,y, &(cal[1]), mmp, X[1], a[1]);
 		}		
 		if(crd[2][i].x>-999){
 			x = crd[2][i].x - I[2].xh;
 	        y = crd[2][i].y - I[2].yh;
 	        //correct_brown_affin (x, y, ap[2], &x, &y);
-		    ray_tracing(x,y, Ex[2], I[2], G[2], mmp, &X[2], &Y[2], &Z[2], &a[2], &b[2], &c[2]);
+		    ray_tracing(x,y, &(cal[2]), mmp, X[2], a[2]);
 		}		
 		if(crd[3][i].x>-999){
 			x = crd[3][i].x - I[3].xh;
 	        y = crd[3][i].y - I[3].yh;
 	        //correct_brown_affin (x, y, ap[3], &x, &y);
-		    ray_tracing(x,y, Ex[3], I[3], G[3], mmp, &X[3], &Y[3], &Z[3], &a[3], &b[3], &c[3]);
+		    ray_tracing(x,y, &(cal[3]), mmp, X[3], a[3]);
 		}
 
 		count_inner=0;
@@ -277,7 +279,10 @@ double *residual;
 		for (n=0;n<n_img;n++){
 			for(m=n+1;m<n_img;m++){
 				if(crd[n][i].x>-999 && crd[m][i].x>-999){
-                    mid_point(X[n],Y[n],Z[n],a[n],b[n],c[n],X[m],Y[m],Z[m],a[m],b[m],c[m],&dist,&XX,&YY,&ZZ);
+                    mid_point(X[n][0], X[n][1], X[n][2],
+                        a[n][0], a[n][1], a[n][2], 
+                        X[m][0], X[m][1], X[m][2],
+                        a[m][0], a[m][1], a[m][2], &dist,&XX,&YY,&ZZ);
 					count_inner++;
                     d_inner += dist;
 					X_pos+=XX;Y_pos+=YY;Z_pos+=ZZ;
