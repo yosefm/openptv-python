@@ -236,7 +236,6 @@ int start_proc_c()
     /*  read from main parameter file  */
     cpar = read_control_par("parameters/ptv.par");
     
-    printf("inside start_proc");
     fpp = fopen_r ("parameters/ptv.par");
     
     fscanf (fpp, "%d\n", &n_img);
@@ -278,12 +277,6 @@ int start_proc_c()
             NULL);
         rotation_matrix (Ex[i], Ex[i].dm);
     
-        /* read and display original images */
-        sprintf(val, "camcanvas %d", i+1);
-    }
-    
-    for (i=0;i<50;i++) {
-        printf("val1 =%d",im0[i]);
     }
     
 	return 0;
@@ -332,7 +325,7 @@ int pre_processing_c ()
             subtract_mask (img[i_img], img_mask[i_img], img_new[i_img]); //subtract mask from original image
             copy_images (img_new[i_img], img[i_img]);//copy subtracted imgage on the original image
             
-            sprintf(val, "newimage %d", i_img+1);
+            // sprintf(val, "newimage %d", i_img+1);
         }
     }//end if
     
@@ -340,14 +333,13 @@ int pre_processing_c ()
     {
         for (i_img=0; i_img<n_img; i_img++)
         {
-            highpass (img[i_img], img[i_img], sup, 0, chfield);//highpass original image
+            highpass (img[i_img], img[i_img], sup, 0, chfield);
         }
     }//end if
     
     /*------------------------------------------------------------*/
     
     
-    sprintf(val, "...done");
     return 0;
     
 }
@@ -514,7 +506,7 @@ int correspondences_proc_c ()
         filename[i] = '\0';
         
         sscanf(img_name[i_img] + i, "%d", &frame);
-        printf("file %s, frame %d", filename, frame);
+        printf("target file %s, frame %d\n", filename, frame);
         write_targets(pix[i_img], num[i_img], filename, frame);
     }
     
@@ -1113,7 +1105,8 @@ int calibration_proc_c (int sel)
             }
             break;
             
-        case 10: puts ("Orientation from particles"); strcpy(buf, "");
+        case 10: 
+        	printf ("Orientation from particles \n"); 
 			
 			strcpy (safety[0], "safety_0");
 			strcat (safety[0], ".ori");
@@ -1366,7 +1359,7 @@ int determination_proc_c (int dumbbell)
     int a1[4],a2[4],checksum_1,checksum_2;
     
     
-    puts ("Determinate");
+    printf ("Determinate \n");
     
     sprintf (buf, "Point positioning (mid_point in 3d)");
     
@@ -1392,7 +1385,8 @@ int determination_proc_c (int dumbbell)
     }
     if ( ! fp1)
     {
-        printf ("cannot find dir: res,  data written to dt_lsq in same dir\n");
+        printf ("WARNING! Cannot find dir: /res,  data written to dt_lsq in same dir \n");
+        
         sprintf (res_name, "dt_lsq");
         fp1 = fopen (res_name, "w");
     }
@@ -1577,7 +1571,7 @@ int determination_proc_c (int dumbbell)
     /* sort coordinates for binary search in epi line segment drawing */
     for (i = 0; i < cpar->num_cams; i++) quicksort_coord2d_x (geo[0], num[0]);
     
-    puts ("Determinate done\n");
+    printf (" Determinate done\n");
     
     return 0;
     

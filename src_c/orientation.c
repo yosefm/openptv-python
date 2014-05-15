@@ -497,6 +497,7 @@ void prepare_eval_shake(int n_img) {
     }
     free_frame(&frm);
     nfix = count;
+    printf("End of prepare_eval_shake, nfix = %d \n", nfix);
 }
 
 void cross(Ax,Ay,Az,Bx,By,Bz,Cx,Cy,Cz)
