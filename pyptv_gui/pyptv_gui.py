@@ -12,6 +12,8 @@ http://opensource.org/licenses/MIT
 .. moduleauthors:: OpenPTV group
 
 """
+from traits.etsconfig.api import ETSConfig
+ETSConfig.toolkit = 'qt4'
 
 from traits.api \
 	import HasTraits, Str, Int, List, Bool, Enum, Instance, Any
