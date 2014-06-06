@@ -7,10 +7,10 @@ from traitsui.api \
            HGroup, VGroup, Handler, Group, Tabbed,spring
 from traitsui.menu \
     import Menu, Action, Separator
-from traitsui.wx.tree_editor import NewAction, CopyAction, CutAction, \
-           PasteAction, DeleteAction, RenameAction    
-# from traitsui.qt4.tree_editor import NewAction, CopyAction, CutAction, \
-#            PasteAction, DeleteAction, RenameAction
+# from traitsui.wx.tree_editor import NewAction, CopyAction, CutAction, \
+#            PasteAction, DeleteAction, RenameAction    
+from traitsui.qt4.tree_editor import NewAction, CopyAction, CutAction, \
+           PasteAction, DeleteAction, RenameAction
 
                  
 
