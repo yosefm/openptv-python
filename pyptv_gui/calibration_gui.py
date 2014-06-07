@@ -445,13 +445,11 @@ class calibration_gui(HasTraits):
         self.ptv.py_get_from_sortgrid(x,y,pnr)
         # filter out -999 which is returned for the missing points:
         while -999 in x[0]:
-            tmp = x[0]
             id = tmp.index(-999)
-            tmp.pop(id)
-            tmp = y[0]
-            tmp.pop(id)
-            tmp = pnr[0]
-            tmp.pop(id)
+            del x[0][id]
+            del y[0][id]
+            del pnr[0][id]
+
         self.drawcross("sort_x","sort_y",x,y,"white",4)
         self.ptv.py_get_from_calib(x1_cyan,y1_cyan)
         self.drawcross("init_x","init_y",x1_cyan,y1_cyan,"cyan",4)
