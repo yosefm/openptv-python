@@ -1,8 +1,8 @@
-Post Processing
-====================
+Post processing software
+========================
 
 PostPTV
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^
 Download it from <https://github.com/yosefm/postptv/tree/ptvis_mem> 
 
 extract it somewhere. You only run the python from that directory of postptv and change the path to your files. All the data is included in the 'trajects' structure. 
@@ -33,8 +33,11 @@ Using this on the test file, You would get the sparse image as the following:
 
 |image1|
 
-PostPTV C-code developed by Beat Luthi (calculates velocities and velocity derivatives from the flow tracks)
-^^^^^^^^^^^^^^^^^^^^
+PostPTV C-code 
+^^^^^^^^^^^^^^
+
+PostPTV C-code was developed by Beat Luthi and it calculates velocities and velocity derivatives from the flow tracks.
+
 
 The principal of this software is described in pages 6-9 of Luthi et al., JFM 2005. And the derivative calculation is given on page 3 of Luthi at al., JoT 2007.
 
