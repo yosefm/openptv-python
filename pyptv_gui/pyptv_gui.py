@@ -7,6 +7,9 @@ The software is distributed under the terms of MIT-like license
 http://opensource.org/licenses/MIT
 
 """
+from traits.etsconfig.api import ETSConfig
+ETSConfig.toolkit = 'qt4'
+# ETSConfig.toolkit = 'wx'
 
 from traits.api \
 	import HasTraits, Str, Int, List, Bool, Enum, Instance, Any
