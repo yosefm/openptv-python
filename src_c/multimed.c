@@ -441,9 +441,7 @@ int    	i_cam;
 	//      	                                        Ri[i]+Ex[i_cam].x0, Ex[i_cam].y0, Zi[j]);
 	//trans
 	// trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
-    //  mmLUT[i_cam].data[i*nz + j]
-      
-	= multimed_r_nlay_v2 (Ex_t[i_cam], Ex[i_cam], mmp, 
+    mmLUT[i_cam].data[i*nz + j] = multimed_r_nlay_v2 (Ex_t[i_cam], Ex[i_cam], mmp, \
 		                  Ri[i]+Ex_t[i_cam].x0, Ex_t[i_cam].y0, Zi[j]);
     }
     
