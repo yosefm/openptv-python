@@ -44,7 +44,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'OpenPTV'
-copyright = u'2010, Denis Lepchev and Alex Liberzon, 2013, OpenPTV consortium'
+copyright = u'2010-2015 OpenPTV consortium www.openptv.net'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
