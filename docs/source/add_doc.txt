@@ -9,3 +9,4 @@ Additional Documents
 + PTV file system description :download:`[Link] <../add_docs/PTVFileSystem.pdf>`
 + Technical aspects of 3D PTV :download:`[Link] <../add_docs/Technical_aspects.pdf>`
 + Python Bindings to PTV library :download:`[Link] <../add_docs/Python_bindings.pdf>`
++ Tutorial written by Hristo Goumnerov  :download:`[Link] <../add_docs/OpenPTV Manual - first draft.docx>`
