@@ -403,10 +403,10 @@ def py_get_pix_N(x,y,n_image):
     x1=[]
     y1=[]
     for j in range(num[i]):
-      x1.append(pix[i][j].x)
-      y1.append(pix[i][j].y)
-      x.append(x1)
-      y.append(y1)
+        x1.append(pix[i][j].x)
+        y1.append(pix[i][j].y)
+        x.append(x1)
+        y.append(y1)
 
 def get_pix_crd(num_cams):
     """
