@@ -563,7 +563,7 @@ int calibration_proc_c (int sel)
     /*  valp = Tcl_GetVar(interp, "sel",  TCL_GLOBAL_ONLY);*/
     /*  sel = atoi (valp);*/
     
-    printf("\n Selection = %d Alex \n", sel);
+    printf("\n Calibration procedure, sel = %d \n", sel);
     
     /* Beat Mai 2007 to set the variable examine for mulit-plane calibration*/
     fp1 = fopen_r ("parameters/examine.par");
@@ -576,24 +576,24 @@ int calibration_proc_c (int sel)
     else{
         examine=0;
     }
-    printf("after 1\n");
+    // printf("after 1\n");
     /*Oswald Juni 2008 accept pairs-------------------------------*/
     
     
     fp1 = fopen_r ("parameters/cal_ori.par");
     fscanf (fp1,"%s\n", fixp_name);
-    printf("after 2\n");
+    // printf("after 2\n");
     for (i=0; i<4; i++)
 	{
         fscanf (fp1, "%s\n", img_name[i]);
         fscanf (fp1, "%s\n", img_ori0[i]);
 	}
-    printf("after 2.5\n");
+    // printf("after 2.5\n");
     fscanf (fp1, "%d\n", &tiff_flag);
-    printf("after 2.6\n");
+    // printf("after 2.6\n");
     fscanf (fp1, "%d\n", &pair_flag);
     fclose (fp1);
-    printf("after 3\n");
+    // printf("after 3\n");
     if (pair_flag==1){
         int OSWALDDUMMY=1;
     }
@@ -601,7 +601,7 @@ int calibration_proc_c (int sel)
         int OSWALDDUMMY=0;
     }
     
-    printf("after 4\n");
+    // printf("after 4\n");
     ///////////////////////////////////////////////////////////////////////////////
     
     switch (sel)
@@ -649,18 +649,20 @@ int calibration_proc_c (int sel)
             strcpy (safety_addpar[3], "safety_3");
             strcat (safety_addpar[3], ".addpar");
             
+            /* commented out the print used for debugging
             for (i=0; i<50; i++)
             {
                 printf("img0=%d\n",img[0][i]);
             }
-            
+            */
             break;
             
             
         case 2: puts ("Detection procedure"); strcpy(val,"");
             
             /* Highpass Filtering */
-            pre_processing_c ();
+            printf("\n Warning: No high pass for calibration \n");
+            // pre_processing_c ();
             
             /* reset zoom values */
             for (i=0; i<n_img; i++)

@@ -468,8 +468,8 @@ class calibration_gui(HasTraits):
         self.ptv.py_get_from_calib(x1_cyan,y1_cyan)
         self.drawcross("init_x","init_y",x1_cyan,y1_cyan,"cyan",4)
         for i in range (len(self.camera)):
-                self.camera[i]._plot.overlays=[]
-                self.camera[i].plot_num_overlay(x[i],y[i],pnr[i])
+            self.camera[i]._plot.overlays=[]
+            self.camera[i].plot_num_overlay(x[i],y[i],pnr[i])
         self.status_text="Sort grid initial guess finished."
             
     def _button_orient_fired(self):
@@ -512,35 +512,34 @@ class calibration_gui(HasTraits):
         self.status_text="Orientation with particles finished."
 
     def _button_orient_dumbbell_fired(self):
-            print "Starting orientation from dumbbell"
-            self.ptv.py_ptv_set_dumbbell(1)
-            n_camera=len(self.camera)
-            print ("Starting sequence action")
-            seq_first=self.exp1.active_params.m_params.Seq_First
-            seq_last=self.exp1.active_params.m_params.Seq_Last
-            print seq_first,seq_last
-            base_name=[]
-            for i in range (n_camera):
-                    exec("base_name.append(self.exp1.active_params.m_params.Basename_%d_Seq)" %(i+1))
-                    #print base_name[i]
+        print "Starting orientation from dumbbell"
+        self.ptv.py_ptv_set_dumbbell(1)
+        n_camera=len(self.camera)
+        print ("Starting sequence action")
+        seq_first=self.exp1.active_params.m_params.Seq_First
+        seq_last=self.exp1.active_params.m_params.Seq_Last
+        print seq_first,seq_last
+        base_name=[]
+        for i in range (n_camera):
+            exec("base_name.append(self.exp1.active_params.m_params.Basename_%d_Seq)" %(i+1))
+            #print base_name[i]
            
             self.ptv.py_sequence_init(1)
             stepshake=self.ptv.py_get_from_sequence_init()
             if not stepshake:
-                    stepshake=1
+                stepshake=1
             
             temp_img=np.array([],dtype=np.ubyte)
             for i in range(seq_first,seq_last+1,stepshake):
-                    seq_ch="%04d" % i
-                    for j in range (n_camera):
-                            img_name=base_name[j]+seq_ch
-                            print ("Setting image: ",img_name)
-                            try:
-                                    temp_img=imread(img_name).astype(np.ubyte)
-                            except:
-                                    print "Error reading file"
-                                   
-                            self.ptv.py_set_img(temp_img,j)
+                seq_ch="%04d" % i
+                for j in range (n_camera):
+                    img_name=base_name[j]+seq_ch
+                    print ("Setting image: ",img_name)
+                    try:
+                        temp_img=imread(img_name).astype(np.ubyte)
+                    except:
+                        print "Error reading file"
+                        self.ptv.py_set_img(temp_img,j)
                     self.ptv.py_sequence_loop(1,i)
             print "Orientation from dumbbell - sequence finished"
             self.ptv.py_calibration(12)
