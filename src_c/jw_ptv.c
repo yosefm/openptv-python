@@ -658,7 +658,9 @@ int calibration_proc_c (int sel)
             break;
             
             
-        case 2: puts ("Detection procedure"); strcpy(val,"");
+        case 2: // puts ("Detection procedure"); strcpy(val,"");
+            
+            printf("Detection procedure\n");
             
             /* Highpass Filtering */
             printf("\n Warning: No high pass for calibration \n");
@@ -685,8 +687,9 @@ int calibration_proc_c (int sel)
                           0, imx, 1, imy, pix[i], i, &num[i]);
                 
                 
-                sprintf (buf,"image %d: %d,  ", i+1, num[i]);
-                strcat(val, buf);
+                // sprintf (buf,"image %d: %d,  ", i+1, num[i]);
+                // strcat(val, buf);
+                printf("image %d: %d,  \n", i+1, num[i]);
                 
                 if (num[i] > nmax)  exit (1);
             }
@@ -703,7 +706,8 @@ int calibration_proc_c (int sel)
                 fclose (fp1);
             }
             
-            sprintf(buf,"Number of detected targets, interaction enabled");
+            // sprintf(buf,"Number of detected targets, interaction enabled");
+            
             /*      Tcl_SetVar(interp, "tbuf", buf, TCL_GLOBAL_ONLY);*/
             /*      Tcl_Eval(interp, ".text delete 2");*/
             /*      Tcl_Eval(interp, ".text insert 2 $tbuf");*/
