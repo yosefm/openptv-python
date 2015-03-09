@@ -40,14 +40,14 @@ Below are instructions for building it and making it ready for use, either from
 a source distribution (a tarball with all necessary files) or directly from a 
 Git repository. 
 
-Installing on Linux:
--------------------------
+Installing on Ubuntu (12.04):
+-----------------------------
 
 #. Install Check Unit testing framework::
 
 	 sudo apt-get install check
 
-#. Install Cmake:  
+#. Install Cmake::   
 
 	 sudo apt-get install cmake
 
@@ -80,14 +80,14 @@ restart the bash terminal and update the packages::
 	 
 #. Get OpenPTV-Python::    
 
-	 git clone git://github.com/OpenPTV/openptv-python.git::
+	 git clone git://github.com/OpenPTV/openptv-python.git
 	 cd openptv-python/pyptv_gui
 	 python setup.py build_ext --inplace
 	 
 #. Get 3D-PTV test folder and create a missing `res/` folder::
 
 	 cd ~
-	 git clone https://bitbucket.org/turbulencelabtau/ptv_test_folder.git::
+	 git clone https://bitbucket.org/turbulencelabtau/ptv_test_folder.git
 	 cd ptv_test_folder
 	 mkdir res
 	 
