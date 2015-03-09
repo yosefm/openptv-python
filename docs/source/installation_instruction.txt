@@ -41,45 +41,64 @@ a source distribution (a tarball with all necessary files) or directly from a
 Git repository. 
 
 Installing on Linux/Mac:
-------------------------
+-------------------------
 
-#. Install Check Unit testing framework:  
-	$$ sudo apt-get install check
+#. Install Check Unit testing framework::
+
+	 sudo apt-get install check
+
 #. Install Cmake:  
-	$$ sudo apt-get install cmake
-#. Install missing compilers:  
-	$$ sudo apt-get install build-essential
-#. Install git:  
-	$$ sudo apt-get install git
-#. Install Anaconda Python distribution, download from http://continuum.io/downloads and run 
-	$$ bash Anaconda-2.1.0-Linux-x86.sh
-restart the bash terminal and update the packages:
-	$$ conda update conda
-	$$ conda update anaconda
-	$$ conda install cython
-#. Get OpenPTV library `liboptv`:  
-	$ git clone git://github.com/OpenPTV/openptv.git
-	$ cd openptv/liboptv
-	$ cmake -G "Unix Makefiles" -i
-	$ make
-	$ make verify
-	$ sudo make install
-#. Get OpenPTV-Python:  
-	$ git clone git://github.com/OpenPTV/openptv-python.git
-	$ cd openptv-python/pyptv_gui
-	$ python setup.py build_ext --inplace
-#. Get 3D-PTV test folder and create a missing `res/` folder
-	$ cd ~
-	$ git clone https://bitbucket.org/turbulencelabtau/ptv_test_folder.git
-	$ cd ptv_test_folder
-	$ mkdir res
-#. Run the software, if all works fine, that's it
-	$ cd ~/openptv-python/pyptv-gui/ 
-	$ python pyptv_gui.py ~/ptv_test_folder/
+
+	 sudo apt-get install cmake
+
+#. Install missing compilers::  
+
+	 sudo apt-get install build-essential
+
+#. Install git::  
+
+	 sudo apt-get install git
+
+#. Install Anaconda Python distribution, download from http://continuum.io/downloads and run:: 
+
+	$ bash Anaconda-2.1.0-Linux-x86.sh
+
+restart the bash terminal and update the packages::
+
+	 conda update conda
+	 conda update anaconda
+	 conda install cython
+
+#. Get OpenPTV library `liboptv`::  
+
+	 git clone git://github.com/OpenPTV/openptv.git
+	 cd openptv/liboptv
+	 cmake -G "Unix Makefiles" -i
+	 make
+	 make verify
+	 sudo make install
+	 
+#. Get OpenPTV-Python::    
+
+	 git clone git://github.com/OpenPTV/openptv-python.git::
+	 cd openptv-python/pyptv_gui
+	 python setup.py build_ext --inplace
+	 
+#. Get 3D-PTV test folder and create a missing `res/` folder::
+
+	 cd ~
+	 git clone https://bitbucket.org/turbulencelabtau/ptv_test_folder.git::
+	 cd ptv_test_folder
+	 mkdir res
+	 
+#. Run the software, if all works fine, that's it::
+
+	 cd ~/openptv-python/pyptv-gui/ 
+	 python pyptv_gui.py ~/ptv_test_folder/
 
 If you encounter the error like this while trying to run the ``openptv-python``::
 
-	$ python pyptv_gui.py ../../ptv_test_folder/test/
+	 python pyptv_gui.py ../../ptv_test_folder/test/
    
     > Wrong experimental directory /home/hristo/ptv_test_folder/test
 	> src_path= /home/hristo/openptv-python/src_c
@@ -92,21 +111,18 @@ If you encounter the error like this while trying to run the ``openptv-python``:
 
 Then it's suggested to try::
 
-     $ PATH=/usr/local/lib:$PATH python pyptv_gui.py ~/ptv_test_folder/test/
+     PATH=/usr/local/lib:$PATH python pyptv_gui.py ~/ptv_test_folder/test/
      
 or ::
 
-     $ LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH python pyptv_gui.py ~/ptv_test_folder/test/
+      LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH python pyptv_gui.py ~/ptv_test_folder/test/
 
 Whichever works, it is then useful to update the local ~/.bashrc file to define this every time one opens a shell.
 
 
 
-
-
-
-Installing on Linux/Mac for the experienced users:
---------------------------------------------------
+Building from source:
+----------------------
 
 Installing directly from the source tree in Git is fast and simple, using 
 CMake. Before installation first we need to make sure that the dependencies are installed. A bit more detailed instructions for Ubuntu users are given below.  
@@ -141,101 +157,6 @@ you can use the ``optv`` library in your code without further modifications. You
 can run ``cmake`` with parameters that would change the install locations (see
 below on the Windows install process). If you do so, remmember to make sure 
 that your compiler knows the path to the installed location.
-
-
-Detailed instructions of installing OpenPTV on Ubuntu 12.04
-------------------------------------------------------------
-
-Creating ``liboptv``: 
-~~~~~~~~~~~~~~~~~~~~~
-
-1. Download and install Check unit testing framework:  
-
-Download from Sourceforge.net <http://sourceforge.net/projects/check/files/latest/download?source=files> or use::
-
-		$ curl -O http://sourceforge.net/projects/check/files/latest/download?source=files
-		$ ./configure 
-		$ make
-		$ make verify
-		$ sudo make install 
-
-2. Download and install `liboptv`, note that CMake will ask you some questions about your system, and accepting the defaults is recommended ::  
-
-		$ git clone git://github.com/OpenPTV/openptv.git
-		$ cd openptv/liboptv
-		$ cmake -G "Unix Makefiles" -i
-		$ make
-		$ make verify
-		$ sudo make install
-
-
-Creating ``openptv-python``:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Steps 3-4 are to obtain the necessary packages for ``openptv-python`` using native Ubuntu package manager. Steps 3-4 could be replaced by installing the *academic license* version of CANOPY from Enthought, see <https://www.enthought.com/products/canopy/>. It is also possible to get the free licensed Canopy Express version and add the missing packages manually.
-
-
-3. The required packages for Ubuntu which are not installed with Python by default can be obtained (following the receipt of  `neuroimaging <neuroimaging.scipy.org/doc/manual/html/devel/tools/virtualenv-tutor.html>`_), using the  package manager (``sudo apt-get install package-name``):: 
-
-
-	sudo apt-get install python-numpy python-scipy python-setuptools python-wxgtk2.8 
-	cython swig python-imaging python-vtk python-pyrex python-matplotlib g++
-	libc6-dev libx11-dev python2.7-dev freeglut3-dev libtool git python-sphinx curl 
-	make cmake python-enable
-
-if you get some error about `Gl/gl.h` or `GL/glu.h`, maybe also::
-
-		$ sudo apt-get install libatlas-base-dev libgl1--mesa-dev libglu1-mesa-dev  
-
-
-4. Get the necessary packages: ETS from Enthought, download the Python script that installs all-in-one `ets.py <https://github.com/enthought/ets/raw/master/ets.py>`_::  
-
-		$ mkdir ets
-		$ cd ets
-		$ python ets.py clone 
-		$ sudo python ets.py install
-
-
-5. Download and install `openptv-python`::  
-
-		$ git clone git://github.com/OpenPTV/openptv-python.git
-		$ cd openptv-python/pyptv_gui
-		$ python setup.py build_ext --inplace
-
-6. For the test, get the test_folder and see if it works::
-
-		$ cd ~
-		$ git clone https://bitbucket.org/turbulencelabtau/ptv_test_folder.git
-		$ cd ptv_test_folder
-		$ mkdir res
-		$ cd ~/openptv-python/pyptv-gui/ 
-		$ python pyptv_gui.py ~/ptv_test_folder/test/
-
-
-For Mac OS X I found this Gist very useful: <https://gist.github.com/satra/845545> and another copy `here <https://www.ibic.washington.edu/wiki/display/faq/How+do+I+install+EPD+Python+in+a+virtualenv>`_
-
-If you encounter the error like this while trying to run the ``openptv-python``::
-
-	$ python pyptv_gui.py ../../ptv_test_folder/test/
-   
-    > Wrong experimental directory /home/hristo/ptv_test_folder/test
-	> src_path= /home/hristo/openptv-python/src_c
-	> Traceback (most recent call last):
-	> File "pyptv_gui.py", line 60, in <module>
-	> import ptv1 as ptv
-	> ImportError: liboptv.so: cannot open shared object file: No such file or
-	> directory 
-
-
-Then it's suggested to try::
-
-     $ PATH=/usr/local/lib:$PATH python pyptv_gui.py ~/ptv_test_folder/test/
-     
-or ::
-
-     $ LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH python pyptv_gui.py ~/ptv_test_folder/test/
-
-Whichever works, it is then useful to update the local ~/.bashrc file to define this every time one opens a shell.
 
 
 Installing on Windows
