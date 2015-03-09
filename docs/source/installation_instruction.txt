@@ -40,7 +40,7 @@ Below are instructions for building it and making it ready for use, either from
 a source distribution (a tarball with all necessary files) or directly from a 
 Git repository. 
 
-Installing on Linux/Mac:
+Installing on Linux:
 -------------------------
 
 #. Install Check Unit testing framework::
@@ -121,8 +121,12 @@ Whichever works, it is then useful to update the local ~/.bashrc file to define 
 
 
 
-Building from source:
-----------------------
+Building from source/Installing on Mac OS X:
+--------------------------------------------
+
+Basically follow the Linux instructions, whenever the `apt-get` package manager is used, one can use MacPorts or Homebrew package managers. 
+Instead, one can simply download and install from source the a) check b) cmake c) liboptv, d) openptv-python and install Anaconda using
+the Mac OS package. 
 
 Installing directly from the source tree in Git is fast and simple, using 
 CMake. Before installation first we need to make sure that the dependencies are installed. A bit more detailed instructions for Ubuntu users are given below.  
