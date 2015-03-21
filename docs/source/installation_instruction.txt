@@ -164,7 +164,9 @@ that your compiler knows the path to the installed location.
 
 
 Installing on Windows
-=====================
+---------------------
+
+
 Unlike Linux and MacOS, which both implement POSIX standards (the Unix 
 standards base) and contain a default C build environment, Windows has 
 no such environment. Choices range from the bare-bones Windows SDK, whose 
