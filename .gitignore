@@ -34,3 +34,5 @@ nosetests.xml
 .project
 .pydevproject
 tracking_run_py.c
+ptv1.c
+tracking_framebuf.c

@@ -8,8 +8,8 @@ http://opensource.org/licenses/MIT
 
 """
 from traits.etsconfig.api import ETSConfig
-ETSConfig.toolkit = 'qt4'
-# ETSConfig.toolkit = 'wx'
+# ETSConfig.toolkit = 'qt4'
+ETSConfig.toolkit = 'wx'
 
 from traits.api \
     import HasTraits, Str, Int, List, Bool, Enum, Instance, Any
@@ -405,7 +405,7 @@ class TreeMenuHandler (Handler):
         experiment = editor.get_parent(object)
         paramset = object
         # rename
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         editor._menu_rename_node()
         new_name = object.name
         new_dir_path = general.par_dir_prefix + new_name
