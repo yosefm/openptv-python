@@ -285,7 +285,7 @@ If nothing works, where I can get help?
 
 Send your build logs, description of the problem and details of the operating system, Python version, etc. to::
 
-    https://groups.google.com/forum/#!forum/openptv
+    <https://groups.google.com/forum/#!forum/openptv>
 
 
 If I do not want to build or test the software, can I use pre-compiled binaries?
