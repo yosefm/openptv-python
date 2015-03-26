@@ -93,14 +93,13 @@ restart the bash terminal and update the packages::
 	 
 #. Run the software, if all works fine, that's it::
 
-	 cd ~/openptv-python/pyptv-gui/ 
-	 python pyptv_gui.py ~/ptv_test_folder/
+	 cd ~/openptv-python/pyptv-gui/ python pyptv_gui.py ~/ptv_test_folder/
 
 If you encounter the error like this while trying to run the ``openptv-python``::
 
-	 python pyptv_gui.py ../../ptv_test_folder/test/
+	 python pyptv_gui.py ../../ptv_test_folder/
    
-    > Wrong experimental directory /home/hristo/ptv_test_folder/test
+    > Wrong experimental directory /home/hristo/ptv_test_folder
 	> src_path= /home/hristo/openptv-python/src_c
 	> Traceback (most recent call last):
 	> File "pyptv_gui.py", line 60, in <module>
@@ -111,11 +110,11 @@ If you encounter the error like this while trying to run the ``openptv-python``:
 
 Then it's suggested to try::
 
-     PATH=/usr/local/lib:$PATH python pyptv_gui.py ~/ptv_test_folder/test/
+     PATH=/usr/local/lib:$PATH python pyptv_gui.py ~/ptv_test_folder/
      
 or ::
 
-      LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH python pyptv_gui.py ~/ptv_test_folder/test/
+      LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH python pyptv_gui.py ~/ptv_test_folder/
 
 Whichever works, it is then useful to update the local ~/.bashrc file to define this every time one opens a shell.
 
