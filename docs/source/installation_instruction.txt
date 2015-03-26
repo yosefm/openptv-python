@@ -29,7 +29,7 @@ liboptv - a library of the OpenPTV algorithms
 
 This is a library - you can build it and link to it in your own project, e.g. calling functions from your own GUI or command-line software. When the package is installed correctly, you can reference it in your code by including files from the ``optv`` directory under the standard include path. For example::
 
-  #include <optv/tracking_frame_buf.h>
+    #include <optv/tracking_frame_buf.h>
 
 To build your program you also link it with ``liboptv``. On ``gcc``, one adds the flag
 ``-loptv`` to the command line. Other compilers and IDEs have their own 
@@ -139,9 +139,9 @@ CMake. Before installation first we need to make sure that the dependencies are 
    to the instructions in the Check package. Typically you would need to run 
    the following commands in a shell::
 
-	./configure
-	make
-	make install
+	./configure  
+	make  
+	make install  
 
 2. The build instructions for liboptv are processed with CMake. Again, this 
    is available either from your package manager on Linux, or from <http://cmake.org>.
@@ -149,9 +149,9 @@ CMake. Before installation first we need to make sure that the dependencies are 
    After installing CMake, installing ``liboptv`` is a simple matter of running
    the following commands in the ``liboptv/`` directory::
    
-	cmake
-	make
-	make verify 
+	cmake  
+	make  
+	make verify  
 	make install
 
 The install process will put the header files and libraries in default system
@@ -198,16 +198,16 @@ there.
 Installing Check
 ~~~~~~~~~~~~~~~~
 The tests of liboptv depend on the Check framework. You can get it from 
-http://check.sourceforge.net
+<http://check.sourceforge.net>
 
 Some versions have problems with Windows. Version 0.9.8 is known to work. You can 
 get version 0.9.14 to work by editing `lib/libcompat.h` and commenting out or 
 removing lines 147-151.
 
 Installing Check is done roughly in the same way as on Linux, in the MSYS 
-shell:
+shell::  
 
-	./configure --prefix /usr  
+	./configure --prefix /usr    
 	make  
 	make install  
 
@@ -227,7 +227,7 @@ into it.
 
 For processing of build instructions, install CMake, from cmake.org.
 
-Now, in the Build directory, initialize cmake with the following command:
+Now, in the Build directory, initialize cmake with the following command::
     
 	cmake ../ -G "Unix Makefiles" -i  
 
@@ -238,14 +238,14 @@ makefiles with a simple `cmake ../` in a working build directory, since
 CMake caches values you set before.
 
 Now that CMake is initialized, a command to generate Makefiles with all
-paths told in advance, would be
+paths told in advance, would be::
 
 	cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_PREFIX_PATH=/c/MinGW/msys/1.0/  
 
 Note the path where Check was installed is specified, and be sure to adjust it
 if it is a different path in your system.
 
-Now to build and install liboptv, type:  
+Now to build and install liboptv, type::  
  
 	make  
 	make install  
@@ -270,13 +270,13 @@ separated by a semicolon (;) charachter from the directories already listed.
 Installing Python environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We recommend using WinPython, Pythonxy, Canopy (Enthought) or Anaconda (Continuum Analytics) and use their package managers to get all the necessary packages. The main ones are: 
+We recommend using WinPython, Pythonxy, Canopy (Enthought) or Anaconda (Continuum Analytics) and use their package managers to get all the necessary packages. The main ones are:: 
 
-* Numpy
-* Scipy
-* Cython
-* ETS from Enthought (including Traits, Chaco and Pyface)
-* PyQt
+    * Numpy
+    * Scipy
+    * Cython
+    * ETS from Enthought (including Traits, Chaco and Pyface)
+    * PyQt
 
 
 
@@ -285,7 +285,7 @@ If nothing works, where I can get help?
 
 Send your build logs, description of the problem and details of the operating system, Python version, etc. to::
 
-	openptv@googlegroups.com
+    https://groups.google.com/forum/#!forum/openptv
 
 
 If I do not want to build or test the software, can I use pre-compiled binaries?
