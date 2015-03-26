@@ -133,15 +133,15 @@ CMake. Before installation first we need to make sure that the dependencies are 
 1. The tests of liboptv depend on the Check framework. You can either get it 
    from your package manager (on Ubuntu::
    
-    $$ sudo apt-get install check
+	sudo apt-get install check
     
    or get the source package  from <http://check.sourceforge.net> and install according 
    to the instructions in the Check package. Typically you would need to run 
    the following commands in a shell::
 
-     $ ./configure
-     $ make
-     $ make install
+	./configure
+	make
+	make install
 
 2. The build instructions for liboptv are processed with CMake. Again, this 
    is available either from your package manager on Linux, or from <http://cmake.org>.
@@ -149,10 +149,10 @@ CMake. Before installation first we need to make sure that the dependencies are 
    After installing CMake, installing ``liboptv`` is a simple matter of running
    the following commands in the ``liboptv/`` directory::
    
-     $ cmake
-     $ make
-     $ make verify 
-     $ make install
+	cmake
+	make
+	make verify 
+	make install
 
 The install process will put the header files and libraries in default system
 paths (on linux, ``/usr/local/include`` and ``/usr/local/lib`` respectively), so that 
@@ -182,7 +182,7 @@ compatible solution.
 
 The MSYS package provides the GCC compiler (MinGW), a Bash command-line shell 
 and Unix build tools for Windows. It can be found here:
-`http://www.mingw.org/wiki/MSYS`
+<http://www.mingw.org/wiki/MSYS>
 
 Use the mingw-get-setup method of instalation. During the installation you will
 be asked to choose subpackages. If you don't know what you're doing, choose
@@ -207,9 +207,9 @@ removing lines 147-151.
 Installing Check is done roughly in the same way as on Linux, in the MSYS 
 shell:
 
-     $ ./configure --prefix /usr
-     $ make
-     $ make install
+	./configure --prefix /usr
+	make
+	make install
 
 However, it is important to note where the install actually lands so that we can 
 help CMake find it. The Check library would be installed under the MSYS tree 
@@ -229,7 +229,7 @@ For processing of build instructions, install CMake, from cmake.org.
 
 Now, in the Build directory, initialize cmake with the following command:
     
-    $ cmake ../ -G "Unix Makefiles" -i
+	cmake ../ -G "Unix Makefiles" -i
 
 CMake will then ask you some questions about your system (accepting the 
 defaults is usually ok). Now and at any future step, you can erase the 
@@ -240,15 +240,15 @@ CMake caches values you set before.
 Now that CMake is initialized, a command to generate Makefiles with all
 paths told in advance, would be
 
-    $  cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_PREFIX_PATH=/c/MinGW/msys/1.0/
+	cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_PREFIX_PATH=/c/MinGW/msys/1.0/
 
 Note the path where Check was installed is specified, and be sure to adjust it
 if it is a different path in your system.
 
 Now to build and install liboptv, type
 
-    $ make
-    $ make install
+	make
+	make install
 
 This would install liboptv in what MSYS refers to as ``/usr``, which is 
 ``C:\MinGW\msys\1.0\`` on my system. Any further program that is built using MSYS
