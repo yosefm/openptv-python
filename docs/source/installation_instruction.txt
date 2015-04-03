@@ -299,7 +299,7 @@ add the location of the ``liboptv`` files in the next step, e.g.::
  	$ python setup.py install -I /usr/local/include -L /usr/local/lib
  	
 
-For Windows 7 (8.1) there is an additional option to use pre-compiled binaries as explained in installation_windows_7_mingw32_precompiled.txt
+For Windows 7 (8.1) there is an additional option to use pre-compiled binaries as explained here: `Installation on Windows 7 using MinGW <installation_windows_7_mingw32_precompiled.html>`_
 
 
 
