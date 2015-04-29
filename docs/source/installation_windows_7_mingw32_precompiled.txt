@@ -31,3 +31,7 @@ Open MSYS shell, change directory to ``openptv-python/pyptv_gui`` and run the so
 
      cd openptv-python/pyptv_gui
      python pyptv_gui.py ../../test_cavity
+     
+If you get the error that the ImportError: DLL load failed, try to add the $PATH statement:
+
+     PATH=/usr/lib:$PATH python pyptv_gui.py ~/test_folder/
