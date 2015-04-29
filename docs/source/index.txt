@@ -17,10 +17,10 @@ Contents:
    intro
    installation_instruction
    tutorial
+   add_doc
    developers
    howto
    gui_doc
-   add_doc
    add_soft
    
 
