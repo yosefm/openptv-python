@@ -20,8 +20,8 @@ Installation of OpenPTV on Windows 7 and 8.1 using MinGW and pre-compiled librar
    * unzip it into ``c:\mingw\msys\1.0\home\USERNAME\openptv-python``
 4. Download test folder from <https://github.com/OpenPTV/test_cavity/archive/master.zip>
    * unzip it into ``c:\mingw\msys\1.0\home\USERNAME\test_cavity``
-5. Download pre-compiled libraries from our Google Drive folder:
-   * <https://drive.google.com/folderview?id=0B48pBs4OPhMOYXo5Qy1LRDZabFk&usp=sharing>
+5. Download pre-compiled libraries from this link:
+   * <https://app.box.com/s/witfecw7lqcnmo8802szpdg6pz8sinmo>
 Note that there are three directories with a couple of files each, please copy the content of each subdirectory in the respective path on your machine: 
   1. mingw to ``c:\mingw`` (it includes in msys/lib the check and optv libraries and in ``msys/include`` the ``optv/include`` and check.h and /etc/profile and /etc/fstab) 
   2. ``Anaconda/libs/libpython27.a`` to ``Anaconda/libs``
