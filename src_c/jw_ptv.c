@@ -35,7 +35,6 @@ int determination_proc_c();
 volume_par *vpar;
 control_par *cpar;
 
-int	allCam_flag=0;           	      	/* flag for using all cams for points */
 int	tiff_flag=0;           	      	/* flag for tiff header */
 int pair_flag=0;					/*flag for accept pair */
 int	chfield;       		       	/* flag for field mode */
@@ -155,7 +154,6 @@ int init_proc_c()
         strncpy(img_name[i], cpar->img_base_name[i], 256);
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 256);
     }
-    allCam_flag = cpar->allCam_flag;
     tiff_flag = cpar->tiff_flag;
     imx = cpar->imx;
     imy = cpar->imy;
@@ -249,7 +247,6 @@ int start_proc_c()
         strncpy(img_name[i], cpar->img_base_name[i], 256);
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 256);
     }
-    allCam_flag = cpar->allCam_flag;
     tiff_flag = cpar->tiff_flag;
     imx = cpar->imx;
     imy = cpar->imy;

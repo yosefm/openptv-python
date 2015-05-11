@@ -211,7 +211,7 @@ void correspondences_4 (volume_par *vpar, control_par *cpar)
   /* ----------------------------------------------------------------------- */
 
   /* search consistent triplets :  123, 124, 134, 234 */
-  if ((cpar->num_cams ==4 && allCam_flag==0) || cpar->num_cams ==3)
+  if ((cpar->num_cams == 4 && cpar->allCam_flag == 0) || cpar->num_cams == 3)
     {
    //   puts ("Search consistent triplets");
       printf("Search consistent triplets");
@@ -294,7 +294,7 @@ printf ( "%d consistent quadruplets, %d triplets ", match4, match3);
 
   /* search consistent pairs :  12, 13, 14, 23, 24, 34 */
   /* only if an object model is available or if only 2 images are used */
-      if(cpar->num_cams > 1 && allCam_flag==0){
+      if(cpar->num_cams > 1 && cpar->allCam_flag == 0){
 	printf("Search pairs");
 
 
