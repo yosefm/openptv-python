@@ -35,7 +35,6 @@ int determination_proc_c();
 volume_par *vpar;
 control_par *cpar;
 
-int	tiff_flag=0;           	      	/* flag for tiff header */
 int pair_flag=0;					/*flag for accept pair */
 int	chfield;       		       	/* flag for field mode */
 int	nfix;	       	       	       	/* no. of control points */
@@ -154,7 +153,6 @@ int init_proc_c()
         strncpy(img_name[i], cpar->img_base_name[i], 256);
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 256);
     }
-    tiff_flag = cpar->tiff_flag;
     imx = cpar->imx;
     imy = cpar->imy;
     pix_x = cpar->pix_x;
@@ -247,7 +245,6 @@ int start_proc_c()
         strncpy(img_name[i], cpar->img_base_name[i], 256);
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 256);
     }
-    tiff_flag = cpar->tiff_flag;
     imx = cpar->imx;
     imy = cpar->imy;
     pix_x = cpar->pix_x;
@@ -548,20 +545,10 @@ int calibration_proc_c (int sel)
     int a[4],a1[4],a2[4],success=1;
     double residual;
     
-    // Tk_PhotoHandle img_handle;
-    // Tk_PhotoImageBlock img_block;
-    
     /* read support of unsharp mask */
     fp1 = fopen ("parameters/unsharp_mask.par", "r");
     if (! fp1)	sup = 12;
     else	{ fscanf (fp1, "%d\n", &sup); fclose (fp1); }
-    
-    /* Get Selection value from TclTk */
-    
-    /*  valp = Tcl_GetVar(interp, "sel",  TCL_GLOBAL_ONLY);*/
-    /*  sel = atoi (valp);*/
-    
-    printf("\n Selection = %d Alex \n", sel);
     
     /* Beat Mai 2007 to set the variable examine for mulit-plane calibration*/
     fp1 = fopen_r ("parameters/examine.par");
@@ -580,18 +567,15 @@ int calibration_proc_c (int sel)
     
     fp1 = fopen_r ("parameters/cal_ori.par");
     fscanf (fp1,"%s\n", fixp_name);
-    printf("after 2\n");
     for (i=0; i<4; i++)
 	{
         fscanf (fp1, "%s\n", img_name[i]);
         fscanf (fp1, "%s\n", img_ori0[i]);
 	}
-    printf("after 2.5\n");
-    fscanf (fp1, "%d\n", &tiff_flag);
-    printf("after 2.6\n");
+    fscanf (fp1, "%d\n", &dummy_float);
     fscanf (fp1, "%d\n", &pair_flag);
     fclose (fp1);
-    printf("after 3\n");
+    
     if (pair_flag==1){
         int OSWALDDUMMY=1;
     }
@@ -605,6 +589,7 @@ int calibration_proc_c (int sel)
     switch (sel)
     {
         case 1: /*  read calibration parameter file  */
+            /* But this is always done. Should prob. remove later. */
             fp1 = fopen_r ("parameters/cal_ori.par");
             fscanf (fp1,"%s\n", fixp_name);
             
@@ -613,7 +598,7 @@ int calibration_proc_c (int sel)
                 fscanf (fp1, "%s\n", img_name[i]);
                 fscanf (fp1, "%s\n", img_ori0[i]);
             }
-            fscanf (fp1, "%d\n", &tiff_flag);
+            fscanf (fp1, "%d\n", &dummy_float);
             fscanf (fp1, "%d\n", &pair_flag);
             fscanf (fp1, "%d\n", &chfield);
             fclose (fp1);
