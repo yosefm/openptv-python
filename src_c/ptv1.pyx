@@ -75,7 +75,6 @@ cdef extern from "globals.h": # to lose the declspec
     int  orient_n[4]    
     int intx0_tr[4][10000],intx1_tr[4][10000],intx2_tr[4][10000],inty0_tr[4][10000],inty1_tr[4][10000],inty2_tr[4][10000],pnr1_tr[4][10000],pnr2_tr[4][10000],m1_tr
     float pnr3_tr[4][10000]
-    int n_img
     int num[4]
     int zoom_x[], zoom_y[], zoom_f[]
     int rclick_intx1[4],rclick_inty1[4],rclick_intx2[4],rclick_inty2[4], rclick_points_x1[4][10000],rclick_points_y1[4][10000],rclick_count[4]
@@ -148,9 +147,9 @@ def py_read_attributes(a):
     a.append(imy)
     
 def py_get_pix(x,y):
-    global pix,n_img
+    global pix
     cdef int i,j
-    for i in range(n_img):
+    for i in range(cpar[0].num_cams):
         x1=[]
         y1=[]
         for j in range(num[i]):
@@ -163,14 +162,14 @@ def py_calibration(sel):
     calibration_proc_c(sel) 
     
 def py_correspondences_proc_c(quadruplets,triplets,pairs, unused):
-    global pix,n_img,match4_g,match3_g,match2_g,match1_g,geo,con,p
+    global pix,match4_g,match3_g,match2_g,match1_g,geo,con,p
 
     correspondences_proc_c()
 #  get quadruplets ---------------------------  
     cdef int i,j
     quadruplets_x=[]
     quadruplets_y=[]
-    for j in range(n_img):
+    for j in range(cpar[0].num_cams):
         x1=[]
         y1=[]
         for i in range (match4_g):
@@ -186,7 +185,7 @@ def py_correspondences_proc_c(quadruplets,triplets,pairs, unused):
     
     triplets_x=[]
     triplets_y=[]
-    for j in range(n_img):
+    for j in range(cpar[0].num_cams):
         x1=[]
         y1=[]
         for i in range (match4_g,match4_g+match3_g):
@@ -202,7 +201,7 @@ def py_correspondences_proc_c(quadruplets,triplets,pairs, unused):
 
     pairs_x=[]
     pairs_y=[]
-    for j in range(n_img):
+    for j in range(cpar[0].num_cams):
         x1=[]
         y1=[]
         for i in range (match4_g+match3_g,match4_g+match3_g+match2_g):
@@ -220,7 +219,7 @@ def py_correspondences_proc_c(quadruplets,triplets,pairs, unused):
     unused_x=[]
     unused_y=[]
     
-    for j in range (n_img):
+    for j in range (cpar[0].num_cams):
         x1=[]
         y1=[]
         for i in range(num[j]):
@@ -236,7 +235,7 @@ def py_correspondences_proc_c(quadruplets,triplets,pairs, unused):
 def py_get_from_calib(x,y):
     global x_calib,y_calib,ncal_points  
     cdef int i,j
-    for i in range(n_img):
+    for i in range(cpar[0].num_cams):
         x1=[]
         y1=[]
         for j in range(ncal_points[i]):
@@ -248,7 +247,7 @@ def py_get_from_calib(x,y):
 def py_get_from_sortgrid(x,y,pnr):
     global x_calib,y_calib,z_calib,ncal_points,pix  
     cdef int i,j
-    for i in range(n_img):
+    for i in range(cpar[0].num_cams):
         x1=[]
         y1=[]
         pnr1=[]
@@ -266,7 +265,7 @@ def py_get_from_orient(x1,y1,x2,y2):
     global orient_x1,orient_y1,orient_x2,orient_y2,orient_n
 
     cdef int i,j
-    for i in range(n_img):
+    for i in range(cpar[0].num_cams):
         x_1=[]
         y_1=[]
         x_2=[]
@@ -308,7 +307,7 @@ def py_trackcorr_loop(TrackingRun run_info, int step, int display):
         intx0,intx1,intx2,inty0,inty1,inty2,pnr1,pnr2,pnr3=[],[],[],[],[],[],[],[],[]
         print m1_tr
         
-        for i in range(n_img):
+        for i in range(cpar[0].num_cams):
             intx0_t,intx1_t,intx2_t,inty0_t,inty1_t,inty2_t,pnr1_t,pnr2_t,pnr3_t=[],[],[],[],[],[],[],[],[]
             for j in range (m1_tr):
                 intx0_t.append(intx0_tr[i][j])
@@ -350,7 +349,8 @@ def py_traject_loop(seq):
     global intx1_tr,intx2_tr,inty1_tr,inty2_tr,m1_tr
     trajectories_c(seq, cpar[0].num_cams)
     intx1,intx2,inty1,inty2=[],[],[],[]
-    for i in range(n_img):
+    
+    for i in range(cpar[0].num_cams):
         intx1_t,intx2_t,inty1_t,inty2_t=[],[],[],[]
         for j in range(m1_tr):
             intx1_t.append(intx1_tr[i][j])
@@ -377,7 +377,7 @@ def py_right_click(int coord_x, int coord_y, n_image):
     
     if r==-1:
         return -1,-1,-1,-1,-1,-1,-1,-1
-    for i in range(n_img):
+    for i in range(cpar[0].num_cams):
         x2_temp,y2_temp=[],[]
         for j in range(rclick_count[i]):
             x2_temp.append(rclick_points_x1[i][j])
@@ -397,7 +397,7 @@ def py_rclick_delete(coord_x,coord_y,n_image):
     mouse_proc_c(<int>coord_x, <int> coord_y, 4,<int>n_image, NULL, NULL)
 
 def py_get_pix_N(x,y,n_image):
-    global pix,n_img
+    global pix
     cdef int i,j
     i=n_image
     x1=[]

@@ -35,7 +35,6 @@ int determination_proc_c();
 volume_par *vpar;
 control_par *cpar;
 
-int	n_img;	       		      	/* no of images */
 int	hp_flag=0;           	      	/* flag for highpass */
 int	allCam_flag=0;           	      	/* flag for using all cams for points */
 int	tiff_flag=0;           	      	/* flag for tiff header */
@@ -152,28 +151,24 @@ int init_proc_c()
     /*  read from main parameter file  */
     cpar = read_control_par("parameters/ptv.par");
     
-    fpp = fopen_r ("parameters/ptv.par");
-    
-    fscanf (fpp, "%d\n", &n_img);
-    
     for (i=0; i<4; i++)
     {
-        fscanf (fpp, "%s\n", img_name[i]);
-        fscanf (fpp, "%s\n", img_cal[i]);
+        strncpy(img_name[i], cpar->img_base_name[i], 256);
+        strncpy(img_cal[i], cpar->cal_img_base_name[i], 256);
     }
-    fscanf (fpp, "%d\n", &hp_flag);
-    fscanf (fpp, "%d\n", &allCam_flag);
-    fscanf (fpp, "%d\n", &tiff_flag);
-    fscanf (fpp, "%d\n", &imx);
-    fscanf (fpp, "%d\n", &imy);
-    fscanf (fpp, "%lf\n", &pix_x);
-    fscanf (fpp, "%lf\n", &pix_y);
-    fscanf (fpp, "%d\n", &chfield);
-    fscanf (fpp, "%lf\n", &mmp.n1);
-    fscanf (fpp, "%lf\n", &mmp.n2[0]);
-    fscanf (fpp, "%lf\n", &mmp.n3);
-    fscanf (fpp, "%lf\n", &mmp.d[0]);
-    fclose (fpp);
+    hp_flag = cpar->hp_flag;
+    allCam_flag = cpar->allCam_flag;
+    tiff_flag = cpar->tiff_flag;
+    imx = cpar->imx;
+    imy = cpar->imy;
+    pix_x = cpar->pix_x;
+    pix_y = cpar->pix_y;
+    chfield = cpar->chfield;
+    
+    mmp.n1 = cpar->mm->n1;
+    mmp.n2[0] = cpar->mm->n2[0];
+    mmp.n3 = cpar->mm->n3;
+    mmp.d[0] = cpar->mm->d[0];
     
     /* read illuminated layer data */
     vpar = read_volume_par("parameters/criteria.par");
@@ -251,29 +246,24 @@ int start_proc_c()
     /*  read from main parameter file  */
     cpar = read_control_par("parameters/ptv.par");
     
-    printf("inside start_proc");
-    fpp = fopen_r ("parameters/ptv.par");
-    
-    fscanf (fpp, "%d\n", &n_img);
-    
     for (i=0; i<4; i++)
     {
-        fscanf (fpp, "%s\n", img_name[i]);
-        fscanf (fpp, "%s\n", img_cal[i]);
+        strncpy(img_name[i], cpar->img_base_name[i], 256);
+        strncpy(img_cal[i], cpar->cal_img_base_name[i], 256);
     }
-    fscanf (fpp, "%d\n", &hp_flag);
-    fscanf (fpp, "%d\n", &allCam_flag);  
-    fscanf (fpp, "%d\n", &tiff_flag);
-    fscanf (fpp, "%d\n", &imx);
-    fscanf (fpp, "%d\n", &imy);
-    fscanf (fpp, "%lf\n", &pix_x);
-    fscanf (fpp, "%lf\n", &pix_y);
-    fscanf (fpp, "%d\n", &chfield);
-    fscanf (fpp, "%lf\n", &mmp.n1);
-    fscanf (fpp, "%lf\n", &mmp.n2[0]);
-    fscanf (fpp, "%lf\n", &mmp.n3);
-    fscanf (fpp, "%lf\n", &mmp.d[0]);
-    fclose (fpp);
+    hp_flag = cpar->hp_flag;
+    allCam_flag = cpar->allCam_flag;
+    tiff_flag = cpar->tiff_flag;
+    imx = cpar->imx;
+    imy = cpar->imy;
+    pix_x = cpar->pix_x;
+    pix_y = cpar->pix_y;
+    chfield = cpar->chfield;
+    
+    mmp.n1 = cpar->mm->n1;
+    mmp.n2[0] = cpar->mm->n2[0];
+    mmp.n3 = cpar->mm->n3;
+    mmp.d[0] = cpar->mm->d[0];
     
     /* read illuminated layer data */
     vpar = read_volume_par("parameters/criteria.par");
