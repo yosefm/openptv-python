@@ -13,7 +13,6 @@
 #include <optv/parameters.h>
 extern control_par *cpar; /* From jw_ptv.c, temporary Windows-build thing */
 
-extern int hp_flag;        /* flag for highpass */
 extern int allCam_flag;    /* flag for using all cams for points */
 extern int tiff_flag;      /* flag for tiff header */
 extern int chfield;	       /* flag for field mode */

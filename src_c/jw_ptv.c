@@ -35,7 +35,6 @@ int determination_proc_c();
 volume_par *vpar;
 control_par *cpar;
 
-int	hp_flag=0;           	      	/* flag for highpass */
 int	allCam_flag=0;           	      	/* flag for using all cams for points */
 int	tiff_flag=0;           	      	/* flag for tiff header */
 int pair_flag=0;					/*flag for accept pair */
@@ -156,7 +155,6 @@ int init_proc_c()
         strncpy(img_name[i], cpar->img_base_name[i], 256);
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 256);
     }
-    hp_flag = cpar->hp_flag;
     allCam_flag = cpar->allCam_flag;
     tiff_flag = cpar->tiff_flag;
     imx = cpar->imx;
@@ -251,7 +249,6 @@ int start_proc_c()
         strncpy(img_name[i], cpar->img_base_name[i], 256);
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 256);
     }
-    hp_flag = cpar->hp_flag;
     allCam_flag = cpar->allCam_flag;
     tiff_flag = cpar->tiff_flag;
     imx = cpar->imx;
@@ -1317,7 +1314,7 @@ int sequence_proc_loop_c  (int dumbbell,int i)
         fclose (fpp);
     }
     
-    if (hp_flag) {
+    if (cpar->hp_flag) {
         pre_processing_c ();
         puts("\nHighpass switched on\n");
     } else { puts("\nHighpass switched off\n"); }
