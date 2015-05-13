@@ -37,7 +37,7 @@ cdef enum:
     nmax = 20240
 
 cdef extern from "globals.h": # to lose the declspec
-    void prepare_eval(int n_img, int *n_fix)
+    void prepare_eval(control_par *cpar, int *n_fix)
 
     void highpass(unsigned char *img, unsigned char *img_hp, int dim_lp, int filter_hp, int field)
     int init_proc_c()
@@ -460,13 +460,13 @@ def py_prepare_eval(num_cams):
     Wrapper around prepare_eval for regression-testing purposes.
     
     Arguments:
-    num_cams - number of cameras in the PTV system.
+    num_cams - number of cameras in the PTV system. No longer used.
     
     Returns:
     pix_arr - a (num_cams, nmax, 2) array, copy of the pix structre-array
         that is filled-in by prepare_eval.
     crd_arr - a (num_cams, nmax, 3) array, same for the crd struct-array.
     """
-    prepare_eval(num_cams, NULL) # the second argument is never used within.
+    prepare_eval(cpar, NULL) # the second argument is never used within.
     return get_pix_crd(num_cams)
 

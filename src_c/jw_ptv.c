@@ -36,7 +36,6 @@ volume_par *vpar;
 control_par *cpar;
 
 int pair_flag=0;					/*flag for accept pair */
-int	chfield;       		       	/* flag for field mode */
 int	nfix;	       	       	       	/* no. of control points */
 int	num[4];	       		       	    /* no. of targets per image */
 int numc[4];                        /* no. of targets in current image */
@@ -157,7 +156,6 @@ int init_proc_c()
     imy = cpar->imy;
     pix_x = cpar->pix_x;
     pix_y = cpar->pix_y;
-    chfield = cpar->chfield;
     
     mmp.n1 = cpar->mm->n1;
     mmp.n2[0] = cpar->mm->n2[0];
@@ -249,7 +247,6 @@ int start_proc_c()
     imy = cpar->imy;
     pix_x = cpar->pix_x;
     pix_y = cpar->pix_y;
-    chfield = cpar->chfield;
     
     mmp.n1 = cpar->mm->n1;
     mmp.n2[0] = cpar->mm->n2[0];
@@ -285,17 +282,18 @@ int start_proc_c()
 	return 0;
 }
 
-int pre_processing_c ()
+/* pre_processing_c() performs the image processing that makes the image ready for 
+   particle detection.
+   
+   Arguments:
+   int y_remap_mode - a flag denoting how to treat interlaced cameras. Not used 
+     anymore so should be 0. Consult trafo.c for more detail.
+*/
+int pre_processing_c(int y_remap_mode)
 {
     int i_img, sup, i;
     
-    //Tk_PhotoHandle img_handle;
-    //Tk_PhotoImageBlock img_block;
-    
     sprintf(val, "Filtering with Highpass");
-    // Tcl_SetVar(interp, "tbuf", val, TCL_GLOBAL_ONLY);
-    // Tcl_Eval(interp, ".text delete 2");
-    //Tcl_Eval(interp, ".text insert 2 $tbuf");
     
     /* read support of unsharp mask */
     fpp = fopen ("parameters/unsharp_mask.par", "r");
@@ -324,7 +322,7 @@ int pre_processing_c ()
     {//read mask image
         for (i_img=0; i_img < cpar->num_cams; i_img++)
         {
-            highpass (img[i_img], img[i_img], sup, 0, chfield);
+            highpass (img[i_img], img[i_img], sup, 0, y_remap_mode);
             subtract_mask (img[i_img], img_mask[i_img], img_new[i_img]); //subtract mask from original image
             copy_images (img_new[i_img], img[i_img]);//copy subtracted imgage on the original image
             
@@ -336,7 +334,7 @@ int pre_processing_c ()
     {
         for (i_img=0; i_img < cpar->num_cams; i_img++)
         {
-            highpass (img[i_img], img[i_img], sup, 0, chfield);//highpass original image
+            highpass (img[i_img], img[i_img], sup, 0, y_remap_mode);//highpass original image
         }
     }//end if
     
@@ -472,7 +470,7 @@ int correspondences_proc_c ()
             /* transformations metric coordinates -> corrected metric coordinates */
             pixel_to_metric (pix[i_img][i].x, pix[i_img][i].y,
                              imx,imy, pix_x, pix_y,
-                             &crd[i_img][i].x, &crd[i_img][i].y, chfield);
+                             &crd[i_img][i].x, &crd[i_img][i].y, cpar->chfield);
             crd[i_img][i].pnr = pix[i_img][i].pnr;
             
             x = crd[i_img][i].x - I[i_img].xh;
@@ -525,6 +523,8 @@ int calibration_proc_c (int sel)
 {
     int i, j,  i_img, k, n, sup,dummy,multi,planes;
     int prev, next; 
+    int chfield;       		       	/* flag for field mode */
+    
     double dummy_float;
     int intx1, inty1, intx2, inty2;
     coord_2d    	apfig1[11][11];	/* regular grid for ap figures */
@@ -643,7 +643,7 @@ int calibration_proc_c (int sel)
         case 2: puts ("Detection procedure"); strcpy(val,"");
             
             /* Highpass Filtering */
-            pre_processing_c ();
+            pre_processing_c (chfield);
             
             /* reset zoom values */
             for (i = 0; i < cpar->num_cams; i++)
@@ -685,12 +685,6 @@ int calibration_proc_c (int sel)
             }
             
             sprintf(buf,"Number of detected targets, interaction enabled");
-            /*      Tcl_SetVar(interp, "tbuf", buf, TCL_GLOBAL_ONLY);*/
-            /*      Tcl_Eval(interp, ".text delete 2");*/
-            /*      Tcl_Eval(interp, ".text insert 2 $tbuf");*/
-            /*      Tcl_SetVar(interp, "tbuf", val, TCL_GLOBAL_ONLY);*/
-            /*      Tcl_Eval(interp, ".text delete 3");*/
-            /*      Tcl_Eval(interp, ".text insert 3 $tbuf");*/
             break;
             
         case 4: /* read pixel coordinates of older pre-orientation */
@@ -1122,7 +1116,7 @@ int calibration_proc_c (int sel)
 			strcat (safety_addpar[3], ".addpar");
 			
             cpar = read_control_par("parameters/ptv.par");
-            prepare_eval_shake(cpar->num_cams);
+            prepare_eval_shake(cpar);
             
 			for (i_img = 0; i_img < cpar->num_cams; i_img++)
 			{
@@ -1154,7 +1148,7 @@ int calibration_proc_c (int sel)
             
         case 12: puts ("Orientation from dumbbells"); strcpy(buf, "");
 			
-            prepare_eval(cpar->num_cams, &nfix); //goes and looks up what sequence is defined and takes all cord. from rt_is
+            prepare_eval(cpar, &nfix); //goes and looks up what sequence is defined and takes all cord. from rt_is
             orient_v5 (cpar->num_cams, nfix, &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img]);
 			
             for(i_img = 0; i_img < cpar->num_cams; i_img++){
@@ -1271,12 +1265,16 @@ int sequence_proc_loop_c  (int dumbbell,int i)
     
     //Beat Mai 2010 for dumbbell
     if (dumbbell==0){
-        if (chfield == 0)       sprintf (res_name, "res/rt_is.%s", seq_ch);
-        else            sprintf (res_name, "res/rt_is.%s_%1d", seq_ch, chfield);
+        if (cpar->chfield == 0)
+            sprintf (res_name, "res/rt_is.%s", seq_ch);
+        else
+            sprintf (res_name, "res/rt_is.%s_%1d", seq_ch, cpar->chfield);
     }
     else{
-        if (chfield == 0)       sprintf (res_name, "res/db_is.%s", seq_ch);
-        else            sprintf (res_name, "res/db_is.%s_%1d", seq_ch, chfield);
+        if (cpar->chfield == 0)
+            sprintf (res_name, "res/db_is.%s", seq_ch);
+        else
+            sprintf (res_name, "res/db_is.%s_%1d", seq_ch, cpar->chfield);
     }
     sprintf (buf, "\nImages:");
     for (j = 0; j < cpar->num_cams; j++) sprintf (buf, "%s  %s", buf, img_name[j]);
@@ -1297,7 +1295,7 @@ int sequence_proc_loop_c  (int dumbbell,int i)
     }
     
     if (cpar->hp_flag) {
-        pre_processing_c ();
+        pre_processing_c (cpar->chfield);
         puts("\nHighpass switched on\n");
     } else { puts("\nHighpass switched off\n"); }
     /*      if (display) {Tcl_Eval(interp, "update idletasks");}*/

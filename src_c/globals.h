@@ -13,7 +13,6 @@
 #include <optv/parameters.h>
 extern control_par *cpar; /* From jw_ptv.c, temporary Windows-build thing */
 
-extern int chfield;	       /* flag for field mode */
 extern int nfix;           /* no. of control points */
 extern int num[];          /* no. of particles per image */
 extern int nump[4];        /* no. of particles in previous image */

@@ -67,6 +67,7 @@ int advance_nd_iterator(int nd, int *current, int *count) {
         always NULL and is there for convenience only.
 */
 n_tupel **correspondences(frame *frm, Calibration **calib, volume_par *vpar) {
+    int chfield = 0; /* temporary replacement of obsolete global */
     int cam, part; /* loop counters */
     double img_x, img_y; /* image center */
     coord_2d **corrected;

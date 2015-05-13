@@ -37,12 +37,7 @@ Related routines:
 int orient_x1[4][1000], orient_y1[4][1000], orient_x2[4][1000],\
     orient_y2[4][1000], orient_n[4];
 
-void prepare_eval (n_img,n_fix)
-
-int *n_fix;
-int n_img;
-
-{
+void prepare_eval (control_par *cpar, int *n_fix) {
     int     i_img, i, filenumber, step_shake, count = 0;
 	double  dummy;
     sequence_par *seq_par;
@@ -50,7 +45,7 @@ int n_img;
     int part_pointer; /* Holds index of particle later */
     
     frame frm;
-    frame_init(&frm, n_img, MAX_TARGETS);
+    frame_init(&frm, cpar->num_cams, MAX_TARGETS);
     
 	seq_par = read_sequence_par("parameters/sequence.par");
 
@@ -71,7 +66,7 @@ int n_img;
             filenumber);
 
 		for (i = 0; i < frm.num_parts; i++) {
-            for (i_img = 0; i_img < n_img; i_img++) {
+            for (i_img = 0; i_img < cpar->num_cams; i_img++) {
                 part_pointer = frm.correspond[i].p[i_img];
                 if (part_pointer != CORRES_NONE) {
                     pix[i_img][count].x = frm.targets[i_img][part_pointer].x;
@@ -85,7 +80,7 @@ int n_img;
 				   pixel_to_metric (pix[i_img][count].x, pix[i_img][count].y,
 			                        imx,imy, pix_x, pix_y,
 			                        &crd[i_img][count].x, &crd[i_img][count].y,
-			                        chfield);
+			                        cpar->chfield);
 				}
 				else{
                    crd[i_img][count].x=-1e10;
@@ -103,7 +98,7 @@ int n_img;
 /* This is very similar to prepare_eval, but it is sufficiently different in
    small but devious ways, not only parameters, that for now it'll be a 
    different function. */
-void prepare_eval_shake(int n_img) {
+void prepare_eval_shake(control_par *cpar) {
     char* target_file_base[4];
     int i_img, i, filenumber, step_shake, count = 0, frame_count = 0;
     int seq_first, seq_last;
@@ -115,7 +110,7 @@ void prepare_eval_shake(int n_img) {
     int part_pointer; /* Holds index of particle later */
     
     frame frm;
-    frame_init(&frm, n_img, MAX_TARGETS);
+    frame_init(&frm, cpar->num_cams, MAX_TARGETS);
     
 	seq_par = read_sequence_par("parameters/sequence.par");
 
@@ -138,7 +133,7 @@ void prepare_eval_shake(int n_img) {
         for (i = 0; i < frm.num_parts; i++) {
             part_used = 0;
             
-            for (i_img = 0; i_img < n_img; i_img++) {
+            for (i_img = 0; i_img < cpar->num_cams; i_img++) {
                 part_pointer = frm.correspond[i].p[i_img];
                 if ((part_pointer != CORRES_NONE) && \
                     (frm.path_info[i].prev != PREV_NONE) && \
@@ -150,7 +145,7 @@ void prepare_eval_shake(int n_img) {
                                 
                     pixel_to_metric (pix[i_img][count].x, pix[i_img][count].y,
                         imx,imy, pix_x, pix_y,
-                        &crd[i_img][count].x, &crd[i_img][count].y, chfield);
+                        &crd[i_img][count].x, &crd[i_img][count].y, cpar->chfield);
                     crd[i_img][count].pnr = count;
                     
                     frame_used = 1;

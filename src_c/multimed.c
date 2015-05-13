@@ -310,7 +310,7 @@ void init_mmLUT (int i_cam, Calibration *cal)
   // this is to cut down duplicate code without refactoring the function 
   //totally which would happen later.
 #define UPDATE_R(p2mx, p2my) \
-  pixel_to_metric ((p2mx), (p2my), imx,imy, pix_x,pix_y, &x,&y, chfield); \
+  pixel_to_metric ((p2mx), (p2my), imx,imy, pix_x,pix_y, &x,&y, 0); \
   x = x - I.xh; \
   y = y - I.yh; \
   correct_brown_affin (x, y, ap, &x,&y); \
@@ -466,7 +466,7 @@ int num_cams;
   // this is to cut down duplicate code without refactoring the function 
   //totally which would happen later.
 #define UPDATE_R_VD(p2mx, p2my) \
-  pixel_to_metric ((p2mx), (p2my), imx,imy, pix_x,pix_y, &x,&y, chfield); \
+  pixel_to_metric ((p2mx), (p2my), imx,imy, pix_x,pix_y, &x,&y, 0); \
   x = x - cal[i_cam].int_par.xh; \
   y = y - cal[i_cam].int_par.yh; \
   correct_brown_affin (x, y, cal[i_cam].added_par, &x,&y); \
