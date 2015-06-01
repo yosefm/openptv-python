@@ -150,7 +150,7 @@ int init_proc_c()
     for (i=0; i<4; i++)
     {
         strncpy(img_name[i], cpar->img_base_name[i], 256);
-        strncpy(img_cal[i], cpar->cal_img_base_name[i], 256);
+        strncpy(img_cal[i], cpar->cal_img_base_name[i], 128);
     }
     imx = cpar->imx;
     imy = cpar->imy;
