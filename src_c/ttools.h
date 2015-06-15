@@ -4,14 +4,15 @@
 #define TTOOLS_H
 
 #include "typedefs.h"
+#include <optv/parameters.h>
 
 int pix_in_next (target  next[], int num,
     double x, double y, double dl, double dr, double du, double dd, int found[POSI]);
 
 int candsearch_in_pix(target  next[], int num, double x, double y,
-    double dl, double dr, double du, double dd, int p[4]);
+    double dl, double dr, double du, double dd, int p[4], control_par *cpar);
 int candsearch_in_pixrest(target  next[], int num, double x, double y,
-    double dl, double dr, double du, double dd, int p[4]);
+    double dl, double dr, double du, double dd, int p[4], control_par *cpar);
 
 void sortwhatfound (foundpix item[16], int *zaehler, int num_cams);
 void searchquader(double X, double Y, double Z,

@@ -78,9 +78,9 @@ void prepare_eval (control_par *cpar, int *n_fix) {
                 
 				if(pix[i_img][count].x>-999 && pix[i_img][count].y>-999){
 				   pixel_to_metric (pix[i_img][count].x, pix[i_img][count].y,
-			                        imx,imy, pix_x, pix_y,
-			                        &crd[i_img][count].x, &crd[i_img][count].y,
-			                        cpar->chfield);
+			           cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
+			           &crd[i_img][count].x, &crd[i_img][count].y,
+			           cpar->chfield);
 				}
 				else{
                    crd[i_img][count].x=-1e10;
@@ -144,7 +144,7 @@ void prepare_eval_shake(control_par *cpar) {
                     pix[i_img][count].pnr = count;
                                 
                     pixel_to_metric (pix[i_img][count].x, pix[i_img][count].y,
-                        imx,imy, pix_x, pix_y,
+                        cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
                         &crd[i_img][count].x, &crd[i_img][count].y, cpar->chfield);
                     crd[i_img][count].pnr = count;
                     

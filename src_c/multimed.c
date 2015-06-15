@@ -275,7 +275,7 @@ double multimed_r_nlay_v2 (Exterior ex, Exterior ex_o, mm_np mm,
 
 
 
-void init_mmLUT (int i_cam, Calibration *cal)
+void init_mmLUT (int i_cam, Calibration *cal, control_par *cpar)
 {
   register int	i,j, nr, nz;
   double       	X[3], R, X1[3], Zmin, Rmax=0,Zmax, a[3];
@@ -310,7 +310,8 @@ void init_mmLUT (int i_cam, Calibration *cal)
   // this is to cut down duplicate code without refactoring the function 
   //totally which would happen later.
 #define UPDATE_R(p2mx, p2my) \
-  pixel_to_metric ((p2mx), (p2my), imx,imy, pix_x,pix_y, &x,&y, 0); \
+  pixel_to_metric ((p2mx), (p2my), cpar->imx, cpar->imy, \
+    cpar->pix_x, cpar->pix_y, &x,&y, 0); \
   x = x - I.xh; \
   y = y - I.yh; \
   correct_brown_affin (x, y, ap, &x,&y); \
@@ -349,11 +350,11 @@ void init_mmLUT (int i_cam, Calibration *cal)
   
   //--x0
   if (R > Rmax)	Rmax = R;  
-  UPDATE_R((double) imx, 0.)
+  UPDATE_R((double) cpar->imx, 0.)
 
   //--xy
   if (R > Rmax)	Rmax = R;
-  UPDATE_R((double) imx, (double) imy)
+  UPDATE_R((double) cpar->imx, (double) cpar->imy)
   
   if (R > Rmax)	Rmax = R;
   
@@ -440,10 +441,8 @@ double	X,Y,Z;
 
 
 
-void volumedimension (cal, xmax, xmin, ymax, ymin, zmax, zmin, num_cams)
-Calibration cal[4];
-double *xmax, *xmin, *ymax, *ymin, *zmax, *zmin;
-int num_cams;
+void volumedimension (Calibration cal[4], double *xmax, double *xmin, 
+    double *ymax, double *ymin, double *zmax, double *zmin, control_par *cpar)
 {
   int	i_cam;
   Exterior Ex;
@@ -466,7 +465,8 @@ int num_cams;
   // this is to cut down duplicate code without refactoring the function 
   //totally which would happen later.
 #define UPDATE_R_VD(p2mx, p2my) \
-  pixel_to_metric ((p2mx), (p2my), imx,imy, pix_x,pix_y, &x,&y, 0); \
+  pixel_to_metric ((p2mx), (p2my), cpar->imx, cpar->imy, \
+    cpar->pix_x, cpar->pix_y, &x,&y, 0); \
   x = x - cal[i_cam].int_par.xh; \
   y = y - cal[i_cam].int_par.yh; \
   correct_brown_affin (x, y, cal[i_cam].added_par, &x,&y); \
@@ -495,7 +495,7 @@ int num_cams;
   if ( X[1] > *ymax) *ymax=X[1];\
   if ( X[1] < *ymin) *ymin=X[1];\
 
-  for (i_cam = 0; i_cam < num_cams; i_cam++) {  
+  for (i_cam = 0; i_cam < cpar->num_cams; i_cam++) {  
     Ex = cal[i_cam].ext_par;
     
     //--00
@@ -503,14 +503,14 @@ int num_cams;
 
     //--0y
     if (R > Rmax)	Rmax = R;
-    UPDATE_R_VD(0., (double) imy)
+    UPDATE_R_VD(0., (double) cpar->imy)
   
     //--x0
     if (R > Rmax)	Rmax = R;  
-    UPDATE_R_VD((double) imx, 0.)
+    UPDATE_R_VD((double) cpar->imx, 0.)
 
     //--xy
     if (R > Rmax)	Rmax = R;
-    UPDATE_R_VD((double) imx, (double) imy)
+    UPDATE_R_VD((double) cpar->imx, (double) cpar->imy)
   }
 }

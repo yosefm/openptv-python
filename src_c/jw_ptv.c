@@ -490,7 +490,8 @@ int correspondences_proc_c ()
     if ( !mmp.lut && (mmp.n1 != 1 || mmp.n2[0] != 1 || mmp.n3 != 1))
     {
         puts ("Init multimedia displacement LUTs");
-        for (i_img = 0; i_img < cpar->num_cams; i_img++) init_mmLUT(i_img);
+        for (i_img = 0; i_img < cpar->num_cams; i_img++) 
+            init_mmLUT(i_img, glob_cal, cpar);
         mmp.lut = 1;
     }
     

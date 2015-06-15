@@ -117,7 +117,7 @@ n_tupel **correspondences(frame *frm, Calibration **calib, volume_par *vpar) {
         for (part = 0; part < frm->num_targets[cam]; part++) {
             pixel_to_metric(
                 frm->targets[cam][part].x, frm->targets[cam][part].y,
-                imx, imy, pix_x, pix_y, 
+                capr->imx, cpar->imy, cpar->pix_x, cpar->pix_y, 
                 &corrected[cam][part].x, &corrected[cam][part].y, chfield);
             
             img_x = corrected[cam][part].x - calib[cam]->int_par.xh;

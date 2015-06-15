@@ -22,10 +22,10 @@ Routines contained:     drawcross, drawvector, draw_pnr, mark_detections
 
    Arguments:
    int i - frame number
-   int num_cams - number of cameras in the scene
+   control_par *cpar - scene parameters
    int y_remap_mode - obsolete, should be 0 only, see trafo.c
 */
-int trajectories_c(int i, int num_cams, int y_remap_mode) 
+int trajectories_c(int i, control_par *cpar, int y_remap_mode) 
 {
   int   k, intx1, inty1, intx2, inty2;
   int  anz1, anz2, m, j;
@@ -81,24 +81,24 @@ int trajectories_c(int i, int num_cams, int y_remap_mode)
 
 	if (m >= 0)  {	  
         
-	  for (k=0; k<num_cams; k++)
+	  for (k=0; k < cpar->num_cams; k++)
 	    {
 	      img_coord (k, line1[j].x1, line1[j].y1, line1[j].z1, Ex[k],I[k], G[k], ap[k], mmp, &p1[k].x, &p1[k].y);
-	      metric_to_pixel (p1[k].x, p1[k].y, imx,imy, pix_x,pix_y, 
-            &p1[k].x, &p1[k].y, y_remap_mode);
+	      metric_to_pixel (p1[k].x, p1[k].y, cpar->imx, cpar->imy, 
+            cpar->pix_x, cpar->pix_y, &p1[k].x, &p1[k].y, y_remap_mode);
 	      
 	      img_coord (k, line2[m].x1, line2[m].y1, line2[m].z1, Ex[k],I[k], G[k], ap[k], mmp, &p2[k].x, &p2[k].y);
-	      metric_to_pixel (p2[k].x, p2[k].y, imx,imy, pix_x,pix_y, 
-            &p2[k].x, &p2[k].y, y_remap_mode); 
+	      metric_to_pixel (p2[k].x, p2[k].y, cpar->imx, cpar->imy, 
+            cpar->pix_x, cpar->pix_y, &p2[k].x, &p2[k].y, y_remap_mode); 
 	      
-	      if ( fabs( p2[k].x-zoom_x[k]) < imx/(2*zoom_f[k])
-		   && ( fabs(p2[k].y-zoom_y[k]) < imy/(2*zoom_f[k])) )
+	      if ( fabs( p2[k].x-zoom_x[k]) < cpar->imx/(2*zoom_f[k])
+		   && ( fabs(p2[k].y-zoom_y[k]) < cpar->imy/(2*zoom_f[k])) )
 		{	
         
-		  intx1 = (int)(imx/2+zoom_f[k]*(p1[k].x-zoom_x[k]));
-		  inty1 = (int)(imy/2+zoom_f[k]*(p1[k].y-zoom_y[k]));
-		  intx2 = (int)(imx/2+zoom_f[k]*(p2[k].x-zoom_x[k]));
-		  inty2 = (int)(imy/2+zoom_f[k]*(p2[k].y-zoom_y[k]));
+		  intx1 = (int)(cpar->imx/2 + zoom_f[k]*(p1[k].x - zoom_x[k]));
+		  inty1 = (int)(cpar->imy/2 + zoom_f[k]*(p1[k].y - zoom_y[k]));
+		  intx2 = (int)(cpar->imx/2 + zoom_f[k]*(p2[k].x - zoom_x[k]));
+		  inty2 = (int)(cpar->imy/2 + zoom_f[k]*(p2[k].y - zoom_y[k]));
             
         intx1_tr[k][m1_tr]=intx1;
         inty1_tr[k][m1_tr]=inty1;
