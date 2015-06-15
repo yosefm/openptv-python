@@ -55,7 +55,7 @@ control_par *cpar;
   FILE   	*fpp;	       	/* parameter file pointer */
   
   imx = cpar->imx;
-  imy = cpar->imy
+  imy = cpar->imy;
   
   /* read image name, threshold and shape limits from parameter file */
 
