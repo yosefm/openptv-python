@@ -110,7 +110,7 @@ void correspondences_4 (volume_par *vpar, control_par *cpar)
       find_candidate_plus (geo[i2], pix[i2], num[i2],
 			       xa12, ya12, xb12, yb12, 
 			       pix[i1][pt1].n,pix[i1][pt1].nx,pix[i1][pt1].ny,
-			       pix[i1][pt1].sumg, cand, &count, i2, vpar);
+			       pix[i1][pt1].sumg, cand, &count, i2, vpar, cpar);
 	  /* write all corresponding candidates to the preliminary list */
 	  /* of correspondences */
 	  if (count > maxcand)	{ count = maxcand; }

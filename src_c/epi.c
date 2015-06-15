@@ -162,7 +162,7 @@ double *xp, *yp, *zp;
 }
 
 void find_candidate_plus (crd, pix, num, xa,ya,xb,yb, n, nx, ny, sumg,
-						  cand, count, nr, vpar)
+						  cand, count, nr, vpar, cpar)
 /*  binarized search in a x-sorted coord-set, exploits shape information  */
 
 coord_2d	crd[];
@@ -173,8 +173,7 @@ int    		n, nx, ny, sumg;
 candidate	cand[];
 int	       	nr;	       	/* image number for ap etc. */
 volume_par *vpar;
-//const char** argv;
-
+control_par *cpar;
 
 {
   register int	j;
@@ -205,8 +204,12 @@ volume_par *vpar;
   }
 
   /* define sensor format for search interrupt */
-  xmin = (-1) * pix_x * imx/2;	xmax = pix_x * imx/2;
-  ymin = (-1) * pix_y * imy/2;	ymax = pix_y * imy/2;
+  xmin = (-1) * cpar->pix_x * cpar->imx/2;
+  xmax = cpar->pix_x * cpar->imx/2;
+  
+  ymin = (-1) * cpar->pix_y * cpar->imy/2;
+  ymax = cpar->pix_y * cpar->imy/2;
+  
   xmin -= I[nr].xh;	ymin -= I[nr].yh;
   xmax -= I[nr].xh;	ymax -= I[nr].yh;
   correct_brown_affin (xmin,ymin, ap[nr], &xmin,&ymin);
@@ -306,7 +309,7 @@ volume_par *vpar;
 
 
 void find_candidate_plus_msg (crd, pix, num, xa,ya,xb,yb, n, nx, ny, sumg,
-							  cand, count, i12, vpar)
+							  cand, count, i12, vpar, cpar)
 
 /*  binarized search in a x-sorted coord-set, exploits shape information  */
 /*  gives messages (in examination)  */
@@ -317,6 +320,7 @@ int    		num, *count, i12;
 double		xa, ya, xb, yb;
 int    		n, nx, ny, sumg;
 volume_par *vpar;
+control_par *cpar;
 /*
 candidate	cand[3];
 */
@@ -330,8 +334,12 @@ candidate	cand[];
   double tol_band_width,particle_size;
 
   /* define sensor format for search interrupt */
-  xmin = (-1) * pix_x * imx/2;	xmax = pix_x * imx/2;
-  ymin = (-1) * pix_y * imy/2;	ymax = pix_y * imy/2;
+  xmin = (-1) * pix_x * cpar->imx/2;
+  xmax = pix_x * cpar->imx/2;
+  
+  ymin = (-1) * pix_y * cpar->imy/2;
+  ymax = pix_y * cpar->imy/2;
+
   xmin -= I[i12].xh;	ymin -= I[i12].yh;
   xmax -= I[i12].xh;	ymax -= I[i12].yh;
   correct_brown_affin (xmin,ymin, ap[i12], &xmin,&ymin);

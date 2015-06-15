@@ -346,7 +346,7 @@ void init_mmLUT (int i_cam, Calibration *cal, control_par *cpar)
 
   //--0y
   if (R > Rmax)	Rmax = R;
-  UPDATE_R(0., (double) imy)
+  UPDATE_R(0., (double) cpar->imy)
   
   //--x0
   if (R > Rmax)	Rmax = R;  

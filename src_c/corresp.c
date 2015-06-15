@@ -161,7 +161,7 @@ n_tupel **correspondences(frame *frm, Calibration **calib, volume_par *vpar) {
                 find_candidate_plus (corrected[epi_img], frm->targets[epi_img],
                     frm->num_targets[epi_img], epi_start[0], epi_start[1],
                     epi_end[0], epi_end[1], targ->n, targ->nx, targ->ny,
-                    targ->sumg, cand, &num_cands, epi_img, vpar);
+                    targ->sumg, cand, &num_cands, epi_img, vpar, cpar);
                 
                 /* Copy candidate information to the adjacency matrix. */
                 if (num_cands > maxcand) num_cands = maxcand;

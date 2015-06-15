@@ -53,7 +53,7 @@ extern int rclick_intx1[4], rclick_inty1[4], rclick_intx2[4], rclick_inty2[4],\
 // --------------------------------
 
 extern int nr[4][4];                       /* point numbers for man. ori */
-extern int imx, imy, imgsize;              /* image size */
+extern int imgsize;              /* image size */
 extern int zoom_x[], zoom_y[], zoom_f[];   /* zoom parameters */
 extern int pp1, pp2, pp3, pp4,pp5;         /* for man. orientation */
 extern int demo_nr;                        /* for demo purposes */

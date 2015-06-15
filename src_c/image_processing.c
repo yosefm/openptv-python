@@ -28,11 +28,7 @@ Routines contained:    	filter_3:	3*3 filter, reads matrix from filter.par
 #include "ptv.h"
 
 
-void filter_3 (img, img_lp)
-
-unsigned char *img, *img_lp;
-
-{
+void filter_3(unsigned char *img, unsigned char *img_lp, control_par *cpar) {
 	register unsigned char	*ptr, *ptr1, *ptr2, *ptr3,
 		             	*ptr4, *ptr5, *ptr6,
 	                        *ptr7, *ptr8, *ptr9;
@@ -42,7 +38,6 @@ unsigned char *img, *img_lp;
 	register int	i;
 	FILE	       	*fp;
 
-	
 	/* read filter elements from parameter file */
 	fp = fopen_r ("filter.par");
 	for (i=0, sum=0; i<9; i++)
@@ -55,9 +50,17 @@ unsigned char *img, *img_lp;
 	end = imgsize - 513;
 	
 	ptr  = img_lp + 513;
-	ptr1 = img;				ptr2 = img + 1;			ptr3 = img + 2;
-	ptr4 = img + imx;		ptr5 = img + imx + 1;	ptr6 = img + imx + 2;
-	ptr7 = img + 2*imx;		ptr8 = img + 2*imx + 1;	ptr9 = img + 2*imx + 2;
+	ptr1 = img;
+    ptr2 = img + 1;
+    ptr3 = img + 2;
+    
+	ptr4 = img + cpar->imx;
+    ptr5 = ptr4 + 1;
+    ptr6 = ptr4 + 2;
+    
+	ptr7 = img + 2*cpar->imx;
+    ptr8 = ptr7 + 1;
+    ptr9 = ptr7 + 2;
 
 	for (i=513; i<end; i++)
 	{
@@ -94,11 +97,7 @@ int	       	*hist;
 
 
 
-void lowpass_3 (img, img_lp)
-
-unsigned char *img, *img_lp;
-
-{
+void lowpass_3(unsigned char *img, unsigned char *img_lp, control_par *cpar) {
 	register unsigned char	*ptr,*ptr1,*ptr2,*ptr3,*ptr4,
 		       		*ptr5,*ptr6,*ptr7,*ptr8,*ptr9;
 	short  	       		buf;
@@ -108,12 +107,14 @@ unsigned char *img, *img_lp;
 	ptr1 = img;
 	ptr2 = img + 1;
 	ptr3 = img + 2;
-	ptr4 = img + imx;
-	ptr5 = img + imx+1;
-	ptr6 = img + imx+2;
-	ptr7 = img + 2*imx;
-	ptr8 = img + 2*imx+1;
-	ptr9 = img + 2*imx+2;
+    
+	ptr4 = img + cpar->imx;
+	ptr5 = ptr4 + 1;
+	ptr6 = ptr4 + 2;
+    
+	ptr7 = img + 2*cpar->imx;
+	ptr8 = ptr7 + 1;
+	ptr9 = ptr7 + 2;
 
 	for (i=0; i<imgsize; i++)
 	{
@@ -125,148 +126,11 @@ unsigned char *img, *img_lp;
 }
 
 
-void unsharp_mask (n, img0, img_lp)
-
-int	      n;
-unsigned char *img0, *img_lp;
-
-
-{
-	register unsigned char	*imgum, *ptrl, *ptrr, *ptrz;
-	int  		       	*buf1, *buf2, buf, *end;
-	register int	       	*ptr, *ptr1, *ptr2, *ptr3;
-	int    		       	ii, n2, nq, m;
-	register int	       	i;
-	//imgsize=len1; // denis
-	n2 = 2*n + 1;  nq = n2 * n2;
-	printf("inside unsharp_mask\n");
-
-	imgum = (unsigned char *) calloc (imgsize, 1);
-	if ( ! imgum)
-	{
-		puts ("calloc for imgum --> error");  exit (1);
-	}
-	printf("after calloc unsharp_mask\n");		
-	buf1 = (int *) calloc (imgsize, sizeof(int));
-	if ( ! buf1)
-	{
-		puts ("calloc for buf1 --> error");  exit (1);
-	}
-	printf("imx= %d\n", imx);// imx=1280; //denis
-	//imy=1024; //denis
-	buf2 = (int *) calloc (imx, sizeof(int));
-
-	printf("after calloc2 unsharp_mask\n");	
-
-	/* set imgum = img0 (so there cannot be written to the original image) */
-	for (ptrl=imgum, ptrr=img0; ptrl<(imgum+imgsize); ptrl++, ptrr++)
-	{
-	  *ptrl = *ptrr;
-
-
-	}	
-
-	/* cut off high gray values (not in general use !)
-	for (ptrz=imgum; ptrz<(imgum+imgsize); ptrz++) if (*ptrz > 160) *ptrz = 160; */
-
-
-
-
-	/* --------------  average over lines  --------------- */
-
-	for (i=0; i<imy; i++)
-	{
-		ii = i * imx;
-		/* first element */
-		buf = *(imgum+ii);  *(buf1+ii) = buf * n2;
-		
-		/* elements 1 ... n */
-		for (ptr=buf1+ii+1, ptrr=imgum+ii+2, ptrl=ptrr-1, m=3;
-			 ptr<buf1+ii+n+1; ptr++, ptrl+=2, ptrr+=2, m+=2)
-		{
-			buf += (*ptrl + *ptrr);
-			*ptr = buf * n2 / m;
-		}
-		
-		/* elements n+1 ... imx-n */
-		for (ptrl=imgum+ii, ptr=buf1+ii+n+1, ptrr=imgum+ii+n2;
-			 ptrr<imgum+ii+imx; ptrl++, ptr++, ptrr++)
-		{
-			buf += (*ptrr - *ptrl);
-			*ptr = buf;
-		}
-		
-		/* elements imx-n ... imx */
-		for (ptrl=imgum+ii+imx-n2, ptrr=ptrl+1, ptr=buf1+ii+imx-n, m=n2-2;
-			 ptr<buf1+ii+imx; ptrl+=2, ptrr+=2, ptr++, m-=2)
-		{
-			buf -= (*ptrl + *ptrr);
-			*ptr = buf * n2 / m;
-		}
-	}
-	
-	free (imgum);
-
-
-	/* -------------  average over columns  -------------- */
-
-	end = buf2 + imx;
-
-	/* first line */
-	for (ptr1=buf1, ptr2=buf2, ptrz=img_lp; ptr2<end; ptr1++, ptr2++, ptrz++)
-	{
-		*ptr2 = *ptr1;
-		*ptrz = *ptr2/n2;
-	}
-	
-	/* lines 1 ... n */
-	for (i=1; i<n+1; i++)
-	{
-		ptr1 = buf1 + (2*i-1)*imx;
-		ptr2 = ptr1 + imx;
-		ptrz = img_lp + i*imx;
-		for (ptr3=buf2; ptr3<end; ptr1++, ptr2++, ptr3++, ptrz++)
-		{
-			*ptr3 += (*ptr1 + *ptr2);
-			*ptrz = n2 * (*ptr3) / nq / (2*i+1);
-		}
-	}
-	
-	/* lines n+1 ... imy-n-1 */
-	for (i=n+1, ptr1=buf1, ptrz=img_lp+imx*(n+1), ptr2=buf1+imx*n2;
-		 i<imy-n; i++)
-	{
-		for (ptr3=buf2; ptr3<end; ptr3++, ptr1++, ptrz++, ptr2++)
-		{
-			*ptr3 += (*ptr2 - *ptr1);
-			*ptrz = *ptr3/nq;
-		}
-	}
-	
-	/* lines imy-n ... imy */
-	for (i=n; i>0; i--)
-	{
-		ptr1 = buf1 + (imy-2*i-1)*imx;
-		ptr2 = ptr1 + imx;
-		ptrz = img_lp + (imy-i)*imx;
-		for (ptr3=buf2; ptr3<end; ptr1++, ptr2++, ptr3++, ptrz++)
-		{
-			*ptr3 -= (*ptr1 + *ptr2);
-			*ptrz = n2 * (*ptr3) / nq / (2*i+1);
-		}
-	}
-	
-	
-	free (buf1);
-printf("end unsharp_mask\n");	
-
-}
-
-void split (img, field)
+void split (img, field, cpar)
 
 unsigned char	*img;
 int	       	field;
-
+control_par *cpar;
 
 {
 	register int   		i, j;
@@ -278,13 +142,16 @@ int	       	field;
 		case 0:  /* frames */
 				return;	 break;
 
-		case 1:  /* odd lines */
-				for (i=0; i<imy/2; i++)  for (j=0; j<imx; j++)
-					*(img + imx*i + j) = *(img + 2*imx*i + j + imx);  break;
+        case 1:  /* odd lines */
+            for (i = 0; i < cpar->imy/2; i++)  
+                for (j = 0; j < cpar->imx; j++)
+                    *(img + cpar->imx*i + j) = *(img + 2*cpar->imx*i + j + cpar->imx);  
+                    break;
 
-		case 2:  /* even lines */
-				for (i=0; i<imy/2; i++)  for (j=0; j<imx; j++)
-					*(img + imx*i + j) = *(img + 2*imx*i + j);  break;
+        case 2:  /* even lines */
+            for (i = 0; i < cpar->imy/2; i++)
+                for (j = 0; j < cpar->imx; j++)
+                    *(img + cpar->imx*i + j) = *(img + 2*cpar->imx*i + j);  break;
 	}
 	
 	end = img + imgsize;

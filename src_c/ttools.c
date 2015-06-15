@@ -78,7 +78,7 @@ int candsearch_in_pix (target next[], int num, double x, double y, double dl,
   if(x > cpar->imx)
     x = cpar->imx;
   if(y<0.0) y=0.0;
-  if(y > imy)
+  if(y > cpar->imy)
     y = cpar->imy;
 
   p1 = p2 = p3 = p4 = -999;
@@ -151,7 +151,7 @@ int candsearch_in_pixrest(target  next[], int num, double x, double y,
   if(xmax > cpar->imx) 
     xmax = cpar->imx;
   if(ymin<0.0) ymin=0.0;
-  if(ymax > imy)
+  if(ymax > cpar->imy)
     ymax = cpar->imy;
 
   if(x<0.0) x=0.0;

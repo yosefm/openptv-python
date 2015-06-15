@@ -81,8 +81,6 @@ cdef extern from "globals.h": # to lose the declspec
     int rclick_points_intx1, rclick_points_inty1
 
     int imgsize
-    int imx
-    int imy
     int dumbbell_pyptv
     int match4_g,match3_g,match2_g,match1_g
     unsigned char *img[4]
@@ -92,12 +90,6 @@ cdef extern from "globals.h": # to lose the declspec
 # New jw_ptv-global configuration:
 cdef extern from "globals.h":
     control_par *cpar
-
-def py_set_imgdimensions(size,imx1,imy1):
-    global imgsize,imx,imy
-    imgsize=<int>size
-    imx=<int>imx1
-    imy=<int>imy1
 
 def py_highpass(np.ndarray img1, np.ndarray img2, dim_lp1, filter_lp1, field1 ):
     highpass(<unsigned char *>img1.data, <unsigned char *>img2.data, dim_lp1, filter_lp1, field1)
@@ -141,10 +133,9 @@ def py_detection_proc_c():
     detection_proc_c()
 
 def py_read_attributes(a):
-    global imgsize, imx, imy
     a.append(imgsize)
-    a.append(imx)
-    a.append(imy)
+    a.append(cpar[0].imx)
+    a.append(cpar[0].imy)
     
 def py_get_pix(x,y):
     global pix
@@ -342,8 +333,7 @@ def py_trackback_c():
     trackback_c ()
     
 def py_get_mark_track_c(i_img):
-    global imx,imy,zoom_x,zoom_y,zoom_f
-    return imx,imy,zoom_x[i_img],zoom_y[i_img],zoom_f[i_img]
+    return cpar[0].imx, cpar[0].imy, zoom_x[i_img], zoom_y[i_img], zoom_f[i_img]
 
 def py_traject_loop(seq):
     global intx1_tr,intx2_tr,inty1_tr,inty2_tr,m1_tr

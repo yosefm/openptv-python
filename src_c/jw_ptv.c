@@ -47,7 +47,7 @@ int	match2=0;	      	       	/* no. of matches in 2nd pass */
 int match4_g, match3_g, match2_g, match1_g;
 
 int	nr[4][4];		     	/* point numbers for man. ori */
-int	imx, imy, imgsize;	      	/* image size */
+int	imgsize;	      	/* image size */
 int	zoom_x[4],zoom_y[4],zoom_f[4];  /* zoom parameters */
 int	pp1=0, pp2=0, pp3=0, pp4=0,pp5=0;   	/* for man. orientation */
 int	seq_first, seq_last;	       	/* 1. and last img of seq */
@@ -152,8 +152,6 @@ int init_proc_c()
         strncpy(img_name[i], cpar->img_base_name[i], 256);
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 128);
     }
-    imx = cpar->imx;
-    imy = cpar->imy;
     pix_x = cpar->pix_x;
     pix_y = cpar->pix_y;
     
@@ -167,12 +165,12 @@ int init_proc_c()
     
     mmp.nlay = 1;
     
-    imgsize = imx*imy;
+    imgsize = cpar->imx * cpar->imy;
     for (i = 0; i < cpar->num_cams; i++)
     {
         /* initialize zoom parameters and image positions */
         num[i] = 0;
-        zoom_x[i] = imx/2; zoom_y[i] = imy/2; zoom_f[i] = 1;
+        zoom_x[i] = cpar->imx/2; zoom_y[i] = cpar->imy/2; zoom_f[i] = 1;
         
         /* allocate memory for images */
         img[i] = (unsigned char *) calloc (imgsize, 1);
@@ -243,8 +241,6 @@ int start_proc_c()
         strncpy(img_name[i], cpar->img_base_name[i], 256);
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 256);
     }
-    imx = cpar->imx;
-    imy = cpar->imy;
     pix_x = cpar->pix_x;
     pix_y = cpar->pix_y;
     
@@ -381,7 +377,9 @@ int detection_proc_c()
     /* reset zoom values */
     for (i_img = 0; i_img < cpar->num_cams; i_img++)
     {
-        zoom_x[i_img] = imx/2; zoom_y[i_img] = imy/2;  zoom_f[i_img] = 1;
+        zoom_x[i_img] = cpar->imx/2;
+        zoom_y[i_img] = cpar->imy/2;
+        zoom_f[i_img] = 1;
         /*copy images because the target recognition will set greyvalues to 0*/
         copy_images (img[i_img], img0[i_img]);
     }
@@ -396,20 +394,20 @@ int detection_proc_c()
                 xmin=0; /* vertical line restriction */
                 
                 num[i_img] = peak_fit_new (img[i_img],
-                                           "parameters/targ_rec.par",
-                                           xmin, imx, 1, imy, pix[i_img], i_img);
+                    "parameters/targ_rec.par",
+                    xmin, cpar->imx, 1, cpar->imy, pix[i_img], i_img, cpar);
                 break;
                 
             case 0:	/* without peak fitting technique */
                 simple_connectivity (img[i_img], img0[i_img],
-                                     "parameters/targ_rec.par",
-                                     xmin, imx, 1, imy, pix[i_img], i_img, &num[i_img]);
+                    "parameters/targ_rec.par",
+                    xmin, cpar->imx, 1, cpar->imy, pix[i_img], i_img, &num[i_img], cpar);
                 break;
                 
             case 1:	/* with old (but fast) peak fitting technique */
                 targ_rec (img[i_img], img0[i_img],
-                          "parameters/targ_rec.par",
-                          xmin, imx, 1, imy, pix[i_img], i_img, &num[i_img]);
+                    "parameters/targ_rec.par",
+                    xmin, cpar->imx, 1, cpar->imy, pix[i_img], i_img, &num[i_img], cpar);
                 break;
                 
             case 4: /* new option for external image processing routines */
@@ -469,7 +467,7 @@ int correspondences_proc_c ()
             /* transformations pixel coordinates -> metric coordinates */
             /* transformations metric coordinates -> corrected metric coordinates */
             pixel_to_metric (pix[i_img][i].x, pix[i_img][i].y,
-                             imx,imy, pix_x, pix_y,
+                             cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
                              &crd[i_img][i].x, &crd[i_img][i].y, cpar->chfield);
             crd[i_img][i].pnr = pix[i_img][i].pnr;
             
@@ -649,7 +647,7 @@ int calibration_proc_c (int sel)
             /* reset zoom values */
             for (i = 0; i < cpar->num_cams; i++)
             {
-                zoom_x[i] = imx/2; zoom_y[i] = imy/2; zoom_f[i] = 1;
+                zoom_x[i] = cpar->imx/2; zoom_y[i] = cpar->imy/2; zoom_f[i] = 1;
             }
             
             /* copy images because the target recognition
@@ -664,7 +662,7 @@ int calibration_proc_c (int sel)
             for (i = 0; i < cpar->num_cams; i++)
             {
                 targ_rec (img[i], img0[i], "parameters/detect_plate.par",
-                          0, imx, 1, imy, pix[i], i, &num[i]);
+                          0, cpar->imx, 1, cpar->imy, pix[i], i, &num[i], cpar);
                 
                 
                 sprintf (buf,"image %d: %d,  ", i+1, num[i]);
@@ -736,7 +734,7 @@ int calibration_proc_c (int sel)
                 for (j=0; j<4; j++)
                 {
                     pixel_to_metric (pix0[i][j].x, pix0[i][j].y,
-                                     imx,imy, pix_x, pix_y,
+                        cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
                                      &crd0[i][j].x, &crd0[i][j].y,
                                      chfield);
                     correct_brown_affin (crd0[i][j].x, crd0[i][j].y, ap[i],
@@ -749,7 +747,7 @@ int calibration_proc_c (int sel)
                 
                 /* sorting of detected points by back-projection */
                 just_plot (Ex[i], I[i], G[i], ap[i], mmp,
-                           imx,imy, pix_x,pix_y,
+                           cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
                            nfix, fix,  chfield, i);
                 
                 /*write artifical images*/
@@ -783,9 +781,8 @@ int calibration_proc_c (int sel)
                 for (j=0; j<4; j++)
                 {
                     pixel_to_metric (pix0[i][j].x, pix0[i][j].y,
-                                     imx,imy, pix_x, pix_y,
-                                     &crd0[i][j].x, &crd0[i][j].y,
-                                     chfield);
+                        cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
+                        &crd0[i][j].x, &crd0[i][j].y, chfield);
                     correct_brown_affin (crd0[i][j].x, crd0[i][j].y, ap[i],
                                          &crd0[i][j].x, &crd0[i][j].y);
                 }
@@ -798,7 +795,7 @@ int calibration_proc_c (int sel)
                 
                 /* sorting of detected points by back-projection */
                 sortgrid_man (Ex[i], I[i], G[i], ap[i], mmp,
-                              imx,imy, pix_x,pix_y,
+                              cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
                               nfix, fix, num[i], pix[i], chfield, i);
                 
                 /* adapt # of detected points */
@@ -835,9 +832,9 @@ int calibration_proc_c (int sel)
                         {
                             /* transform pixel coord to metric */
                             pixel_to_metric (pix[i_img][i].x,
-                                             pix[i_img][i].y, imx,imy, pix_x, pix_y,
-                                             &crd[i_img][i].x, &crd[i_img][i].y,
-                                             chfield);
+                                pix[i_img][i].y, cpar->imx, cpar->imy, 
+                                cpar->pix_x, cpar->pix_y,
+                                &crd[i_img][i].x, &crd[i_img][i].y, chfield);
                             fprintf (fp1, "%4d %8.5f %8.5f    ",
                                      pix[i_img][i].pnr,
                                      crd[i_img][i].x, crd[i_img][i].y);
@@ -881,9 +878,8 @@ int calibration_proc_c (int sel)
 				for (j=0; j<4; j++)
 				{
 					pixel_to_metric (pix0[i][j].x, pix0[i][j].y,
-                                     imx,imy, pix_x, pix_y,
-                                     &crd0[i][j].x, &crd0[i][j].y,
-                                     chfield);
+                        cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
+                        &crd0[i][j].x, &crd0[i][j].y, chfield);
 					correct_brown_affin (crd0[i][j].x, crd0[i][j].y, ap[i],
                                          &crd0[i][j].x, &crd0[i][j].y);
 				}
@@ -896,7 +892,7 @@ int calibration_proc_c (int sel)
                 
 				/* sorting of detected points by back-projection */
 				sortgrid_man (Ex[i], I[i], G[i], ap[i], mmp,
-                              imx,imy, pix_x,pix_y,
+                              cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
                               nfix, fix, num[i], pix[i], chfield, i);
                 
 				/* adapt # of detected points */
@@ -939,9 +935,8 @@ int calibration_proc_c (int sel)
                 for (i=0; i<nfix ; i++)
                 {
                     pixel_to_metric (pix[i_img][i].x, pix[i_img][i].y,
-                                     imx,imy, pix_x, pix_y,
-                                     &crd[i_img][i].x, &crd[i_img][i].y,
-                                     chfield);
+                        cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
+                        &crd[i_img][i].x, &crd[i_img][i].y, chfield);
                     crd[i_img][i].pnr = pix[i_img][i].pnr;
                 }
                 
@@ -1048,15 +1043,9 @@ int calibration_proc_c (int sel)
                     for (i=0; i<nfix ; i++)			  
                     {
                         /* first crd->pix */
-                        metric_to_pixel (crd[i_img][i].x, crd[i_img][i].y, imx,imy, pix_x,pix_y, &pix[i_img][i].x, &pix[i_img][i].y, chfield);
-                        /*then draw crosses*/
-                        //intx1 = (int) pix[i_img][i].x;
-                        //inty1 = (int) pix[i_img][i].y;
-                        
-                        
-                        //drawcross (interp, intx1, inty1, 3, i_img, "orange");
-                        
-                        
+                        metric_to_pixel (crd[i_img][i].x, crd[i_img][i].y, 
+                            cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
+                            &pix[i_img][i].x, &pix[i_img][i].y, chfield);
                     }
                     
                     

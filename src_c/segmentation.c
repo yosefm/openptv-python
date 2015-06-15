@@ -14,8 +14,6 @@ Description:	  target recognition with adaptive threshold
 		  based on high pass filter and connectivity analysis
 						with peak fitting technique
 
-Routines contained:		unsharp_mask () ...
-
 ****************************************************************************/
 
 #include "ptv.h"
@@ -61,20 +59,20 @@ printf ("dim_lp = %d\n", dim_lp);
       else  *ptr3 = 0;
     }
   /* consider field mode */
-  if (field == 1 || field == 2)  split (img_hp, field);
+  if (field == 1 || field == 2)  split (img_hp, field, cpar);
 
 
   /* filter highpass image, if wanted */
   switch (filter_hp)
     {
     case 0: break;
-    case 1: lowpass_3 (img_hp, img_hp);	break;
-    case 2: filter_3 (img_hp, img_hp);	break;
+    case 1: lowpass_3 (img_hp, img_hp, cpar);	break;
+    case 2: filter_3 (img_hp, img_hp, cpar);	break;
     }
   free (img_lp);
 }
 
-void targ_rec (img0, img, par_file, xmin,xmax,ymin,ymax, pix, nr, num)
+void targ_rec (img0, img, par_file, xmin,xmax,ymin,ymax, pix, nr, num, cpar)
 
 unsigned char	*img, *img0;   	/* image data, image to be set to zero */
 char	       	par_file[];    	/* name of parameter file */
@@ -82,6 +80,7 @@ int    		xmin,xmax,ymin,ymax;	/* search area */
 target	       	pix[];		       	/* pixel coord array, global */
 int	       	nr;		       	/* image number for display */
 int	       	*num;	       		/* number of detections */
+control_par *cpar;
 
 /*  thresholding and center of gravity with a peak fitting technique  */
 /*  uses 4 neighbours for connectivity and 8 to find local maxima     */
@@ -100,6 +99,11 @@ int	       	*num;	       		/* number of detections */
   register unsigned char	gv, gvref;
 
   targpix	       	waitlist[2048];
+  
+  /* avoid many dereferences */
+  int imx, imy;
+  imx = cpar->imx;
+  imy = cpar->imy;
 
   /* read image name, filter dimension and threshold from parameter file */
   printf("inside targ_rec (segmentation.c) \n");
@@ -229,13 +233,14 @@ int	       	*num;	       		/* number of detections */
 
 
 
-void simple_connectivity (img0, img, par_file, xmin,xmax,ymin,ymax, pix, nr, num)
+void simple_connectivity (img0, img, par_file, xmin,xmax,ymin,ymax, pix, nr, num, cpar)
 unsigned char	*img, *img0;   	/* image data, image to be set to zero */
 char	       	par_file[];    	/* name of parameter file */
 int	       	xmin,xmax,ymin,ymax;	/* search area */
 target	       	pix[];        	/* pixel coord array, global */
 int    	       	nr;    	       	/* image number for display */
 int	       	*num;	       	/* number of detections */
+control_par *cpar;
 
 /*  thresholding and center of gravity with a peak fitting technique  */
 /*  uses 4 neighbours for connectivity and 8 to find local maxima     */
@@ -254,6 +259,11 @@ int	       	*num;	       	/* number of detections */
   register unsigned char  gv, gvref;
 
   targpix	waitlist[2048];
+
+  /* avoid many dereferences */
+  int imx, imy;
+  imx = cpar->imx;
+  imy = cpar->imy;
 
   /* read image name, threshold and shape limits from parameter file */
   fpp = fopen_r (par_file);
