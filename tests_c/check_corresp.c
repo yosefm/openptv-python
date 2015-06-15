@@ -14,6 +14,7 @@
 #include <optv/tracking_frame_buf.h>
 #include <optv/calibration.h>
 #include <optv/parameters.h>
+#include <optv/trafo.h>
 #include "../src_c/typedefs.h"
 
 extern int init_proc_c(); /* Until main parameters are moved to parameters.h */
@@ -74,8 +75,7 @@ START_TEST(test_correspondences)
                     calib[cam]->ext_par, calib[cam]->int_par,
                     calib[cam]->glass_par, calib[cam]->added_par, media_par,
                     &(targ->x), &(targ->y));
-                metric_to_pixel(targ->x, targ->y, imx, imy, pix_x, pix_y,
-                    &(targ->x), &(targ->y));
+                metric_to_pixel(&(targ->x), &(targ->y), targ->x, targ->y, cpar);
                 
                 /* These values work in check_epi, so used here too */
                 targ->n = 25;

@@ -125,6 +125,139 @@ void lowpass_3(unsigned char *img, unsigned char *img_lp, control_par *cpar) {
 
 }
 
+void unsharp_mask (n, img0, img_lp)
+
+int          n;
+unsigned char *img0, *img_lp;
+
+
+{
+   register unsigned char  *imgum, *ptrl, *ptrr, *ptrz;
+   int                 *buf1, *buf2, buf, *end;
+   register int            *ptr, *ptr1, *ptr2, *ptr3;
+   int                 ii, n2, nq, m;
+   register int            i;
+   //imgsize=len1; // denis
+   n2 = 2*n + 1;  nq = n2 * n2;
+   printf("inside unsharp_mask\n");
+
+   imgum = (unsigned char *) calloc (imgsize, 1);
+   if ( ! imgum)
+   {
+       puts ("calloc for imgum --> error");  exit (1);
+   }
+   printf("after calloc unsharp_mask\n");      
+   buf1 = (int *) calloc (imgsize, sizeof(int));
+   if ( ! buf1)
+   {
+       puts ("calloc for buf1 --> error");  exit (1);
+   }
+   buf2 = (int *) calloc (cpar->imx, sizeof(int));
+
+   printf("after calloc2 unsharp_mask\n"); 
+
+   /* set imgum = img0 (so there cannot be written to the original image) */
+   for (ptrl=imgum, ptrr=img0; ptrl<(imgum+imgsize); ptrl++, ptrr++)
+   {
+     *ptrl = *ptrr;
+
+
+   }   
+
+   /* cut off high gray values (not in general use !)
+   for (ptrz=imgum; ptrz<(imgum+imgsize); ptrz++) if (*ptrz > 160) *ptrz = 160; */
+
+
+
+
+   /* --------------  average over lines  --------------- */
+
+   for (i=0; i < cpar->imy; i++)
+   {
+       ii = i * cpar->imx;
+       /* first element */
+       buf = *(imgum+ii);  *(buf1+ii) = buf * n2;
+       
+       /* elements 1 ... n */
+       for (ptr=buf1+ii+1, ptrr=imgum+ii+2, ptrl=ptrr-1, m=3;
+            ptr<buf1+ii+n+1; ptr++, ptrl+=2, ptrr+=2, m+=2)
+       {
+           buf += (*ptrl + *ptrr);
+           *ptr = buf * n2 / m;
+       }
+       
+       /* elements n+1 ... imx-n */
+       for (ptrl=imgum+ii, ptr=buf1+ii+n+1, ptrr=imgum+ii+n2;
+            ptrr<imgum+ii+cpar->imx; ptrl++, ptr++, ptrr++)
+       {
+           buf += (*ptrr - *ptrl);
+           *ptr = buf;
+       }
+       
+       /* elements imx-n ... imx */
+       for (ptrl=imgum+ii+cpar->imx-n2, ptrr=ptrl+1, ptr=buf1+ii+cpar->imx-n, m=n2-2;
+            ptr<buf1+ii+cpar->imx; ptrl+=2, ptrr+=2, ptr++, m-=2)
+       {
+           buf -= (*ptrl + *ptrr);
+           *ptr = buf * n2 / m;
+       }
+   }
+   
+   free (imgum);
+
+
+   /* -------------  average over columns  -------------- */
+
+   end = buf2 + cpar->imx;
+
+   /* first line */
+   for (ptr1=buf1, ptr2=buf2, ptrz=img_lp; ptr2<end; ptr1++, ptr2++, ptrz++)
+   {
+       *ptr2 = *ptr1;
+       *ptrz = *ptr2/n2;
+   }
+   
+   /* lines 1 ... n */
+   for (i=1; i<n+1; i++)
+   {
+       ptr1 = buf1 + (2*i-1)*cpar->imx;
+       ptr2 = ptr1 + cpar->imx;
+       ptrz = img_lp + i*cpar->imx;
+       for (ptr3=buf2; ptr3<end; ptr1++, ptr2++, ptr3++, ptrz++)
+       {
+           *ptr3 += (*ptr1 + *ptr2);
+           *ptrz = n2 * (*ptr3) / nq / (2*i+1);
+       }
+   }
+   
+   /* lines n+1 ... imy-n-1 */
+   for (i=n+1, ptr1=buf1, ptrz=img_lp+cpar->imx*(n+1), ptr2=buf1+cpar->imx*n2;
+        i<cpar->imy-n; i++)
+   {
+       for (ptr3=buf2; ptr3<end; ptr3++, ptr1++, ptrz++, ptr2++)
+       {
+           *ptr3 += (*ptr2 - *ptr1);
+           *ptrz = *ptr3/nq;
+       }
+   }
+   
+   /* lines imy-n ... imy */
+   for (i=n; i>0; i--)
+   {
+       ptr1 = buf1 + (cpar->imy-2*i-1)*cpar->imx;
+       ptr2 = ptr1 + cpar->imx;
+       ptrz = img_lp + (cpar->imy-i)*cpar->imx;
+       for (ptr3=buf2; ptr3<end; ptr1++, ptr2++, ptr3++, ptrz++)
+       {
+           *ptr3 -= (*ptr1 + *ptr2);
+           *ptrz = n2 * (*ptr3) / nq / (2*i+1);
+       }
+   }
+   
+   
+   free (buf1);
+   printf("end unsharp_mask\n");  
+}
 
 void split (img, field, cpar)
 
