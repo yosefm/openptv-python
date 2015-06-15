@@ -69,43 +69,6 @@ unsigned char *img, *img_lp;
 	}
 }
 
-
-
-
-
-void enhance (img)
-
-unsigned char	*img;
-
-{
-	register unsigned char	*ptr;
-	unsigned char	       	*end, gmin = 255, gmax = 0, offs;
-	float		       	diff, gain;
-	int		       	i, sum, histo[256];
-	
-	void histogram ();
-	
-	end = img + imgsize;
-
-	histogram (img, histo);
-	for (i=0, sum=0; (i<255)&&(sum<imx); sum+=histo[i], i++);  gmin = i;	
-	for (i=255, sum=0; (i>0)&&(sum<512); sum+=histo[i], i--);  gmax = i;	
-	offs = gmin;  diff = gmax - gmin;  gain = 255 / diff;
-	
-	for (ptr=img; ptr<end; ptr++)
-	{
-		if (*ptr < gmin) *ptr = gmin;  else if (*ptr > gmax) *ptr = gmax;
-		*ptr = (*ptr - offs) * gain;
-		if (*ptr < 8) *ptr = 8;		/* due monocomp colors */
-	}
-}
-
-
-
-
-
-
-
 void histogram (img, hist)
 
 unsigned char	*img;
@@ -160,70 +123,6 @@ unsigned char *img, *img_lp;
 	}
 
 }
-
-
-
-
-
-
-void lowpass_n (n, img, img_lp)
-
-int	       	n;
-unsigned char	*img, *img_lp;
-
-{
-	register unsigned char	*ptrl, *ptrr, *ptrz;
-	short  		       	*buf1, *buf2, buf, *end;
-	register short	       	*ptr, *ptr1, *ptr2, *ptr3;
-	int    		       	k, n2, nq;
-	register int	       	i;
-	
-	n2 = 2*n + 1;  nq = n2 * n2;
-	
-	buf1 = (short *) calloc (imgsize, sizeof(short));
-	if ( ! buf1)
-	{
-		puts ("calloc for buf1 --> error");
-		exit (1);
-	}
-	buf2 = (short *) calloc (imx, sizeof(short));
-
-
-	/* --------------  average over lines  --------------- */
-	end = buf1 + imgsize;  buf = 0;
-	for (ptrr = img; ptrr < img + n2; ptrr ++)  buf += *ptrr;
-	*(buf1 + n) = buf;
-	
-	for (ptrl=img, ptr = buf1+n+1; ptr<end; ptrl++, ptr++, ptrr++)
-	{
-		buf += (*ptrr - *ptrl);  *ptr = buf;
-	}
-	
-	
-	
-	/* -------------  average over columns  -------------- */
-	end = buf2 + imx;
-	for (ptr1=buf1, ptrz=img_lp+imx*n, ptr3=buf2; ptr3<end;
-		 ptr1++, ptrz++, ptr3++)
-	{
-		for (k=0, ptr2=ptr1; k<n2; k++, ptr2+=imx)  *ptr3 += *ptr2;
-		*ptrz = *ptr3/nq;
-	}
-	for (i=n+1, ptr1=buf1, ptrz=img_lp+imx*(n+1), ptr2=buf1+imx*n2;
-		 i<imy-n; i++)
-	{
-		for (ptr3=buf2; ptr3<end; ptr3++, ptr1++, ptrz++, ptr2++)
-		{
-			*ptr3 += (*ptr2 - *ptr1);
-			*ptrz = *ptr3/nq;
-		}
-	}
-
-
-	free (buf1);
-}
-
-
 
 
 void unsharp_mask (n, img0, img_lp)
@@ -363,64 +262,6 @@ printf("end unsharp_mask\n");
 
 }
 
-
-
-
-
-
-void zoom (img, zoomimg, xm, ym, zf)
-unsigned char	*img, *zoomimg;
-int	       	xm, ym, zf;    	/* zoom at col xm, line ym, factor zf */
-{
-  int          	i0, j0, sx, sy, i1, i2, j1, j2;
-  register int	i,j,k,l;
-
-
-  sx = imx/zf;  sy = imy/zf;  i0 = ym - sy/2;  j0 = xm - sx/2;
-  
-  /* lines = i, cols = j */
-  
-  for (i=0; i<sy; i++)  for (j=0; j<sx; j++)
-    {
-      i1 = i0 + i;  j1 = j0 + j;  i2 = zf*i;  j2 = zf*j;
-      for (k=0; k<zf; k++)  for (l=0; l<zf; l++)
-	{
-	  *(zoomimg + imx*(i2+k) + j2+l) = *(img + imx*i1 + j1);
-	}
-    }
-
-}
-
-
-void zoom_new (img, zoomimg, xm, ym, zf, zimx, zimy)
-unsigned char	*img, *zoomimg;
-int	       	xm, ym, zf;    	/* zoom at col xm, line ym, factor zf */
-int	       	zimx, zimy;    	/* zoom image size */
-{
-	int		      	xa, ya;
-	register int	       	i;
-	register unsigned char	*ptri, *ptrz;
-	unsigned char	       	*end;
-	
-	xa = xm - zimx/(2*zf);
-	ya = ym - zimy/(2*zf);
-	ptri = img + ya*imx + xa;
-	end = zoomimg + zimx*zimy;
-
-	for (ptrz=zoomimg, i=0; ptrz<end; ptrz++)
-	{
-		*ptrz = *ptri;
-		i++;
-		if ((i%zimx) == 0)	ptri = img + (ya+(i/(zimx*zf)))*imx + xa;
-		if ((i%zf) == 0)	ptri++;
-	}
-}
-
-
-
-
-
-	
 void split (img, field)
 
 unsigned char	*img;
