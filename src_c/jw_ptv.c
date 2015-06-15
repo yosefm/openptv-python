@@ -20,6 +20,7 @@
 
 #include <optv/calibration.h>
 #include <optv/parameters.h>
+#include <optv/trafo.h>
 
 #include "tools.h"
 #include "image_processing.h"
@@ -466,9 +467,8 @@ int correspondences_proc_c ()
             
             /* transformations pixel coordinates -> metric coordinates */
             /* transformations metric coordinates -> corrected metric coordinates */
-            pixel_to_metric (pix[i_img][i].x, pix[i_img][i].y,
-                             cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
-                             &crd[i_img][i].x, &crd[i_img][i].y, cpar->chfield);
+            pixel_to_metric(&crd[i_img][i].x, &crd[i_img][i].y, 
+                pix[i_img][i].x, pix[i_img][i].y, cpar);
             crd[i_img][i].pnr = pix[i_img][i].pnr;
             
             x = crd[i_img][i].x - I[i_img].xh;
@@ -733,10 +733,8 @@ int calibration_proc_c (int sel)
                 /* transform clicked points */
                 for (j=0; j<4; j++)
                 {
-                    pixel_to_metric (pix0[i][j].x, pix0[i][j].y,
-                        cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
-                                     &crd0[i][j].x, &crd0[i][j].y,
-                                     chfield);
+                    pixel_to_metric(&crd0[i][j].x, &crd0[i][j].y,
+                        pix0[i][j].x, pix0[i][j].y, cpar);
                     correct_brown_affin (crd0[i][j].x, crd0[i][j].y, ap[i],
                                          &crd0[i][j].x, &crd0[i][j].y);
                 }
@@ -780,9 +778,8 @@ int calibration_proc_c (int sel)
                 /* transform clicked points */
                 for (j=0; j<4; j++)
                 {
-                    pixel_to_metric (pix0[i][j].x, pix0[i][j].y,
-                        cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
-                        &crd0[i][j].x, &crd0[i][j].y, chfield);
+                    pixel_to_metric(&crd0[i][j].x, &crd0[i][j].y,
+                        pix0[i][j].x, pix0[i][j].y, cpar);
                     correct_brown_affin (crd0[i][j].x, crd0[i][j].y, ap[i],
                                          &crd0[i][j].x, &crd0[i][j].y);
                 }
@@ -831,10 +828,8 @@ int calibration_proc_c (int sel)
                         if (pix[i_img][i].pnr >= 0)
                         {
                             /* transform pixel coord to metric */
-                            pixel_to_metric (pix[i_img][i].x,
-                                pix[i_img][i].y, cpar->imx, cpar->imy, 
-                                cpar->pix_x, cpar->pix_y,
-                                &crd[i_img][i].x, &crd[i_img][i].y, chfield);
+                            pixel_to_metric(&crd[i_img][i].x, &crd[i_img][i].y, 
+                                pix[i_img][i].x, pix[i_img][i].y, cpar);
                             fprintf (fp1, "%4d %8.5f %8.5f    ",
                                      pix[i_img][i].pnr,
                                      crd[i_img][i].x, crd[i_img][i].y);
@@ -877,9 +872,8 @@ int calibration_proc_c (int sel)
 				/* transform clicked points */
 				for (j=0; j<4; j++)
 				{
-					pixel_to_metric (pix0[i][j].x, pix0[i][j].y,
-                        cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
-                        &crd0[i][j].x, &crd0[i][j].y, chfield);
+					pixel_to_metric(&crd0[i][j].x, &crd0[i][j].y, 
+                        pix0[i][j].x, pix0[i][j].y, cpar);
 					correct_brown_affin (crd0[i][j].x, crd0[i][j].y, ap[i],
                                          &crd0[i][j].x, &crd0[i][j].y);
 				}
@@ -934,9 +928,8 @@ int calibration_proc_c (int sel)
             {
                 for (i=0; i<nfix ; i++)
                 {
-                    pixel_to_metric (pix[i_img][i].x, pix[i_img][i].y,
-                        cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
-                        &crd[i_img][i].x, &crd[i_img][i].y, chfield);
+                    pixel_to_metric(&crd[i_img][i].x, &crd[i_img][i].y,
+                        pix[i_img][i].x, pix[i_img][i].y, cpar);
                     crd[i_img][i].pnr = pix[i_img][i].pnr;
                 }
                 
@@ -1043,9 +1036,8 @@ int calibration_proc_c (int sel)
                     for (i=0; i<nfix ; i++)			  
                     {
                         /* first crd->pix */
-                        metric_to_pixel (crd[i_img][i].x, crd[i_img][i].y, 
-                            cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
-                            &pix[i_img][i].x, &pix[i_img][i].y, chfield);
+                        metric_to_pixel(&pix[i_img][i].x, &pix[i_img][i].y, 
+                            crd[i_img][i].x, crd[i_img][i].y, cpar);
                     }
                     
                     

@@ -19,7 +19,7 @@ inc_dirs = [np.get_include()]
 
 ext_mods = [
     Extension("ptv1", ["ptv1.pyx", "segmentation.c", "tools.c",
-        "image_processing.c", "trafo.c", "jw_ptv.c", "peakfitting.c", 
+        "image_processing.c", "jw_ptv.c", "peakfitting.c", 
         "correspondences.c", "epi.c", "multimed.c", 
         "imgcoord.c", "orientation.c","sortgrid.c",
         "pointpos.c", "intersect.c", "track.c", "ttools.c", "draw.c",

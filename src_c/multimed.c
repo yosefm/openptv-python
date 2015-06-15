@@ -310,8 +310,7 @@ void init_mmLUT (int i_cam, Calibration *cal, control_par *cpar)
   // this is to cut down duplicate code without refactoring the function 
   //totally which would happen later.
 #define UPDATE_R(p2mx, p2my) \
-  pixel_to_metric ((p2mx), (p2my), cpar->imx, cpar->imy, \
-    cpar->pix_x, cpar->pix_y, &x,&y, 0); \
+  pixel_to_metric (&x, &y, (p2mx), (p2my), cpar); \
   x = x - I.xh; \
   y = y - I.yh; \
   correct_brown_affin (x, y, ap, &x,&y); \
@@ -465,8 +464,7 @@ void volumedimension (Calibration cal[4], double *xmax, double *xmin,
   // this is to cut down duplicate code without refactoring the function 
   //totally which would happen later.
 #define UPDATE_R_VD(p2mx, p2my) \
-  pixel_to_metric ((p2mx), (p2my), cpar->imx, cpar->imy, \
-    cpar->pix_x, cpar->pix_y, &x,&y, 0); \
+  pixel_to_metric (&x, &y, (p2mx), (p2my), cpar); \
   x = x - cal[i_cam].int_par.xh; \
   y = y - cal[i_cam].int_par.yh; \
   correct_brown_affin (x, y, cal[i_cam].added_par, &x,&y); \

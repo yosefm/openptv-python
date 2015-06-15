@@ -114,10 +114,6 @@ void trans_Cam_Point ();
 void back_trans_Point ();
 
 void img_xy_mm_geo ();
- void pixel_to_metric();
-void metric_to_pixel ();
- void correct_brown_affin();
-void distort_brown_affin ();
 void init_mmLUT ();
 
 void correspondences_4();

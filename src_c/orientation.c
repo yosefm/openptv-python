@@ -25,6 +25,7 @@ Related routines:
 #include <optv/calibration.h>
 #include <optv/tracking_frame_buf.h>
 #include <optv/parameters.h>
+#include <optv/trafo.h>
 #include <optv/ray_tracing.h>
 #include <optv/lsqadj.h>
 
@@ -77,10 +78,8 @@ void prepare_eval (control_par *cpar, int *n_fix) {
                 }
                 
 				if(pix[i_img][count].x>-999 && pix[i_img][count].y>-999){
-				   pixel_to_metric (pix[i_img][count].x, pix[i_img][count].y,
-			           cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
-			           &crd[i_img][count].x, &crd[i_img][count].y,
-			           cpar->chfield);
+				   pixel_to_metric (&crd[i_img][count].x, &crd[i_img][count].y,
+                       pix[i_img][count].x, pix[i_img][count].y, cpar);
 				}
 				else{
                    crd[i_img][count].x=-1e10;
@@ -143,9 +142,8 @@ void prepare_eval_shake(control_par *cpar) {
                     pix[i_img][count].y = frm.targets[i_img][part_pointer].y;
                     pix[i_img][count].pnr = count;
                                 
-                    pixel_to_metric (pix[i_img][count].x, pix[i_img][count].y,
-                        cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
-                        &crd[i_img][count].x, &crd[i_img][count].y, cpar->chfield);
+                    pixel_to_metric(&crd[i_img][count].x, &crd[i_img][count].y,
+                        pix[i_img][count].x, pix[i_img][count].y, cpar);
                     crd[i_img][count].pnr = count;
                     
                     frame_used = 1;

@@ -14,6 +14,7 @@ References:
 
 #include <optv/calibration.h>
 #include <optv/parameters.h>
+#include <optv/trafo.h>
 
 /*  advance_nd_iterator() increments by 1 an iterator over n dimensions. The
     iterator is an array of counters, one for each dimension. Least significant
@@ -115,10 +116,8 @@ n_tupel **correspondences(frame *frm, Calibration **calib, volume_par *vpar) {
         cam_set[cam] = 1 << cam;
         
         for (part = 0; part < frm->num_targets[cam]; part++) {
-            pixel_to_metric(
-                frm->targets[cam][part].x, frm->targets[cam][part].y,
-                capr->imx, cpar->imy, cpar->pix_x, cpar->pix_y, 
-                &corrected[cam][part].x, &corrected[cam][part].y, chfield);
+            pixel_to_metric(&corrected[cam][part].x, &corrected[cam][part].y,
+                frm->targets[cam][part].x, frm->targets[cam][part].y, cpar);
             
             img_x = corrected[cam][part].x - calib[cam]->int_par.xh;
             img_y = corrected[cam][part].y - calib[cam]->int_par.yh;

@@ -24,6 +24,7 @@ Routines contained:    	trackcorr_c
 #include "ptv.h"
 #include <optv/tracking_frame_buf.h>
 #include <optv/parameters.h>
+#include <optv/trafo.h>
 #include "tracking_run.h"
 #include "vec_utils.h"
 #include "tools.h"
@@ -293,9 +294,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 	        for (j = 0; j < fb->num_cams; j++) {
                 img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j], ap[j],
                     mmp, &xn[j], &yn[j]);
-		        metric_to_pixel (xn[j], yn[j], cpar->imx, cpar->imy, 
-                    cpar->pix_x, cpar->pix_y, &x1[j], &y1[j], 
-                    cpar->chfield);
+		        metric_to_pixel(&x1[j], &y1[j], xn[j], yn[j], cpar);
 	        }
 	    } else {  
             copy_pos3d(X[2], X[1]);
@@ -303,9 +302,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 	            if (curr_corres->p[j] == -1) {
                     img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j],
                         ap[j], mmp, &xn[j], &yn[j]);
-                    metric_to_pixel (xn[j], yn[j], cpar->imx, cpar->imy, 
-                        cpar->pix_x, cpar->pix_y,
-                        &x1[j], &y1[j], cpar->chfield);
+                    metric_to_pixel(&x1[j], &y1[j], xn[j], yn[j], cpar);
 	            } else {
                     _ix = curr_corres->p[j];
                     x1[j] = curr_targets[j][_ix].x;
@@ -354,9 +351,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 	        for (j = 0; j < fb->num_cams; j++) {
                 img_coord (j, X[5][0], X[5][1], X[5][2], Ex[j],I[j], G[j], ap[j],
                     mmp, &xn[j], &yn[j]);
-		        metric_to_pixel (xn[j], yn[j], cpar->imx, cpar->imy, 
-                    cpar->pix_x, cpar->pix_y, &x2[j], &y2[j], 
-                    cpar->chfield);
+		        metric_to_pixel(&x2[j], &y2[j], xn[j], yn[j], cpar);
 	        }
 
 	        /* search for candidates in next time step */
@@ -420,9 +415,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 	        for (j = 0;j < fb->num_cams; j++) {
                 img_coord (j, X[5][0], X[5][1], X[5][2], Ex[j],I[j], G[j], ap[j],
                     mmp, &xn[j], &yn[j]);
-		        metric_to_pixel (xn[j], yn[j], cpar->imx, cpar->imy, 
-                    cpar->pix_x, cpar->pix_y, &xn[j], &yn[j], 
-                    cpar->chfield);
+		        metric_to_pixel(&xn[j], &yn[j], xn[j], yn[j], cpar);
 	        }
 
 	        /* reset img coord because of num_cams < 4 */
@@ -446,9 +439,8 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 
 	        for (j = 0; j < fb->num_cams; j++) {
 		        if (x2[j] != -1e10 && y2[j] != -1e10) {
-		        pixel_to_metric (x2[j],y2[j], cpar->imx, cpar->imy, 
-                    cpar->pix_x, cpar->pix_y, &x2[j],&y2[j], 
-                    cpar->chfield); quali++;
+		        pixel_to_metric(&x2[j],&y2[j], x2[j],y2[j], cpar); 
+                quali++;
 		        }
 		    }
 
@@ -537,9 +529,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
                 for (j = 0; j < fb->num_cams; j++) {
                     img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j],
                         ap[j], mmp, &xn[j], &yn[j]);
-		            metric_to_pixel (xn[j], yn[j], cpar->imx, cpar->imy, 
-                        cpar->pix_x, cpar->pix_y, 
-                        &xn[j], &yn[j], cpar->chfield);
+		            metric_to_pixel(&xn[j], &yn[j], xn[j], yn[j], cpar);
 		            x2[j]=-1e10;
                     y2[j]=-1e10;
                 } 
@@ -561,9 +551,8 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 
 		        for (j = 0; j < fb->num_cams; j++) {
 		            if (x2[j] !=-1e10 && y2[j] != -1e10) {
-		                pixel_to_metric (x2[j],y2[j], cpar->imx, cpar->imy, 
-                            cpar->pix_x, cpar->pix_y, 
-                            &x2[j],&y2[j], cpar->chfield); quali++;
+		                pixel_to_metric(&x2[j], &y2[j], x2[j], y2[j], cpar);
+                        quali++;
 		            }
 		        }
 
@@ -849,9 +838,7 @@ int trackback_c ()
             for (j=0; j < fb->num_cams; j++) {   
                 img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j], ap[j],
                     mmp, &xn[j], &yn[j]);
-                metric_to_pixel (xn[j], yn[j], cpar->imx, cpar->imy, 
-                    cpar->pix_x, cpar->pix_y, &xn[j],
-                    &yn[j], cpar->chfield);
+                metric_to_pixel(&xn[j], &yn[j], xn[j], yn[j], cpar);
             }
 
             /* calculate searchquader and reprojection in image space */
@@ -935,9 +922,7 @@ int trackback_c ()
 
                     for (j = 0; j < fb->num_cams; j++) {
                         if (x2[j] !=-1e10 && y2[j] != -1e10) {
-                            pixel_to_metric (x2[j],y2[j], cpar->imx, cpar->imy,
-                                cpar->pix_x, cpar->pix_y, 
-                                &x2[j],&y2[j], cpar->chfield); 
+                            pixel_to_metric(&x2[j], &y2[j], x2[j],y2[j], cpar); 
                             quali++;
                         }
                     }

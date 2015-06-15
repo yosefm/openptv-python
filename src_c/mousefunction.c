@@ -35,8 +35,7 @@ int mouse_proc_c (int click_x, int click_y, int kind, int num_image,
       x = (float) (click_x - cpar->imx/2)/zoom_f[n] + zoom_x[n];
       y = (float) (click_y - cpar->imy/2)/zoom_f[n] + zoom_y[n];
 
-      pixel_to_metric (x,y, cpar->imx, cpar->imy,
-        cpar->pix_x, cpar->pix_y, &x,&y, cpar->chfield);
+      pixel_to_metric (&x, &y, x,y, cpar);
       x -= I[n].xh;	y -= I[n].yh;
       correct_brown_affin (x, y, ap[n], &x, &y);
       k = nearest_neighbour_geo (geo[n], num[n], x, y, 0.05);
@@ -75,10 +74,8 @@ int mouse_proc_c (int click_x, int click_y, int kind, int num_image,
 		   xa12 += I[i].xh;	ya12 += I[i].yh;
 		   xb12 += I[i].xh;	yb12 += I[i].yh;
             
-		   metric_to_pixel (xa12, ya12, cpar->imx, cpar->imy, 
-               cpar->pix_x, cpar->pix_y, &xa12, &ya12, cpar->chfield);
-		   metric_to_pixel (xb12, yb12, cpar->imx, cpar->imy, 
-               cpar->pix_x, cpar->pix_y, &xb12, &yb12, cpar->chfield);
+		   metric_to_pixel(&xa12, &ya12, xa12, ya12, cpar);
+		   metric_to_pixel(&xb12, &yb12, xb12, yb12, cpar);
             
 		   intx1 = (int) ( cpar->imx/2 + zoom_f[i] * (xa12 - zoom_x[i]));
 		   inty1 = (int) ( cpar->imy/2 + zoom_f[i] * (ya12 - zoom_y[i]));

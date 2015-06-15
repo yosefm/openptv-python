@@ -54,7 +54,7 @@ cdef extern from "globals.h": # to lose the declspec
     int trackcorr_c_loop (tracking_run *run_info, int step, int display)
     int trackcorr_c_finish(tracking_run *run_info, int step)
     int trackback_c ()
-    int trajectories_c(int i, int num_cams)
+    int trajectories_c(int i, control_par *cpar)
     void read_ascii_data(int filenumber)
     int determination_proc_c (int dumbbell)
 
@@ -337,7 +337,7 @@ def py_get_mark_track_c(i_img):
 
 def py_traject_loop(seq):
     global intx1_tr,intx2_tr,inty1_tr,inty2_tr,m1_tr
-    trajectories_c(seq, cpar[0].num_cams)
+    trajectories_c(seq, cpar)
     intx1,intx2,inty1,inty2=[],[],[],[]
     
     for i in range(cpar[0].num_cams):

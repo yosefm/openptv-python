@@ -21,6 +21,7 @@ Description:	       	reads objects, detected by detection etc.,
 #include "ptv.h"
 #include "tools.h"
 #include <optv/parameters.h>
+#include <optv/trafo.h>
 
 void just_plot (Ex, I, G, ap, mm, imx,imy, pix_x,pix_y,
 				   nfix,fix, field, n_img)
@@ -58,7 +59,7 @@ coord_3d	fix[];
     {
       img_coord (n_img, fix[i].x, fix[i].y, fix[i].z,  Ex, I, G, ap, mm, 
            &xp, &yp);
-      metric_to_pixel (xp, yp, imx,imy, pix_x,pix_y, &xp, &yp, field);
+      metric_to_pixel (&xp, &yp, xp, yp, cpar);
       
       /* draw projected points for check purpuses */
       
@@ -132,7 +133,7 @@ target		pix[];
   for (i=0; i<nfix; i++)
     {
       img_coord (n_img, fix[i].x, fix[i].y, fix[i].z,  Ex, I, G, ap, mm, &xp, &yp);
-      metric_to_pixel (xp, yp, imx,imy, pix_x,pix_y, &xp, &yp, field);
+      metric_to_pixel (&xp, &yp, xp, yp, cpar);
       
       /* draw projected points for check purpuses */
       

@@ -23,9 +23,8 @@ Routines contained:     drawcross, drawvector, draw_pnr, mark_detections
    Arguments:
    int i - frame number
    control_par *cpar - scene parameters
-   int y_remap_mode - obsolete, should be 0 only, see trafo.c
 */
-int trajectories_c(int i, control_par *cpar, int y_remap_mode) 
+int trajectories_c(int i, control_par *cpar) 
 {
   int   k, intx1, inty1, intx2, inty2;
   int  anz1, anz2, m, j;
@@ -84,12 +83,10 @@ int trajectories_c(int i, control_par *cpar, int y_remap_mode)
 	  for (k=0; k < cpar->num_cams; k++)
 	    {
 	      img_coord (k, line1[j].x1, line1[j].y1, line1[j].z1, Ex[k],I[k], G[k], ap[k], mmp, &p1[k].x, &p1[k].y);
-	      metric_to_pixel (p1[k].x, p1[k].y, cpar->imx, cpar->imy, 
-            cpar->pix_x, cpar->pix_y, &p1[k].x, &p1[k].y, y_remap_mode);
+	      metric_to_pixel (&p1[k].x, &p1[k].y, p1[k].x, p1[k].y, cpar);
 	      
 	      img_coord (k, line2[m].x1, line2[m].y1, line2[m].z1, Ex[k],I[k], G[k], ap[k], mmp, &p2[k].x, &p2[k].y);
-	      metric_to_pixel (p2[k].x, p2[k].y, cpar->imx, cpar->imy, 
-            cpar->pix_x, cpar->pix_y, &p2[k].x, &p2[k].y, y_remap_mode); 
+	      metric_to_pixel(&p2[k].x, &p2[k].y, p2[k].x, p2[k].y, cpar); 
 	      
 	      if ( fabs( p2[k].x-zoom_x[k]) < cpar->imx/(2*zoom_f[k])
 		   && ( fabs(p2[k].y-zoom_y[k]) < cpar->imy/(2*zoom_f[k])) )
