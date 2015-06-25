@@ -100,7 +100,6 @@ Exterior       	Ex[4],sEx[4];	      	/* exterior orientation */
 Interior       	I[4],sI[4];	       	/* interior orientation */
 Glass       	G[4],sG[4];	       	/* glass orientation */
 ap_52	       	ap[4],sap[4];	       	/* add. parameters k1,k2,k3,p1,p2,scx,she */
-mm_np	       	mmp;	       	/* n-media parameters */
 target	       	pix[4][nmax]; 	/* target pixel data */
 target	       	pix0[4][12];    	/* pixel data for man_ori points */
 
@@ -146,6 +145,7 @@ int init_proc_c()
     
     /*  read from main parameter file  */
     cpar = read_control_par("parameters/ptv.par");
+    cpar->mm->nlay = 1;
     
     for (i=0; i<4; i++)
     {
@@ -153,15 +153,8 @@ int init_proc_c()
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 128);
     }
     
-    mmp.n1 = cpar->mm->n1;
-    mmp.n2[0] = cpar->mm->n2[0];
-    mmp.n3 = cpar->mm->n3;
-    mmp.d[0] = cpar->mm->d[0];
-    
     /* read illuminated layer data */
     vpar = read_volume_par("parameters/criteria.par");
-    
-    mmp.nlay = 1;
     
     imgsize = cpar->imx * cpar->imy;
     for (i = 0; i < cpar->num_cams; i++)
@@ -233,6 +226,7 @@ int start_proc_c()
     
     /*  read from main parameter file  */
     cpar = read_control_par("parameters/ptv.par");
+    cpar->mm->nlay = 1;
     
     for (i=0; i<4; i++)
     {
@@ -240,15 +234,8 @@ int start_proc_c()
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 256);
     }
     
-    mmp.n1 = cpar->mm->n1;
-    mmp.n2[0] = cpar->mm->n2[0];
-    mmp.n3 = cpar->mm->n3;
-    mmp.d[0] = cpar->mm->d[0];
-    
     /* read illuminated layer data */
     vpar = read_volume_par("parameters/criteria.par");
-    
-    mmp.nlay = 1;
     
     for (i = 0; i < cpar->num_cams; i++)
     {
@@ -480,12 +467,12 @@ int correspondences_proc_c ()
     /* init multimedia radial displacement LUTs */
     /* ======================================== */
     
-    if ( !mmp.lut && (mmp.n1 != 1 || mmp.n2[0] != 1 || mmp.n3 != 1))
+    if ( !cpar->mm->lut && (cpar->mm->n1 != 1 || cpar->mm->n2[0] != 1 || cpar->mm->n3 != 1))
     {
         puts ("Init multimedia displacement LUTs");
         for (i_img = 0; i_img < cpar->num_cams; i_img++) 
             init_mmLUT(i_img, glob_cal, cpar);
-        mmp.lut = 1;
+        cpar->mm->lut = 1;
     }
     
     correspondences_4 (vpar, cpar);
@@ -735,11 +722,11 @@ int calibration_proc_c (int sel)
                 }
                 
                 /* raw orientation with 4 points */
-                raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i], 
+                raw_orient_v3 (Ex[i], I[i], G[i], ap[i], *(cpar->mm), 4, fix4, crd0[i], 
                     &Ex[i],&G[i], i, 1);
                 
                 /* sorting of detected points by back-projection */
-                just_plot (Ex[i], I[i], G[i], ap[i], mmp,
+                just_plot (Ex[i], I[i], G[i], ap[i], *(cpar->mm),
                            cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
                            nfix, fix,  chfield, i);
                 
@@ -780,13 +767,13 @@ int calibration_proc_c (int sel)
                 }
                 
                 /* raw orientation with 4 points */
-                raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i], 
+                raw_orient_v3 (Ex[i], I[i], G[i], ap[i], *(cpar->mm), 4, fix4, crd0[i], 
                     &Ex[i], &G[i], i, 0);
                 sprintf (filename, "raw%d.ori", i);
                 write_ori (Ex[i], I[i], G[i], ap[i], filename, NULL); /*ap ignored*/
                 
                 /* sorting of detected points by back-projection */
-                sortgrid_man (Ex[i], I[i], G[i], ap[i], mmp,
+                sortgrid_man (Ex[i], I[i], G[i], ap[i], *(cpar->mm),
                               cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
                               nfix, fix, num[i], pix[i], chfield, i);
                 
@@ -874,13 +861,13 @@ int calibration_proc_c (int sel)
 				}
                 
 				/* raw orientation with 4 points */
-				raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i],
+				raw_orient_v3 (Ex[i], I[i], G[i], ap[i], *(cpar->mm), 4, fix4, crd0[i],
                     &Ex[i], &G[i], i, 1); 
 				sprintf (filename, "raw%d.ori", i);
                 write_ori (Ex[i], I[i], G[i], ap[i], filename, NULL); /*ap ignored*/
                 
 				/* sorting of detected points by back-projection */
-				sortgrid_man (Ex[i], I[i], G[i], ap[i], mmp,
+				sortgrid_man (Ex[i], I[i], G[i], ap[i], *(cpar->mm),
                               cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
                               nfix, fix, num[i], pix[i], chfield, i);
                 
@@ -965,7 +952,7 @@ int calibration_proc_c (int sel)
                 printf ("examine=%d\n",examine);
                 printf("inside jw_ptv.c before orient_v3 I.yh=%f \n",I[i_img].yh);
                 if (examine != 4)
-                    orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], mmp,
+                    orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], *(cpar->mm),
                                nfix, fix, crd[i_img],
                                &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img);
                 printf("inside jw_ptv.c after orient_v3 I.yh=%f \n",I[i_img].yh);
@@ -1036,7 +1023,7 @@ int calibration_proc_c (int sel)
                     }
                     
                     
-                    orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], mmp,
+                    orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], *(cpar->mm),
                                nfix, fix, crd[i_img],
                                &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img);
                     
@@ -1097,7 +1084,7 @@ int calibration_proc_c (int sel)
             
 			for (i_img = 0; i_img < cpar->num_cams; i_img++)
 			{
-				orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], mmp,
+				orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], *(cpar->mm),
 						   nfix, fix, crd[i_img],
 						   &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img);
 				
@@ -1126,7 +1113,7 @@ int calibration_proc_c (int sel)
         case 12: puts ("Orientation from dumbbells"); strcpy(buf, "");
 			
             prepare_eval(cpar, &nfix); //goes and looks up what sequence is defined and takes all cord. from rt_is
-            orient_v5 (cpar->num_cams, nfix, &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img]);
+            orient_v5 (cpar, nfix, &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img]);
 			
             for(i_img = 0; i_img < cpar->num_cams; i_img++){
                 write_ori (Ex[i_img], I[i_img], G[i_img], ap[i_img],
@@ -1204,7 +1191,7 @@ int sequence_proc_c  (int dumb_flag)
     }
     
     
-    mmp.nlay = 1;
+    cpar->mm->nlay = 1;
     
     seq_zdim = vpar->Zmax_lay[0] - vpar->Zmin_lay[0];
     seq_slice_step= seq_zdim/nslices;
@@ -1416,7 +1403,7 @@ int determination_proc_c (int dumbbell)
         X /= cpar->num_cams; Y /= cpar->num_cams;
         /* ******************************** */
         
-        det_lsq_3d (Ex, I, G, ap, mmp,
+        det_lsq_3d (Ex, I, G, ap, *(cpar->mm),
                     x[0], y[0], x[1], y[1], x[2], y[2], x[3], y[3], &X, &Y, &Z,
                     cpar->num_cams);
         

@@ -314,12 +314,12 @@ void init_mmLUT (int i_cam, Calibration *cal, control_par *cpar)
   x = x - I.xh; \
   y = y - I.yh; \
   correct_brown_affin (x, y, ap, &x,&y); \
-  ray_tracing(x,y, cal, mmp, X1, a); \
+  ray_tracing(x,y, cal, *(cpar->mm), X1, a); \
   X[2] = Zmin; \
   X[1] = X1[1] + (X[2] - X1[2]) * a[1]/a[2]; \
   X[0] = X1[0] + (X[2] - X1[2]) * a[0]/a[2]; \
   \
-  trans_Cam_Point(Ex, mmp, G, X[0], X[1], X[2], &Ex_t, &X_t, &Y_t, &Z_t,\
+  trans_Cam_Point(Ex, *(cpar->mm), G, X[0], X[1], X[2], &Ex_t, &X_t, &Y_t, &Z_t,\
         &cross_p,&cross_c);\
   if(Z_t<Zmin_t)Zmin_t=Z_t;\
   if(Z_t>Zmax_t)Zmax_t=Z_t;\
@@ -332,7 +332,7 @@ void init_mmLUT (int i_cam, Calibration *cal, control_par *cpar)
   X[1] = X1[1] + (X[2] - X1[2]) * a[1]/a[2];\
   X[0] = X1[0] + (X[2] - X1[2]) * a[0]/a[2];\
   \
-  trans_Cam_Point(Ex, mmp, G, X[0], X[1], X[2], &Ex_t, &X_t, &Y_t, &Z_t,\
+  trans_Cam_Point(Ex, *(cpar->mm), G, X[0], X[1], X[2], &Ex_t, &X_t, &Y_t, &Z_t,\
         &cross_p, &cross_c);\
   if(Z_t<Zmin_t)Zmin_t=Z_t;\
   if(Z_t>Zmax_t)Zmax_t=Z_t;\
@@ -365,7 +365,7 @@ void init_mmLUT (int i_cam, Calibration *cal, control_par *cpar)
   nz = (Zmax_t-Zmin_t)/rw + 1;
  
   /* create twodimensional mmLUT structure */
-  trans_Cam_Point(Ex, mmp, G, X[0], X[1], X[2], &Ex_t, &X_t, &Y_t, &Z_t,\
+  trans_Cam_Point(Ex, *(cpar->mm), G, X[0], X[1], X[2], &Ex_t, &X_t, &Y_t, &Z_t,\
         &cross_p, &cross_c);\
 
   mmLUT[i_cam].origin.x = Ex_t.x0;
@@ -385,9 +385,9 @@ void init_mmLUT (int i_cam, Calibration *cal, control_par *cpar)
   for (i=0; i<nz; i++)	Zi[i] = Zmin_t + i*rw;
   
   for (i=0; i<nr; i++)	for (j=0; j<nz; j++) {
-    trans_Cam_Point(Ex, mmp, G, X[0], X[1], X[2], &Ex_t, &X_t, &Y_t, &Z_t,\
+    trans_Cam_Point(Ex, *(cpar->mm), G, X[0], X[1], X[2], &Ex_t, &X_t, &Y_t, &Z_t,\
         &cross_p, &cross_c);\
-    mmLUT[i_cam].data[i*nz + j] = multimed_r_nlay_v2 (Ex_t, Ex, mmp, 
+    mmLUT[i_cam].data[i*nz + j] = multimed_r_nlay_v2 (Ex_t, Ex, *(cpar->mm), 
         Ri[i] + Ex_t.x0, Ex_t.y0, Zi[j], i_cam);
   }
 }
@@ -468,7 +468,7 @@ void volumedimension (Calibration cal[4], double *xmax, double *xmin,
   x = x - cal[i_cam].int_par.xh; \
   y = y - cal[i_cam].int_par.yh; \
   correct_brown_affin (x, y, cal[i_cam].added_par, &x,&y); \
-  ray_tracing(x,y, cal + i_cam, mmp, X1, a); \
+  ray_tracing(x,y, cal + i_cam, *(cpar->mm), X1, a); \
   X[2] = Zmin; \
   X[1] = X1[1] + (X[2] - X1[2]) * a[1]/a[2]; \
   X[0] = X1[0] + (X[2] - X1[2]) * a[0]/a[2]; \

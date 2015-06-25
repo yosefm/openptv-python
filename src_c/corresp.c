@@ -152,7 +152,7 @@ n_tupel **correspondences(frame *frm, Calibration **calib, volume_par *vpar) {
                 epi_mm(epi_img, corrected[part_img][part].x, corrected[part_img][part].y,
                     calib[part_img]->ext_par, calib[part_img]->int_par,
                     calib[part_img]->glass_par, calib[epi_img]->ext_par, 
-                    calib[epi_img]->int_par, calib[epi_img]->glass_par, mmp, vpar,
+                    calib[epi_img]->int_par, calib[epi_img]->glass_par, *(cpar->mm), vpar,
                     &(epi_start[0]), &(epi_start[1]), &(epi_end[0]), &(epi_end[1]));
                 
                 /* Find candidates close to epipolar line */

@@ -293,7 +293,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
             
 	        for (j = 0; j < fb->num_cams; j++) {
                 img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j], ap[j],
-                    mmp, &xn[j], &yn[j]);
+                    *(cpar->mm), &xn[j], &yn[j]);
 		        metric_to_pixel(&x1[j], &y1[j], xn[j], yn[j], cpar);
 	        }
 	    } else {  
@@ -301,7 +301,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 	        for (j=0; j < fb->num_cams; j++) {
 	            if (curr_corres->p[j] == -1) {
                     img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j],
-                        ap[j], mmp, &xn[j], &yn[j]);
+                        ap[j], *(cpar->mm), &xn[j], &yn[j]);
                     metric_to_pixel(&x1[j], &y1[j], xn[j], yn[j], cpar);
 	            } else {
                     _ix = curr_corres->p[j];
@@ -350,7 +350,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 
 	        for (j = 0; j < fb->num_cams; j++) {
                 img_coord (j, X[5][0], X[5][1], X[5][2], Ex[j],I[j], G[j], ap[j],
-                    mmp, &xn[j], &yn[j]);
+                    *(cpar->mm), &xn[j], &yn[j]);
 		        metric_to_pixel(&x2[j], &y2[j], xn[j], yn[j], cpar);
 	        }
 
@@ -414,7 +414,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 	        /* *************************************************************** */
 	        for (j = 0;j < fb->num_cams; j++) {
                 img_coord (j, X[5][0], X[5][1], X[5][2], Ex[j],I[j], G[j], ap[j],
-                    mmp, &xn[j], &yn[j]);
+                    *(cpar->mm), &xn[j], &yn[j]);
 		        metric_to_pixel(&xn[j], &yn[j], xn[j], yn[j], cpar);
 	        }
 
@@ -448,7 +448,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
                 copy_pos3d(X[4], X[5]);
 		        invol=0; 
 
-		        det_lsq_3d (Ex, I, G, ap, mmp, x2[0], y2[0], x2[1], y2[1], 
+		        det_lsq_3d (Ex, I, G, ap, *(cpar->mm), x2[0], y2[0], x2[1], y2[1], 
                     x2[2], y2[2], x2[3], y2[3],
                     &(X[4][0]), &(X[4][1]), &(X[4][2]), fb->num_cams);
 
@@ -528,7 +528,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 	        if ( curr_path_inf->inlist == 0 && curr_path_inf->prev >= 0 ) {
                 for (j = 0; j < fb->num_cams; j++) {
                     img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j],
-                        ap[j], mmp, &xn[j], &yn[j]);
+                        ap[j], *(cpar->mm), &xn[j], &yn[j]);
 		            metric_to_pixel(&xn[j], &yn[j], xn[j], yn[j], cpar);
 		            x2[j]=-1e10;
                     y2[j]=-1e10;
@@ -560,7 +560,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
                     copy_pos3d(X[3], X[2]);
 		            invol=0; 
     
-	    	        det_lsq_3d (Ex, I, G, ap, mmp,
+	    	        det_lsq_3d (Ex, I, G, ap, *(cpar->mm),
                         x2[0], y2[0], x2[1], y2[1], x2[2], y2[2], x2[3], y2[3],
                         &(X[3][0]), &(X[3][1]), &(X[3][2]), fb->num_cams);
 
@@ -837,7 +837,7 @@ int trackback_c ()
 
             for (j=0; j < fb->num_cams; j++) {   
                 img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j], ap[j],
-                    mmp, &xn[j], &yn[j]);
+                    *(cpar->mm), &xn[j], &yn[j]);
                 metric_to_pixel(&xn[j], &yn[j], xn[j], yn[j], cpar);
             }
 
@@ -931,7 +931,7 @@ int trackback_c ()
                         copy_pos3d(X[3], X[2]);
                         invol=0;
 
-                        det_lsq_3d (Ex, I, G, ap, mmp,
+                        det_lsq_3d (Ex, I, G, ap, *(cpar->mm),
                             x2[0], y2[0], x2[1], y2[1], x2[2], y2[2], x2[3], y2[3],
                             &(X[3][0]), &(X[3][1]), &(X[3][2]), fb->num_cams);
 

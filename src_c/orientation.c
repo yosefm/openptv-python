@@ -221,7 +221,7 @@ double *dist,*XX,*YY,*ZZ;
 
 }
 
-void eval_ori_v2 (cal, db_scale,weight_scale,n_img, nfix, d_outer,av_dist_error,residual)
+void eval_ori_v2 (cal, db_scale,weight_scale,n_img, nfix, d_outer,av_dist_error,residual, mmp)
 Calibration *cal;
 double db_scale;
 double weight_scale;
@@ -229,6 +229,7 @@ int n_img,nfix;
 double *d_outer;
 double *av_dist_error;
 double *residual;
+mm_np mmp;
 
 {
 	int     i_img,i,count_inner=0,count_outer=0,pair_count=0,count_dist=0,n,m;
@@ -322,14 +323,16 @@ double *residual;
 	*residual=*d_outer+weight_scale*(*av_dist_error);
 }
 
-void orient_v5 (n_img, nfix, Ex, I, G, ap)
+void orient_v5 (control_par *cpar, int nfix, 
+    Exterior *Ex, Interior *I, Glass *G, ap_52 *ap)
 
-Exterior	*Ex;	/* exterior orientation, approx and result */
-Interior	*I;		/* interior orientation, approx and result */
-Glass   	*G;		/* glass orientation, approx and result */
-ap_52		*ap;	/* add. parameters, approx and result */
-int	       	n_img,nfix;		/* # of object points */
-
+/*
+Exterior	*Ex;	 exterior orientation, approx and result 
+Interior	*I;		 interior orientation, approx and result 
+Glass   	*G;		 glass orientation, approx and result 
+ap_52		*ap;	 add. parameters, approx and result 
+int	       	nfix;		# of object points 
+*/
 
 {
     int  	i,j,itnum,max_itnum,i_img,dummy;
@@ -388,16 +391,19 @@ I[3].yh = 0.0;*/
     //printf ("\n\n%2d. iteration\n", ++itnum);
     itnum++;
 
-    eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+    eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix, 
+        &epi_miss, &dist, &residual, *(cpar->mm));
 	best_residual=residual;
     
-    for (i_img=0;i_img<n_img;i_img++) {
+    for (i_img = 0; i_img < cpar->num_cams; i_img++) {
 	     
 		 Ex[i_img].x0 += dm;
-	     eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	     eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix, 
+            &epi_miss, &dist, &residual, *(cpar->mm));
 		 if(best_residual-residual < 0){ //then try other direction
 			 Ex[i_img].x0 -= 2*dm;
-	         eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	         eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix, 
+                &epi_miss, &dist, &residual, *(cpar->mm));
 			 if(best_residual-residual < 0){// then leave it unchanged
                   Ex[i_img].x0 += dm;
 			 }
@@ -411,10 +417,12 @@ I[3].yh = 0.0;*/
 	     
 
 		 Ex[i_img].y0 += dm;
-	     eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	     eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix, 
+            &epi_miss, &dist, &residual, *(cpar->mm));
 		 if(best_residual-residual < 0){ //then try other direction
 			 Ex[i_img].y0 -= 2*dm;
-	         eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	         eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix, 
+                &epi_miss, &dist, &residual, *(cpar->mm));
 			 if(best_residual-residual < 0){// then leave it unchanged
                   Ex[i_img].y0 += dm;
 			 }
@@ -427,10 +435,12 @@ I[3].yh = 0.0;*/
 		 }
 
 		 Ex[i_img].z0 += dm;
-	     eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	     eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix, 
+            &epi_miss, &dist, &residual, *(cpar->mm));
 		 if(best_residual-residual < 0){ //then try other direction
 			 Ex[i_img].z0 -= 2*dm;
-	         eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	         eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix,
+                &epi_miss, &dist, &residual, *(cpar->mm));
 			 if(best_residual-residual < 0){// then leave it unchanged
                   Ex[i_img].z0 += dm;
 			 }
@@ -444,11 +454,13 @@ I[3].yh = 0.0;*/
 
 		 Ex[i_img].omega += drad;
 		 rotation_matrix (&(Ex[i_img]));
-	     eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	     eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix, 
+            &epi_miss, &dist, &residual, *(cpar->mm));
 		 if(best_residual-residual < 0){ //then try other direction
 			 Ex[i_img].omega -= 2*drad;
 			 rotation_matrix (&(Ex[i_img]));
-	         eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	         eval_ori_v2(db_scale, weight_scale, cpar->mm, nfix, 
+                &epi_miss, &dist, &residual, *(cpar->mm));
 			 if(best_residual-residual < 0){// then leave it unchanged
                   Ex[i_img].omega += drad;
 				  rotation_matrix(&(Ex[i_img]));
@@ -463,11 +475,13 @@ I[3].yh = 0.0;*/
 
 		 Ex[i_img].phi += drad;
 		 rotation_matrix (&(Ex[i_img]));
-	     eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	     eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix, 
+            &epi_miss, &dist, &residual, *(cpar->mm));
 		 if(best_residual-residual < 0){ //then try other direction
 			 Ex[i_img].phi -= 2*drad;
 			 rotation_matrix(&(Ex[i_img]));
-	         eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	         eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix,
+                &epi_miss, &dist, &residual, *(cpar->mm));
 			 if(best_residual-residual < 0){// then leave it unchanged
                   Ex[i_img].phi += drad;
 				  rotation_matrix(&(Ex[i_img]));
@@ -482,11 +496,13 @@ I[3].yh = 0.0;*/
 		 
 		 Ex[i_img].kappa += drad;
 		 rotation_matrix(&(Ex[i_img]));
-	     eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	     eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix,
+            &epi_miss, &dist, &residual, *(cpar->mm));
 		 if(best_residual-residual < 0){ //then try other direction
 			 Ex[i_img].kappa -= 2*drad;
 			 rotation_matrix(&(Ex[i_img]));
-	         eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	         eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix,
+                &epi_miss, &dist, &residual, *(cpar->mm));
 			 if(best_residual-residual < 0){// then leave it unchanged
                   Ex[i_img].kappa+= drad;
 				  rotation_matrix(&(Ex[i_img]));
@@ -502,10 +518,12 @@ I[3].yh = 0.0;*/
 		 if(ccflag==1){
 			 if (1<2){
 		    I[i_img].cc += dm;
-	        eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	        eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix, 
+                &epi_miss, &dist, &residual, *(cpar->mm));
 		    if(best_residual-residual < 0){ //then try other direction
 			    I[i_img].cc -= 2*dm;
-	            eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	            eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix, 
+                    &epi_miss, &dist, &residual, *(cpar->mm));
 			    if(best_residual-residual < 0){// then leave it unchanged
                     I[i_img].cc += dm;
 			    }
@@ -522,13 +540,15 @@ I[3].yh = 0.0;*/
 			I[1].cc  =I[0].cc;
 			I[2].cc  =I[0].cc;
 			I[3].cc  =I[0].cc;
-	        eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	        eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix,
+                &epi_miss, &dist, &residual, *(cpar->mm));
 		    if(best_residual-residual < 0){ //then try other direction
 			    I[0].cc -= 2*dm;
 				I[1].cc  =I[0].cc;
 			    I[2].cc  =I[0].cc;
 			    I[3].cc  =I[0].cc;
-	            eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	            eval_ori_v2(db_scale,weight_scale, cpar->num_cams, nfix,
+                    &epi_miss, &dist, &residual, *(cpar->mm));
 			    if(best_residual-residual < 0){// then leave it unchanged
                     I[0].cc += dm;
 					I[1].cc  =I[0].cc;
@@ -545,38 +565,6 @@ I[3].yh = 0.0;*/
 
 			 }
 		 }
-
-		 /*if(xhflag==1){
-		    old_val=I[i_img].xh;
-	        I[i_img].xh += dm;
-		    eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
-	        sens  = (best_residual-residual) / dm;
-	        I[i_img].xh -= dm;
-		    I[i_img].xh += dm*factor*best_residual/sens;
-		    eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
-	        if(best_residual<residual){
-	           I[i_img].xh=old_val;
-		    }
-		    else{
-               best_residual=residual;
-		    }
-		 }
-		 
-		 if(yhflag==1){
-            old_val=I[i_img].yh;
-	        I[i_img].yh += dm;
-		    eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
-	        sens  = (best_residual-residual) / dm;
-	        I[i_img].yh -= dm;
-		    I[i_img].yh += dm*factor*best_residual/sens;
-		    eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
-	        if(best_residual<residual){
-	           I[i_img].yh=old_val;
-		    }
-		    else{
-               best_residual=residual;
-		    }
-		 }*/
 	}
 	
 	printf ("eps_tot: %8.7f, eps_epi: %7.5f, eps_dist: %7.5f, step: %d\n",best_residual, epi_miss,dist,itnum);

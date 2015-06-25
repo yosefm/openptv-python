@@ -59,7 +59,7 @@ int mouse_proc_c (int click_x, int click_y, int kind, int num_image,
 	       for (i = 0; i < cpar->num_cams; i++) if (i != n) {
 		   /* calculate epipolar band in img[i] */
 		   epi_mm (i, geo[n][k].x,geo[n][k].y,
-			   Ex[n],I[n], G[n], Ex[i],I[i], G[i], mmp, vpar,
+			   Ex[n],I[n], G[n], Ex[i],I[i], G[i], *(cpar->mm), vpar,
 			   &xa12, &ya12, &xb12, &yb12);
 		   
 		   /* search candidate in img[i] */

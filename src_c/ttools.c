@@ -16,6 +16,7 @@ Routines contained:     pix_in_next, candsearch_in_pix, searchposition,
 
 ****************************************************************************/
 #include "ptv.h"
+#include "imgcoord.h"
 #include <optv/parameters.h>
 
 int pix_in_next (next, num, x, y, dl, dr, du, dd, found)
@@ -257,12 +258,13 @@ control_par *cpar;
       xl[i] = cpar->imx;
       yd[i]=0;
       yu[i] = cpar->imy;
-      img_coord (i, point.x, point.y, point.z, Ex[i], I[i], G[i], ap[i], mmp, &xz,&yz);
+      img_coord (i, point.x, point.y, point.z, 
+        Ex[i], I[i], G[i], ap[i], *(cpar->mm), &xz,&yz);
       metric_to_pixel (&xz, &yz, xz, yz, cpar);
 
-      for (k=0; k<8; k++)
-	{
-	  img_coord (i, quader[k].x, quader[k].y, quader[k].z, Ex[i], I[i], G[i], ap[i], mmp, &x,&y);
+      for (k=0; k<8; k++) {
+        img_coord (i, quader[k].x, quader[k].y, quader[k].z, 
+            Ex[i], I[i], G[i], ap[i], *(cpar->mm), &x,&y);
 	  metric_to_pixel (&x, &y, x, y, cpar);
 
 	  if (x <xl[i] ) xl[i]=x;

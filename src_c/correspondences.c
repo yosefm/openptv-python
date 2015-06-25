@@ -73,7 +73,7 @@ void correspondences_4 (volume_par *vpar, control_par *cpar)
 		fprintf (fp1, "%4d\n", num[0]);
 	  for (i=0; i<num[0]; i++){
           o = epi_mm_2D (geo[0][i].x,geo[0][i].y,
-		      Ex[0], I[0],  G[0], mmp, vpar,
+		      Ex[0], I[0],  G[0], *(cpar->mm), vpar,
 		      &X,&Y,&Z);
           pix[0][geo[0][i].pnr].tnr=i;
 		  fprintf (fp1, "%4d", i+1);
@@ -96,7 +96,7 @@ void correspondences_4 (volume_par *vpar, control_par *cpar)
 
       for (i=0; i<num[i1]; i++)	if (geo[i1][i].x != -999) {
       o = epi_mm (i2, geo[i1][i].x,geo[i1][i].y,
-		      Ex[i1], I[i1], G[i1], Ex[i2], I[i2], G[i2], mmp, vpar,
+		      Ex[i1], I[i1], G[i1], Ex[i2], I[i2], G[i2], *(cpar->mm), vpar,
 		      &xa12, &ya12, &xb12, &yb12);
 	  
     /////ich glaube, da muss ich einsteigen, wenn alles erledigt ist.

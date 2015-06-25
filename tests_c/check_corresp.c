@@ -43,7 +43,6 @@ START_TEST(test_correspondences)
     ck_abort_msg("Known failure: j/p2 in find_candidate_plus breaks this.");
     chdir("testing_fodder/");
     init_proc_c();
-    mmp = media_par;
     
     int i,j;
     /* Four cameras on 4 quadrants looking down into a calibration target.
