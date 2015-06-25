@@ -68,16 +68,6 @@ extern double db_scale;           /*dumbbell length, Beat Mai 2010*/
 
 extern FILE	*fp1, *fp2, *fp3, *fp4, *fpp;	/* file pointers */
 
-extern char img_name[4][256];     /* original image names */
-extern char img_lp_name[4][256];  /* lowpass image names */
-extern char img_hp_name[4][256];  /* highpass image names */
-extern char img_cal[4][128];      /* calibration image names */
-extern char img_ori[4][128];      /* image orientation data */
-extern char img_ori0[4][128];     /* orientation approx. values */
-extern char img_addpar0[4][128];  /* approx. image additional parameters */
-extern char img_addpar[4][128];   /* image additional parameters */
-extern char fixp_name[128];       /* testfield fixpoints */
-extern char track_dir[128];       /* directory with dap track data */
 extern char res_name[128];        /* result destination */
 extern char buf[], val[];
 
