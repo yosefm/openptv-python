@@ -62,7 +62,6 @@ int corp, corc, corn;
 int mask;						/*checkmark for subtract mask*/
 
 double seq_slice_step,seq_slicethickness,seq_zdim,seq_dummy;
-double	pix_x, pix_y;			      	/* pixel size */
 double	ro;			      	        /* 200/pi */
 double 	rmsX, rmsY, rmsZ, mean_sigma0;		/* a priori rms */
 double  db_scale;               /*dumbbell length, Beat Mai 2010*/  
@@ -153,8 +152,6 @@ int init_proc_c()
         strncpy(img_name[i], cpar->img_base_name[i], 256);
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 128);
     }
-    pix_x = cpar->pix_x;
-    pix_y = cpar->pix_y;
     
     mmp.n1 = cpar->mm->n1;
     mmp.n2[0] = cpar->mm->n2[0];
@@ -242,8 +239,6 @@ int start_proc_c()
         strncpy(img_name[i], cpar->img_base_name[i], 256);
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 256);
     }
-    pix_x = cpar->pix_x;
-    pix_y = cpar->pix_y;
     
     mmp.n1 = cpar->mm->n1;
     mmp.n2[0] = cpar->mm->n2[0];

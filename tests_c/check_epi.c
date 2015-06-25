@@ -100,7 +100,6 @@ START_TEST(test_find_candidate_plus)
     
     read_ori(Ex, I, G, "testing_fodder/cal/cam1.tif.ori", ap, "", "");
     I[0].xh = 0; I[0].yh = 0;
-    pix_x = 1; pix_y = 1.;
     
     find_candidate_plus(crd, pix, 10, minval, minval, maxval, maxval,
         n, nx, ny, sumg, cand, &count, 0, &vpar, &cpar);

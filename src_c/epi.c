@@ -194,7 +194,7 @@ control_par *cpar;
 	  /////here is new Beat version of April 2010
 	  if (nx>ny) particle_size=nx;
 	  else       particle_size=ny;
-	  tol_band_width = vpar->eps0*0.5*(pix_x + pix_y)*particle_size;
+	  tol_band_width = vpar->eps0*0.5*(cpar->pix_x + cpar->pix_y)*particle_size;
   }
   else{
       tol_band_width = vpar->eps0;
@@ -334,11 +334,11 @@ candidate	cand[];
   double tol_band_width,particle_size;
 
   /* define sensor format for search interrupt */
-  xmin = (-1) * pix_x * cpar->imx/2;
-  xmax = pix_x * cpar->imx/2;
+  xmin = (-1) * cpar->pix_x * cpar->imx/2;
+  xmax = cpar->pix_x * cpar->imx/2;
   
-  ymin = (-1) * pix_y * cpar->imy/2;
-  ymax = pix_y * cpar->imy/2;
+  ymin = (-1) * cpar->pix_y * cpar->imy/2;
+  ymax = cpar->pix_y * cpar->imy/2;
 
   xmin -= I[i12].xh;	ymin -= I[i12].yh;
   xmax -= I[i12].xh;	ymax -= I[i12].yh;
@@ -347,7 +347,7 @@ candidate	cand[];
 
   if (nx>ny) particle_size=nx;
   else       particle_size=ny;
-  tol_band_width = vpar->eps0*0.5*(pix_x + pix_y)*particle_size;
+  tol_band_width = vpar->eps0*0.5*(cpar->pix_x + cpar->pix_y)*particle_size;
 
   for (j=0; j<4; j++)
     {
