@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <optv/vec_utils.h>
 
 #include "../src_c/ptv.h"
 #include "../src_c/orientation.h"
@@ -86,7 +87,7 @@ START_TEST(test_num_deriv_exterior)
         .added_par = {0., 0., 0., 0., 0., 1., 0.}
     };
     mm_np trivial_mm = {1., 1., {1., 0., 0.}, {.1, 0., 0.}, 1., 0.};
-    pos3d pos = {0., 0., 100.};
+    vec3d pos = {0., 0., 100.};
     
     double x_ders[6], y_ders[6];
     double dpos = 1., dang = M_PI/6.;

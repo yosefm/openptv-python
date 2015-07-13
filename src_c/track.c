@@ -26,7 +26,7 @@ Routines contained:    	trackcorr_c
 #include <optv/parameters.h>
 #include <optv/trafo.h>
 #include "tracking_run.h"
-#include "vec_utils.h"
+#include <optv/vec_utils.h>
 #include "tools.h"
 #include "ttools.h"
 
@@ -163,31 +163,28 @@ void register_closest_neighbs(target *targets, int num_targets, int cam,
  * volume for a moving particle using the velocity of last step.
  * 
  * Arguments:
- * pos3d prev_pos - previous position
- * pos3d curr_pos - current position
- * pos3d *output - output variable, for the  calculated 
+ * vec3d prev_pos - previous position
+ * vec3d curr_pos - current position
+ * vec3d *output - output variable, for the  calculated 
  *   position.
  */
-void search_volume_center_moving(pos3d prev_pos, pos3d curr_pos, pos3d output)
+void search_volume_center_moving(vec3d prev_pos, vec3d curr_pos, vec3d output)
 {
-    int dim;
-    
-    for (dim = 0; dim < 3; dim++) {
-        output[dim] = 2*curr_pos[dim] - prev_pos[dim];
-    }
+    vec_scalar_mul(curr_pos, 2, output);
+    vec_subt(output, prev_pos, output);
 }
 
 /* pos3d_in_bounds() checks that all components of a pos3d are in their
    respective bounds taken from a track_par object.
    
    Arguments:
-   pos3d pos - the 3-component array to check.
+   vec3d pos - the 3-component array to check.
    track_par *bounds - the struct containing the bounds specification.
    
    Returns:
    True if all components in bounds, false otherwise.
  */
-int pos3d_in_bounds(pos3d pos, track_par *bounds) {
+int pos3d_in_bounds(vec3d pos, track_par *bounds) {
     return (
         bounds->dvxmin < pos[0] && pos[0] < bounds->dvxmax &&
         bounds->dvymin < pos[1] && pos[1] < bounds->dvymax &&
@@ -201,27 +198,27 @@ int pos3d_in_bounds(pos3d pos, track_par *bounds) {
    velocity.
    
    Arguments:
-   pos3d start, pred, cand - the particle start position, predicted position,
+   vec3d start, pred, cand - the particle start position, predicted position,
       and possible actual position, respectively.
    double *angle - output variable, the angle between the two velocity
       vectors, [gon]
    double *acc - output variable, the 1st-order numerical acceleration embodied
       in the deviation from prediction.
  */
-void angle_acc(pos3d start, pos3d pred, pos3d cand, double *angle, double *acc)
+void angle_acc(vec3d start, vec3d pred, vec3d cand, double *angle, double *acc)
 {
-    pos3d v0, v1;
+    vec3d v0, v1;
     
-    subst_pos3d(pred, start, v0);
-    subst_pos3d(cand, start, v1);
+    vec_subt(pred, start, v0);
+    vec_subt(cand, start, v1);
     
-    *acc = diff_norm_pos3d(v0, v1);
+    *acc = vec_diff_norm(v0, v1);
     
     if ((v0[0] == -v1[0]) && (v0[1] == -v1[1]) && (v0[2] == -v1[2])) {
         *angle = 200;
     } else {
-        *angle = (200./M_PI) * acos(dot_pos3d(v0, v1) / norm(v0[0], v0[1], v0[2]) \
-            / norm(v1[0], v1[1], v1[2]));
+        *angle = (200./M_PI) * acos(vec_dot(v0, v1) / vec_norm(v0) \ 
+            / vec_norm(v1));
     }
 }
 
@@ -235,7 +232,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
     int intx0, intx1, inty0, inty1;
     int intx2, inty2;
     int quali=0;
-    pos3d diff_pos, X[7]; /* 7 reference points used in the algorithm, TODO: check if can reuse some */
+    vec3d diff_pos, X[7]; /* 7 reference points used in the algorithm, TODO: check if can reuse some */
     double x1[4], y1[4], x2[4], y2[4], angle, acc, angle0, acc0,  dl;
     double xr[4], xl[4], yd[4], yu[4], angle1, acc1;
     double xp[4], yp[4], xc[4], yc[4], xn[4], yn[4];
@@ -273,7 +270,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
     
     /* try to track correspondences from previous 0 - corp, variable h */
     for (h = 0; h < fb->buf[1]->num_parts; h++) {
-        for (j = 0; j < 7; j++) init_pos3d(X[j]);
+        for (j = 0; j < 7; j++) vec_init(X[j]);
         
         curr_path_inf = &(fb->buf[1]->path_info[h]);
         curr_corres = &(fb->buf[1]->correspond[h]);
@@ -282,13 +279,13 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
         reset_foundpix_array(p16, 16, fb->num_cams);
         
 	    /* 3D-position */
-	    copy_pos3d(X[1], curr_path_inf->x);
+	    vec_copy(X[1], curr_path_inf->x);
 
 	    /* use information from previous to locate new search position
 	       and to calculate values for search area */
 	    if (curr_path_inf->prev >= 0) {
             ref_path_inf = &(fb->buf[0]->path_info[curr_path_inf->prev]);
-	        copy_pos3d(X[0], ref_path_inf->x);
+	        vec_copy(X[0], ref_path_inf->x);
             search_volume_center_moving(ref_path_inf->x, curr_path_inf->x, X[2]);
             
 	        for (j = 0; j < fb->num_cams; j++) {
@@ -297,7 +294,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 		        metric_to_pixel(&x1[j], &y1[j], xn[j], yn[j], cpar);
 	        }
 	    } else {  
-            copy_pos3d(X[2], X[1]);
+            vec_copy(X[2], X[1]);
 	        for (j=0; j < fb->num_cams; j++) {
 	            if (curr_corres->p[j] == -1) {
                     img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j],
@@ -338,7 +335,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 
 	        /* found 3D-position */
             ref_path_inf = &(fb->buf[2]->path_info[w[mm].ftnr]);
-            copy_pos3d(X[3], ref_path_inf->x);
+            vec_copy(X[3], ref_path_inf->x);
 
 	        if (curr_path_inf->prev >= 0) {
                 for (j = 0; j < 3; j++) 
@@ -384,9 +381,9 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 	        /* ************************************************ */
 	        for (kk=0; kk < zaehler2; kk++)  { /* zaehler2-loop */
                 ref_path_inf = &(fb->buf[3]->path_info[wn[kk].ftnr]);
-                copy_pos3d(X[4], ref_path_inf->x);
+                vec_copy(X[4], ref_path_inf->x);
 
-                subst_pos3d(X[4], X[3], diff_pos);
+                vec_subt(X[4], X[3], diff_pos);
                 if ( pos3d_in_bounds(diff_pos, tpar)) { 
                     angle_acc(X[3], X[4], X[5], &angle1, &acc1);
 
@@ -402,8 +399,8 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
                     if ((acc < tpar->dacc && angle < tpar->dangle) || \
                         (acc < tpar->dacc/10)) 
                     {
-                        dl = (diff_norm_pos3d(X[1], X[3]) + 
-                            diff_norm_pos3d(X[4], X[3]) )/2;
+                        dl = (vec_diff_norm(X[1], X[3]) + 
+                            vec_diff_norm(X[4], X[3]) )/2;
                         rr = (dl/run_info->lmax + acc/tpar->dacc + angle/tpar->dangle)/(quali);
                         register_link_candidate(curr_path_inf, rr, w[mm].ftnr);
                     }
@@ -445,7 +442,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 		    }
 
 	        if ( quali >= 2) {
-                copy_pos3d(X[4], X[5]);
+                vec_copy(X[4], X[5]);
 		        invol=0; 
 
 		        det_lsq_3d (Ex, I, G, ap, *(cpar->mm), x2[0], y2[0], x2[1], y2[1], 
@@ -457,15 +454,15 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 		            run_info->ymin < X[4][1] && X[4][1] < run_info->ymax &&
 		            vpar->Zmin_lay[0] < X[4][2] && X[4][2] < vpar->Zmax_lay[1]) {invol=1;}
 
-                subst_pos3d(X[3], X[4], diff_pos);
+                vec_subt(X[3], X[4], diff_pos);
                 if ( invol == 1 && pos3d_in_bounds(diff_pos, tpar) ) { 
                     angle_acc(X[3], X[4], X[5], &angle, &acc);
 
                     if ((acc < tpar->dacc && angle < tpar->dangle) || \
                         (acc < tpar->dacc/10)) 
                     {
-                        dl=(diff_norm_pos3d(X[1], X[3]) + 
-                            diff_norm_pos3d(X[4], X[3]) )/2;
+                        dl=(vec_diff_norm(X[1], X[3]) + 
+                            vec_diff_norm(X[4], X[3]) )/2;
                         rr = (dl/run_info->lmax + acc/tpar->dacc + angle/tpar->dangle) /
                             (quali+w[mm].freq);
                         register_link_candidate(curr_path_inf, rr, w[mm].ftnr);
@@ -473,7 +470,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
                         if (tpar->add) {
                             ref_path_inf = &(fb->buf[3]->path_info[
                                 fb->buf[3]->num_parts]);
-                            copy_pos3d(ref_path_inf->x, X[4]);
+                            vec_copy(ref_path_inf->x, X[4]);
                             reset_links(ref_path_inf);
 
                             _frame_parts = fb->buf[3]->num_parts;
@@ -503,7 +500,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
             
 	        /* try to link if kk is not found/good enough and prev exist */
 	        if ( curr_path_inf->inlist == 0 && curr_path_inf->prev >= 0 ) {
-                subst_pos3d(X[3], X[1], diff_pos);
+                vec_subt(X[3], X[1], diff_pos);
                 
                 if (pos3d_in_bounds(diff_pos, tpar)) {
                     angle_acc(X[1], X[2], X[3], &angle, &acc);
@@ -512,8 +509,8 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
                         (acc < tpar->dacc/10) )
                     {
                         quali = w[mm].freq;
-                        dl = (diff_norm_pos3d(X[1], X[3]) + 
-                            diff_norm_pos3d(X[0], X[1]) )/2;
+                        dl = (vec_diff_norm(X[1], X[3]) + 
+                            vec_diff_norm(X[0], X[1]) )/2;
                         rr = (dl/run_info->lmax + acc/tpar->dacc + angle/tpar->dangle)/(quali);
                         register_link_candidate(curr_path_inf, rr, w[mm].ftnr);
 			        }
@@ -557,7 +554,7 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
 		        }
 
 		        if (quali>=2) {
-                    copy_pos3d(X[3], X[2]);
+                    vec_copy(X[3], X[2]);
 		            invol=0; 
     
 	    	        det_lsq_3d (Ex, I, G, ap, *(cpar->mm),
@@ -570,20 +567,20 @@ int trackcorr_c_loop (tracking_run *run_info, int step, int display)
                         vpar->Zmin_lay[0] < X[3][2] && 
                         X[3][2] < vpar->Zmax_lay[1]) {invol = 1;}
 
-                    subst_pos3d(X[2], X[3], diff_pos);
+                    vec_subt(X[2], X[3], diff_pos);
                     if ( invol == 1 && pos3d_in_bounds(diff_pos, tpar) ) { 
                         angle_acc(X[1], X[2], X[3], &angle, &acc);
 
                         if ( (acc < tpar->dacc && angle < tpar->dangle) || \
                             (acc < tpar->dacc/10) ) 
                         {
-                            dl = (diff_norm_pos3d(X[1], X[3]) + 
-                                diff_norm_pos3d(X[0], X[1]) )/2;
+                            dl = (vec_diff_norm(X[1], X[3]) + 
+                                vec_diff_norm(X[0], X[1]) )/2;
                             rr = (dl/run_info->lmax + acc/tpar->dacc + angle/tpar->dangle)/(quali);
                             
                             ref_path_inf = &(fb->buf[2]->path_info[
                                 fb->buf[2]->num_parts]);
-                            copy_pos3d(ref_path_inf->x, X[3]);
+                            vec_copy(ref_path_inf->x, X[3]);
                             reset_links(ref_path_inf);
 
                             _frame_parts = fb->buf[2]->num_parts;
@@ -769,7 +766,7 @@ int trackback_c ()
     int quali=0;
     double x2[4], y2[4], angle, acc, lmax, dl;
     double xr[4], xl[4], yd[4], yu[4];
-    pos3d diff_pos, X[7]; /* 7 reference points used in the algorithm, TODO: check if can reuse some */
+    vec3d diff_pos, X[7]; /* 7 reference points used in the algorithm, TODO: check if can reuse some */
     double xn[4], yn[4];
     double rr, Ymin=0, Ymax=0;
     double npart=0, nlinks=0;
@@ -822,17 +819,17 @@ int trackback_c ()
             /* We try to find link only if the forward search failed to. */ 
             if ((curr_path_inf->next < 0) || (curr_path_inf->prev != -1)) continue;
 
-            for (j = 0; j < 7; j++) init_pos3d(X[j]);
+            for (j = 0; j < 7; j++) vec_init(X[j]);
             curr_path_inf->inlist = 0;
             reset_foundpix_array(p16, 16, fb->num_cams);
             
             /* 3D-position of current particle */
-            copy_pos3d(X[1], curr_path_inf->x);
+            vec_copy(X[1], curr_path_inf->x);
             
             /* use information from previous to locate new search position
             and to calculate values for search area */
             ref_path_inf = &(fb->buf[0]->path_info[curr_path_inf->next]);
-	        copy_pos3d(X[0], ref_path_inf->x);
+	        vec_copy(X[0], ref_path_inf->x);
             search_volume_center_moving(ref_path_inf->x, curr_path_inf->x, X[2]);
 
             for (j=0; j < fb->num_cams; j++) {   
@@ -877,9 +874,9 @@ int trackback_c ()
 
             for (i = 0; i < zaehler1; i++) {
                 ref_path_inf = &(fb->buf[2]->path_info[w[i].ftnr]);
-                copy_pos3d(X[3], ref_path_inf->x);
+                vec_copy(X[3], ref_path_inf->x);
 
-                subst_pos3d(X[1], X[3], diff_pos);
+                vec_subt(X[1], X[3], diff_pos);
                 if (pos3d_in_bounds(diff_pos, tpar)) {
                     angle_acc(X[1], X[2], X[3], &angle, &acc);
 
@@ -887,8 +884,8 @@ int trackback_c ()
                     if ((acc < tpar->dacc && angle < tpar->dangle) || \
                         (acc < tpar->dacc/10))
                     {
-                        dl = (diff_norm_pos3d(X[1], X[3]) + 
-                            diff_norm_pos3d(X[0], X[1]) )/2;
+                        dl = (vec_diff_norm(X[1], X[3]) + 
+                            vec_diff_norm(X[0], X[1]) )/2;
                         quali=w[i].freq;
                         rr = (dl/lmax + acc/tpar->dacc + angle/tpar->dangle)/quali;
                         register_link_candidate(curr_path_inf, rr, w[i].ftnr);
@@ -928,7 +925,7 @@ int trackback_c ()
                     }
 
                     if (quali>=2) {
-                        copy_pos3d(X[3], X[2]);
+                        vec_copy(X[3], X[2]);
                         invol=0;
 
                         det_lsq_3d (Ex, I, G, ap, *(cpar->mm),
@@ -941,20 +938,20 @@ int trackback_c ()
                             vpar->Zmin_lay[0] < X[3][2] && X[3][2] < vpar->Zmax_lay[1]) 
                                 {invol = 1;}
 
-                        subst_pos3d(X[1], X[3], diff_pos);
+                        vec_subt(X[1], X[3], diff_pos);
                         if (invol == 1 && pos3d_in_bounds(diff_pos, tpar)) { 
                             angle_acc(X[1], X[2], X[3], &angle, &acc);
 
                             if ( (acc<tpar->dacc && angle<tpar->dangle) || \
                                 (acc<tpar->dacc/10) ) 
                             {
-                                dl = (diff_norm_pos3d(X[1], X[3]) + 
-                                    diff_norm_pos3d(X[0], X[1]) )/2;
+                                dl = (vec_diff_norm(X[1], X[3]) + 
+                                    vec_diff_norm(X[0], X[1]) )/2;
                                 rr =(dl/lmax+acc/tpar->dacc + angle/tpar->dangle)/(quali);
 
                                 ref_path_inf = &(fb->buf[2]->path_info[
                                     fb->buf[2]->num_parts]);
-                                copy_pos3d(ref_path_inf->x, X[3]);
+                                vec_copy(ref_path_inf->x, X[3]);
                                 reset_links(ref_path_inf);
 
                                 _frame_parts = fb->buf[2]->num_parts;
@@ -1014,10 +1011,10 @@ int trackback_c ()
                 if ((ref_path_inf->prev != PREV_NONE) && \
                     (ref_path_inf->next == NEXT_NONE) )
                 {
-                    copy_pos3d(X[0], fb->buf[0]->path_info[curr_path_inf->next].x);
-                    copy_pos3d(X[1], curr_path_inf->x);
-                    copy_pos3d(X[3], ref_path_inf->x);
-                    copy_pos3d(X[4], fb->buf[3]->path_info[ref_path_inf->prev].x);
+                    vec_copy(X[0], fb->buf[0]->path_info[curr_path_inf->next].x);
+                    vec_copy(X[1], curr_path_inf->x);
+                    vec_copy(X[3], ref_path_inf->x);
+                    vec_copy(X[4], fb->buf[3]->path_info[ref_path_inf->prev].x);
                     for (j = 0; j < 3; j++) 
                         X[5][j] = 0.5*(5.0*X[3][j] - 4.0*X[1][j] + X[0][j]);
 

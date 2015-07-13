@@ -29,7 +29,7 @@ Related routines:
 #include <optv/ray_tracing.h>
 #include <optv/lsqadj.h>
 
-#include "vec_utils.h"
+#include <optv/vec_utils.h>
 #include "ptv.h"
 
 #define MAX_TARGETS 20000
@@ -593,14 +593,14 @@ I[3].yh = 0.0;*/
     double dpos, double dang - the step size for numerical differentiation,
         dpos for the metric variables, dang for the angle variables. Units
         are same as the units of the variables derived.
-    pos3d pos - the current 3D position represented on the image.
+    vec3d pos - the current 3D position represented on the image.
     
     Return parameters:
     double x_ders[6], y_ders[6] respectively the derivatives of the x and y
         image coordinates as function of each of the orientation parameters.
  */
 void num_deriv_exterior(int cam, Exterior ext, Interior I0, Glass G0, ap_52 ap0, 
-    mm_np mm, double dpos, double dang, pos3d pos,
+    mm_np mm, double dpos, double dang, vec3d pos,
     double x_ders[6], double y_ders[6])
 {
     int pd; 
@@ -655,7 +655,7 @@ int	       	nr;  		/* image number for residual display */
   int dummy, multi,numbers;
   double al,be,ga,nGl,e1_x,e1_y,e1_z,e2_x,e2_y,e2_z,n1,n2,safety_x,safety_y,safety_z;
   
-  pos3d pos;
+  vec3d pos;
 
 
   /* read, which parameters shall be used */
@@ -1045,7 +1045,7 @@ void raw_orient_v3 (Exterior Ex0, Interior I, Glass G0, ap_52 ap, mm_np mm,
   int     	i,j,n, itnum, stopflag, n_obs=0;
   double		dm = 0.0001,  drad = 0.000001;
   
-  pos3d pos;
+  vec3d pos;
   
   /* init X, y (set to zero) */
   for (i=0; i<10; i++)
