@@ -46,7 +46,7 @@ cdef extern from "globals.h": # to lose the declspec
     int start_proc_c()
     int pre_processing_c ()
     int detection_proc_c(char **image_names) 
-    int correspondences_proc_c() 
+    int correspondences_proc_c(char **image_names, int frame) 
     int calibration_proc_c(int sel) 
 
     int sequence_proc_c(int dumb_flag)
@@ -157,7 +157,7 @@ def py_calibration(sel):
 def py_correspondences_proc_c(quadruplets,triplets,pairs, unused):
     global pix,match4_g,match3_g,match2_g,match1_g,geo,con,p
 
-    correspondences_proc_c()
+    correspondences_proc_c(cpar[0].img_base_name, 0)
 #  get quadruplets ---------------------------  
     cdef int i,j
     quadruplets_x=[]

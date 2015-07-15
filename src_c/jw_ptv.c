@@ -149,7 +149,6 @@ int init_proc_c()
     
     for (i=0; i<4; i++)
     {
-        strncpy(img_name[i], cpar->img_base_name[i], 256);
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 128);
     }
     
@@ -230,7 +229,6 @@ int start_proc_c()
     
     for (i=0; i<4; i++)
     {
-        strncpy(img_name[i], cpar->img_base_name[i], 256);
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 128);
     }
     
@@ -240,8 +238,12 @@ int start_proc_c()
     for (i = 0; i < cpar->num_cams; i++)
     {
         /*  create file names  */
-        strcpy (img_lp_name[i], img_name[i]); strcat (img_lp_name[i], "_lp");
-        strcpy (img_hp_name[i], img_name[i]); strcat (img_hp_name[i], "_hp");
+        strcpy (img_lp_name[i], cpar->img_base_name[i]); 
+        strcat (img_lp_name[i], "_lp");
+        
+        strcpy (img_hp_name[i], cpar->img_base_name[i]);
+        strcat (img_hp_name[i], "_hp");
+        
         strcpy (img_ori[i], img_cal[i]);  strcat (img_ori[i], ".ori");
         strcpy (img_addpar[i], img_cal[i]); strcat (img_addpar[i],".addpar");
         
@@ -395,7 +397,7 @@ int detection_proc_c(char **image_names)
                 
             case 4: /* new option for external image processing routines */
                 /* added by Alex, 19.04.10 */
-                /* this works here only for the pre-processing stage, see img_name[i_img] is not from a sequence */
+                /* this works here only for the pre-processing stage */
                 
                 num[i_img] = read_targets(pix[i_img], image_names[i_img], 0);
                                 
@@ -421,24 +423,18 @@ int detection_proc_c(char **image_names)
 	printf("pix.y01=%f\n",pix[0][0].y);
     
     sprintf (buf, "Number of detected particles per image");
-    /*  Tcl_SetVar(interp, "tbuf", buf, TCL_GLOBAL_ONLY);*/
-    /*  Tcl_Eval(interp, ".text delete 2");*/
-    /*  Tcl_Eval(interp, ".text insert 2 $tbuf");*/
-    
-    /*  Tcl_SetVar(interp, "tbuf", val, TCL_GLOBAL_ONLY);*/
-    /*  Tcl_Eval(interp, ".text delete 3");*/
-    /*  Tcl_Eval(interp, ".text insert 3 $tbuf");*/
-    
     printf("%s\n", val);
     return 1;
 }
 
-//int correspondences_proc_c (ClientData clientData, Tcl_Interp* interp, int argc, const char** argv)
-int correspondences_proc_c ()
+/* Arguments:
+   img_base_names - per-camera name of image without the frame number.
+   int frame - frame number to use when composing file names (0 for none).
+*/
+int correspondences_proc_c (char **img_base_names, int frame)
 {
-    int	i, i_img, frame;
+    int	i, i_img;
     double x,y;
-    char filename[256];
     
     puts ("\nTransformation to metric coordinates\n");
     
@@ -480,22 +476,9 @@ int correspondences_proc_c ()
     /* --------------- */
     /* save pixel coords for tracking */
     for (i_img = 0; i_img < cpar->num_cams; i_img++) {
-        /* This is a workaround for the globals-laden handling of file names.
-        it should be removed when we get to removing the globals here. */
-        for (i = strlen(img_name[i_img]) - 1; i >= 0; i--) {
-            if ((img_name[i_img][i] > 0x39) || (img_name[i_img][i] < 0x30))
-                break;
-        }
-        i++;
-        strncpy(filename, img_name[i_img], i);
-        filename[i] = '\0';
-        
-        sscanf(img_name[i_img] + i, "%d", &frame);
-        printf("file %s, frame %d", filename, frame);
-        write_targets(pix[i_img], num[i_img], filename, frame);
+        write_targets(pix[i_img], num[i_img], img_base_names[i_img], frame);
     }
     
-    // return TCL_OK;
     return 0;
 }
 
@@ -555,6 +538,7 @@ int calibration_proc_c (int sel)
 	}
     fscanf (fp1, "%d\n", &dummy_float);
     fscanf (fp1, "%d\n", &pair_flag);
+    fscanf (fp1, "%d\n", &chfield);
     fclose (fp1);
     
     if (pair_flag==1){
@@ -570,19 +554,7 @@ int calibration_proc_c (int sel)
     switch (sel)
     {
         case 1: /*  read calibration parameter file  */
-            /* But this is always done. Should prob. remove later. */
-            fp1 = fopen_r ("parameters/cal_ori.par");
-            fscanf (fp1,"%s\n", fixp_name);
-            
-            for (i=0; i<4; i++)
-            {
-                fscanf (fp1, "%s\n", img_name[i]);
-                fscanf (fp1, "%s\n", img_ori0[i]);
-            }
-            fscanf (fp1, "%d\n", &dummy_float);
-            fscanf (fp1, "%d\n", &pair_flag);
-            fscanf (fp1, "%d\n", &chfield);
-            fclose (fp1);
+            /* But this is always done. So skip. */
             
             /*  create file names  */
             for (i=0; i < cpar->num_cams; i++)
@@ -1222,7 +1194,6 @@ int sequence_proc_loop_c  (int dumbbell,int i)
     
     for (j = 0; j < cpar->num_cams; j++)
 	{
-        sprintf (img_name[j], "%s%s", seq_name[j], seq_ch);
         sprintf (img_lp_name[j], "%s%s_lp", seq_name[j], seq_ch);
         sprintf (img_hp_name[j], "%s%s_hp", seq_name[j], seq_ch);
 	}
@@ -1240,9 +1211,6 @@ int sequence_proc_loop_c  (int dumbbell,int i)
         else
             sprintf (res_name, "res/db_is.%s_%1d", seq_ch, cpar->chfield);
     }
-    sprintf (buf, "\nImages:");
-    for (j = 0; j < cpar->num_cams; j++) sprintf (buf, "%s  %s", buf, img_name[j]);
-    puts (buf);
     
     /* calling function for each sequence-n-tupel */
     
@@ -1282,7 +1250,7 @@ int sequence_proc_loop_c  (int dumbbell,int i)
 		detection_proc_c (NULL); // added i to the detection_proc_c to get 'filenumber' for external API, Alex, 19.04.10
     }
     
-    correspondences_proc_c ();
+    correspondences_proc_c (seq_name, i);
     
     if (cpar->num_cams > 1) {
 		determination_proc_c (dumbbell);
