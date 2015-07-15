@@ -30,7 +30,7 @@ ext_mods = [
         "correspondences.c", "epi.c", "multimed.c", 
         "ray_tracing.c", "imgcoord.c", "lsqadj.c", "orientation.c","sortgrid.c",
         "pointpos.c", "intersect.c", "track.c", "ttools.c", "draw.c",
-        "mousefunction.c", "vec_utils.c", "tracking_run.c"],
+        "mousefunction.c", "tracking_run.c"],
         include_dirs=inc_dirs, libraries=['optv'], extra_compile_args=['-O3'],
 	    pyrex_include_dirs=['.']),
     Extension("tracking_run_py", ["tracking_run_py.pyx", "tracking_run.c"], 
