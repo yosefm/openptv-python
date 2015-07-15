@@ -27,7 +27,9 @@ cdef extern from "stdlib.h":
 
 cdef extern from "optv/parameters.h":
     ctypedef struct control_par:
+        char **img_base_name
         int num_cams
+        int imx, imy
     ctypedef struct volume_par:
         pass
     volume_par* read_volume_par(char* vpar_fname)
@@ -43,7 +45,7 @@ cdef extern from "globals.h": # to lose the declspec
     int init_proc_c()
     int start_proc_c()
     int pre_processing_c ()
-    int detection_proc_c() 
+    int detection_proc_c(char **image_names) 
     int correspondences_proc_c() 
     int calibration_proc_c(int sel) 
 
@@ -130,7 +132,7 @@ def py_pre_processing_c():
     pre_processing_c()
 
 def py_detection_proc_c():
-    detection_proc_c()
+    detection_proc_c(cpar[0].img_base_name)
 
 def py_read_attributes(a):
     a.append(imgsize)

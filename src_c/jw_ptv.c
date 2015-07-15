@@ -231,7 +231,7 @@ int start_proc_c()
     for (i=0; i<4; i++)
     {
         strncpy(img_name[i], cpar->img_base_name[i], 256);
-        strncpy(img_cal[i], cpar->cal_img_base_name[i], 256);
+        strncpy(img_cal[i], cpar->cal_img_base_name[i], 128);
     }
     
     /* read illuminated layer data */
@@ -326,7 +326,7 @@ int pre_processing_c(int y_remap_mode)
 }
 
 
-int detection_proc_c() 
+int detection_proc_c(char **image_names) 
 {
     int	       	i, i_img, j;
     int	       	xmin, pft_version=3;
@@ -397,7 +397,7 @@ int detection_proc_c()
                 /* added by Alex, 19.04.10 */
                 /* this works here only for the pre-processing stage, see img_name[i_img] is not from a sequence */
                 
-                num[i_img] = read_targets(pix[i_img], img_name[i_img], 0);
+                num[i_img] = read_targets(pix[i_img], image_names[i_img], 0);
                                 
                 printf("pix.x0=%d\n",pix[i_img][0].x);
                 printf("pix.y0=%d\n",pix[i_img][0].y);
@@ -1279,7 +1279,7 @@ int sequence_proc_loop_c  (int dumbbell,int i)
     } 
     /***************************************************************************************/
     else {
-		detection_proc_c (); // added i to the detection_proc_c to get 'filenumber' for external API, Alex, 19.04.10
+		detection_proc_c (NULL); // added i to the detection_proc_c to get 'filenumber' for external API, Alex, 19.04.10
     }
     
     correspondences_proc_c ();
