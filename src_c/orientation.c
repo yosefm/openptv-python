@@ -34,14 +34,23 @@ Related routines:
 
 #define MAX_TARGETS 20000
 
+/* Conversion radians -> gradians */
+#include <math.h>
+#define ro 200 / M_PI
+
+/* Only needed while orientation funcions still do I/O */
+#include <stdio.h>
+
 /* Variables declared extern in 'globals.h' and not defined elsewhere: */
 int orient_x1[4][1000], orient_y1[4][1000], orient_x2[4][1000],\
     orient_y2[4][1000], orient_n[4];
+extern coord_2d crd[4][nmax];
 
 void prepare_eval (control_par *cpar, int *n_fix) {
     int     i_img, i, filenumber, step_shake, count = 0;
 	double  dummy;
     sequence_par *seq_par;
+    FILE *fpp;
     
     int part_pointer; /* Holds index of particle later */
     
@@ -98,6 +107,7 @@ void prepare_eval (control_par *cpar, int *n_fix) {
    small but devious ways, not only parameters, that for now it'll be a 
    different function. */
 void prepare_eval_shake(control_par *cpar) {
+    FILE *fpp;
     char* target_file_base[4];
     int i_img, i, filenumber, step_shake, count = 0, frame_count = 0;
     int seq_first, seq_last;
@@ -244,26 +254,26 @@ mm_np mmp;
 	for(i=0;i<nfix;i++){
 		//new det_lsq function, bloody fast!
 		if(crd[0][i].x>-999){
-			x = crd[0][i].x - I[0].xh;
-	        y = crd[0][i].y - I[0].yh;
+			x = crd[0][i].x - cal[0].int_par.xh;
+	        y = crd[0][i].y - cal[0].int_par.yh;
 	        //correct_brown_affin (x, y, ap[0], &x, &y);
 		    ray_tracing(x,y, &(cal[0]), mmp, X[0], a[0]);
 		}		
 		if(crd[1][i].x>-999){
-			x = crd[1][i].x - I[1].xh;
-	        y = crd[1][i].y - I[1].yh;
+			x = crd[1][i].x - cal[1].int_par.xh;
+	        y = crd[1][i].y - cal[1].int_par.yh;
 	        //correct_brown_affin (x, y, ap[1], &x, &y);
 		    ray_tracing(x,y, &(cal[1]), mmp, X[1], a[1]);
 		}		
 		if(crd[2][i].x>-999){
-			x = crd[2][i].x - I[2].xh;
-	        y = crd[2][i].y - I[2].yh;
+			x = crd[2][i].x - cal[2].int_par.xh;
+	        y = crd[2][i].y - cal[2].int_par.yh;
 	        //correct_brown_affin (x, y, ap[2], &x, &y);
 		    ray_tracing(x,y, &(cal[2]), mmp, X[2], a[2]);
 		}		
 		if(crd[3][i].x>-999){
-			x = crd[3][i].x - I[3].xh;
-	        y = crd[3][i].y - I[3].yh;
+			x = crd[3][i].x - cal[3].int_par.xh;
+	        y = crd[3][i].y - cal[3].int_par.yh;
 	        //correct_brown_affin (x, y, ap[3], &x, &y);
 		    ray_tracing(x,y, &(cal[3]), mmp, X[3], a[3]);
 		}
@@ -287,8 +297,8 @@ mm_np mmp;
 		X_pos/=(double)count_inner;Y_pos/=(double)count_inner;Z_pos/=(double)count_inner;
 		//end of new det_lsq
 
-		if(Z_pos>G[0].vec_z){
-            d_inner=Z_pos-G[0].vec_z+d_inner;
+		if(Z_pos > cal[0].glass_par.vec_z){
+            d_inner = Z_pos - cal->glass_par.vec_z+d_inner;
 		}
 		*d_outer +=d_inner;
 		
@@ -335,6 +345,7 @@ int	       	nfix;		# of object points
 */
 
 {
+    FILE *fp1, *fpp;
     int  	i,j,itnum,max_itnum,i_img,dummy;
     double       	residual, best_residual, old_val,dm = 0.0001,  drad = 0.00001,sens,factor,weight_scale;   
     double 	Xp, Yp, Zp, xp, yp, xpd, ypd, r, qq;
@@ -353,7 +364,7 @@ int	       	nfix;		# of object points
         fclose (fpp);
     }
 
-	fp1 = fopen_r ("parameters/orient.par");
+	fp1 = fopen ("parameters/orient.par", "r");
     fscanf (fp1,"%d", &useflag);
     fscanf (fp1,"%d", &ccflag);
     fscanf (fp1,"%d", &xhflag);
@@ -659,7 +670,6 @@ int	       	nr;  		/* image number for residual display */
 
 
   /* read, which parameters shall be used */
-  // fp1 = fopen_r ("parameters/orient.par");
   printf("inside orient_v3\n");
   fp1 = fopen ("parameters/orient.par","r");
   if (fp1){
@@ -986,26 +996,6 @@ int	       	nr;  		/* image number for residual display */
   printf ("shearing      = %8.5f   +/- %8.5f\n", ap0.she*ro, sigmabeta[15]*ro);
 
 
-  //fp1 = fopen_r ("parameters/examine.par");
-  fp1 = fopen("parameters/examine.par","r");
-  if (fp1){
-  fscanf (fp1,"%d\n", &dummy);
-  fscanf (fp1,"%d\n", &multi);
-  fclose (fp1);
-  }
-  else{
-  printf("problem opening parameters/examine.par\n");
-  }
-  
-  if (dummy==1){
-      examine=4;
-  }
-  else{
-      examine=0;
-  }
-  
-  
-
   /* show original images with residual vectors (requires globals) */
 printf ("%d: %5.2f micron, ", nr+1, sigma0*1000);
 printf("\ntest 1 inside orientation\n");
@@ -1035,7 +1025,11 @@ printf("\ntest 1 inside orientation\n");
 }
 
 
-void raw_orient_v3 (Exterior Ex0, Interior I, Glass G0, ap_52 ap, mm_np mm, 
+/*
+    Returns:
+    1 if iterative solution found, 0 otherwise.
+*/
+int raw_orient_v3 (Exterior Ex0, Interior I, Glass G0, ap_52 ap, mm_np mm, 
     int nfix, coord_3d fix[], coord_2d crd[], Exterior *Ex, Glass *G,
     int nr, int only_show)
 {
@@ -1115,5 +1109,6 @@ void raw_orient_v3 (Exterior Ex0, Interior I, Glass G0, ap_52 ap, mm_np mm,
   else {
 	  puts ("raw orientation impossible");
     }
+    return stopflag;
 }
 
