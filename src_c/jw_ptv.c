@@ -62,7 +62,6 @@ int corp, corc, corn;
 int mask;						/*checkmark for subtract mask*/
 
 double seq_slice_step,seq_slicethickness,seq_zdim,seq_dummy;
-double	ro;			      	        /* 200/pi */
 double 	rmsX, rmsY, rmsZ, mean_sigma0;		/* a priori rms */
 double  db_scale;               /*dumbbell length, Beat Mai 2010*/  
 
@@ -133,8 +132,6 @@ int init_proc_c()
     double dummy;
     
     puts ("\n Multimedia Particle Positioning and Tracking Software \n");
-    
-    ro = 200/M_PI;
     
     fpp = fopen ("parameters/pft_version.par", "r");
     if (!fpp){
