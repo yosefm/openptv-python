@@ -132,31 +132,6 @@ double 	  x, y, eps;
 }
 
 
-int nearest_neighbour_pix (pix, num, x, y, eps)
-target 	pix[];
-int    	num;
-double 	x, y, eps;
-{
-  register int	j;
-  int	       	pnr = -999;
-  double       	d, dmin=1e20, xmin, xmax, ymin, ymax;
-
-  xmin = x - eps;  xmax = x + eps;  ymin = y - eps;  ymax = y + eps;
-
-  for (j=0; j<num; j++)		    			/* candidate search */
-    {
-      if (pix[j].y>ymin && pix[j].y<ymax && pix[j].x>xmin && pix[j].x<xmax)
-	{
-	  d = sqrt ((x-pix[j].x)*(x-pix[j].x) + (y-pix[j].y)*(y-pix[j].y));
-	  if (d < dmin)
-	    {
-	      dmin = d; pnr = j;
-	    }
-	}
-    }
-  return (pnr);
-}
-
 
 /***********************************************************************/
 /***********************************************************************/
