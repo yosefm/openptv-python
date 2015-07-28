@@ -23,87 +23,35 @@ Description:	       	reads objects, detected by detection etc.,
 #include <optv/parameters.h>
 #include <optv/trafo.h>
 
-void just_plot (Ex, I, G, ap, mm, imx,imy, pix_x,pix_y,
-				   nfix,fix, field, n_img)
-
-//Tcl_Interp* interp;
-Exterior	Ex;
-Interior	I;
-Glass   	G;
-ap_52		ap;
-mm_np		mm;
-int			nfix, imx, imy, field, n_img;
-double		pix_x, pix_y;
-coord_3d	fix[];
-
-
-{
-  int	       	i, j;
-  int	       	intx, inty;
-  double       	xp, yp, eps=10.0;
-  // target       	old[512]; Alex, 17.09.09, working on Wesleyan data
-  target       	old[1024]; 
+void just_plot (Exterior Ex, Interior I, Glass G, ap_52 ap, 
+    int nfix, coord_3d fix[], int n_img, control_par *cpar) {
+  int	       	i;
+  double       	xp, yp;
   
-  
-  
-  
-  
-  
-   printf("Inside just_plot\n");
-   ncal_points[n_img]=nfix;
+  ncal_points[n_img]=nfix;
   
   /* reproject all calibration plate points into pixel space
      and search a detected target nearby */
   
-  for (i=0; i<nfix; i++)
-    {
-      img_coord (n_img, fix[i].x, fix[i].y, fix[i].z,  Ex, I, G, ap, mm, 
-           &xp, &yp);
+  for (i=0; i<nfix; i++) {
+      img_coord (n_img, fix[i].x, fix[i].y, fix[i].z,  Ex, I, G, ap, 
+          *(cpar->mm), &xp, &yp);
       metric_to_pixel (&xp, &yp, xp, yp, cpar);
       
       /* draw projected points for check purpuses */
-      
-      intx = (int) xp;
-      inty = (int) yp;
-     x_calib[n_img][i]=intx;
-     y_calib[n_img][i]=inty;
-    
-
-
-	  printf ("coord of point %d: %d, %d\n", i,intx,inty);
-      
-//      drawcross (interp, intx, inty, cr_sz+1, n_img, "yellow");
-  //   draw_pnr (interp, intx, inty, fix[i].pnr, n_img, "yellow");
-      
-      
-    }
+      x_calib[n_img][i] = (int)xp;
+      y_calib[n_img][i] = (int)yp;
+  }
 }
 
 
 
-//void sortgrid_man (interp, Ex, I, G, ap, mm, imx,imy, pix_x,pix_y,
-//				   nfix,fix, num,pix, field, n_img)
-void sortgrid_man (Ex, I, G, ap, mm, imx,imy, pix_x,pix_y,
-				   nfix,fix, num,pix, field, n_img)
-//Tcl_Interp* interp;
-Exterior	Ex;
-Interior	I;
-Glass   	G;
-ap_52		ap;
-mm_np		mm;
-int			nfix, num, imx, imy, field, n_img;
-double		pix_x, pix_y;
-coord_3d	fix[];
-target		pix[];
-
-{
+void sortgrid_man (Exterior Ex, Interior I, Glass G, ap_52 ap, 
+    int nfix, coord_3d fix[], int num, target pix[], int n_img, 
+    control_par *cpar) {
   int	       	i, j;
-  int	       	intx, inty;
   double       	xp, yp, eps=10.0;
-//  target       	old[512];
   target       	old[1024];
-  
-  
   
   /* copy and re-initialize pixel data before sorting */
   for (i=0; i<num; i++)	old[i] = pix[i];
@@ -130,27 +78,16 @@ target		pix[];
   /* reproject all calibration plate points into pixel space
      and search a detected target nearby */
   
-  for (i=0; i<nfix; i++)
-    {
-      img_coord (n_img, fix[i].x, fix[i].y, fix[i].z,  Ex, I, G, ap, mm, &xp, &yp);
+  for (i=0; i<nfix; i++) {
+      img_coord (n_img, fix[i].x, fix[i].y, fix[i].z,  Ex, I, G, ap, 
+        *(cpar->mm), &xp, &yp);
       metric_to_pixel (&xp, &yp, xp, yp, cpar);
       
       /* draw projected points for check purpuses */
-      
-      intx = (int) xp;
-      inty = (int) yp;
-// added for Python binding
-      x_calib[n_img][i]=intx;
-      y_calib[n_img][i]=inty;
+      x_calib[n_img][i] = (int)xp;
+      y_calib[n_img][i] = (int)yp;
 
-	  printf ("coord of point %d: %d, %d\n", i,intx,inty);
-
-   // removed for Python binding 
-  //    drawcross (interp, intx, inty, cr_sz+1, n_img, "cyan");
-        
-      if (xp > -eps  &&  yp > -eps  &&  xp < imx+eps  &&  yp < imy+eps)
-	{
-	  printf("going to find neighbours %d, %d, %3.1f, %3.1f, %3.1f\n", old, num, xp, yp, eps); 
+      if (xp > -eps  &&  yp > -eps  &&  xp < cpar->imx + eps  &&  yp < cpar->imy + eps) {
 	  j = nearest_neighbour_pix (old, num, xp, yp, eps);
 	  
 	  if (j != -999)

@@ -695,9 +695,7 @@ int calibration_proc_c (int sel)
                     &Ex[i],&G[i], i, 1);
                 
                 /* sorting of detected points by back-projection */
-                just_plot (Ex[i], I[i], G[i], ap[i], *(cpar->mm),
-                           cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
-                           nfix, fix,  chfield, i);
+                just_plot (Ex[i], I[i], G[i], ap[i], nfix, fix, i, cpar);
                 
                 /*write artifical images*/
                 
@@ -742,9 +740,8 @@ int calibration_proc_c (int sel)
                 write_ori (Ex[i], I[i], G[i], ap[i], filename, NULL); /*ap ignored*/
                 
                 /* sorting of detected points by back-projection */
-                sortgrid_man (Ex[i], I[i], G[i], ap[i], *(cpar->mm),
-                              cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
-                              nfix, fix, num[i], pix[i], chfield, i);
+                sortgrid_man (Ex[i], I[i], G[i], ap[i], nfix, fix, num[i], 
+                    pix[i], i, cpar);
                 
                 /* adapt # of detected points */
                 num[i] = nfix;
@@ -836,9 +833,8 @@ int calibration_proc_c (int sel)
                 write_ori (Ex[i], I[i], G[i], ap[i], filename, NULL); /*ap ignored*/
                 
 				/* sorting of detected points by back-projection */
-				sortgrid_man (Ex[i], I[i], G[i], ap[i], *(cpar->mm),
-                              cpar->imx, cpar->imy, cpar->pix_x, cpar->pix_y,
-                              nfix, fix, num[i], pix[i], chfield, i);
+                sortgrid_man (Ex[i], I[i], G[i], ap[i], nfix, fix, num[i], 
+                    pix[i], i, cpar);
                 
 				/* adapt # of detected points */
 				num[i] = nfix;
