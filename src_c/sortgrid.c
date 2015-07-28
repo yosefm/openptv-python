@@ -18,8 +18,11 @@ Description:	       	reads objects, detected by detection etc.,
 		       	does not work in each imaginable case !
 ****************************************************************************/
 
+#include <stdio.h>
+
 #include "ptv.h"
 #include "tools.h"
+
 #include <optv/parameters.h>
 #include <optv/trafo.h>
 
@@ -52,6 +55,7 @@ void sortgrid_man (Exterior Ex, Interior I, Glass G, ap_52 ap,
   int	       	i, j;
   double       	xp, yp, eps=10.0;
   target       	old[1024];
+  FILE *fpp;
   
   /* copy and re-initialize pixel data before sorting */
   for (i=0; i<num; i++)	old[i] = pix[i];
