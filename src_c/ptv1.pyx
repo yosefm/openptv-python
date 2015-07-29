@@ -255,8 +255,6 @@ def py_get_from_sortgrid(x,y,pnr):
         pnr.append(pnr1)
         
 def py_get_from_orient(x1,y1,x2,y2):
-    global orient_x1,orient_y1,orient_x2,orient_y2,orient_n
-
     cdef int i,j
     for i in range(cpar[0].num_cams):
         x_1=[]
@@ -264,10 +262,12 @@ def py_get_from_orient(x1,y1,x2,y2):
         x_2=[]
         y_2=[]
         for j in range(orient_n[i]+1):
-            x_1.append(orient_x1[i][j])
-            y_1.append(orient_y1[i][j])
-            x_2.append(orient_x2[i][j])
-            y_2.append(orient_y2[i][j])
+            pos_x = orient_x1[i][j]
+            pos_y = orient_y1[i][j]
+            x_1.append(pos_x)
+            y_1.append(pos_y)
+            x_2.append(pos_x + orient_x2[i][j]*5000)
+            y_2.append(pos_y + orient_y2[i][j]*5000)
             
         x1.append(x_1)
         y1.append(y_1)

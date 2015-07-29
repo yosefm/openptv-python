@@ -42,9 +42,7 @@ Related routines:
 #include <stdio.h>
 
 /* Variables declared extern in 'globals.h' and not defined elsewhere: */
-int orient_x1[4][1000], orient_y1[4][1000], orient_x2[4][1000],\
-    orient_y2[4][1000], orient_n[4];
-extern coord_2d crd[4][nmax];
+int orient_x2[4][1000], orient_y2[4][1000], orient_n[4];
 
 void prepare_eval (control_par *cpar, int *n_fix) {
     int     i_img, i, filenumber, step_shake, count = 0;
@@ -641,7 +639,12 @@ void num_deriv_exterior(int cam, Exterior ext, Interior I0, Glass G0, ap_52 ap0,
     rotation_matrix(&ext);
 }
 
-void orient_v3 (Ex0, I0, G0, ap0, mm, nfix, fix, crd, Ex, I, G, ap, nr)
+/*
+    Returns:
+    1 if iterative solution found, 0 otherwise.
+*/
+int orient_v3 (Ex0, I0, G0, ap0, mm, nfix, fix, crd, Ex, I, G, ap, nr, resid_x, resid_y,
+    pixnr, num_used)
 Exterior	Ex0, *Ex;	/* exterior orientation, approx and result */
 Interior	I0, *I;		/* interior orientation, approx and result */
 Glass   	G0, *G;		/* glass orientation, approx and result */
@@ -651,6 +654,9 @@ int	       	nfix;		/* # of object points */
 coord_3d	fix[];		/* object point data */
 coord_2d	crd[];		/* image coordinates */
 int	       	nr;  		/* image number for residual display */
+double      resid_x[], resid_y[]; /* return array for residuals */
+int         pixnr[]; /* indices of used detected points */
+int         *num_used;  /* Number of points used for orientation */
 {
   int  	i,j,n, itnum, stopflag, n_obs=0,convergeflag;
   int  	useflag, ccflag, scxflag, sheflag, interfflag, xhflag, yhflag,
@@ -660,7 +666,7 @@ int	       	nr;  		/* image number for residual display */
   double       	X[1800][19], Xh[1800][19], y[1800], yh[1800], ident[10],
     XPX[19][19], XPy[19], beta[19], Xbeta[1800],
     resi[1800], omega=0, sigma0, sigmabeta[19],
-    P[1800], p, sumP, pixnr[3600];
+    P[1800], p, sumP;
   double xp, yp, xpd, ypd, r, qq;
   FILE 	*fp1;
   int dummy, multi,numbers;
@@ -997,30 +1003,24 @@ int	       	nr;  		/* image number for residual display */
 
 
   /* show original images with residual vectors (requires globals) */
-printf ("%d: %5.2f micron, ", nr+1, sigma0*1000);
-printf("\ntest 1 inside orientation\n");
-  for (i=0; i<n_obs-10; i+=2)
-    {
-      n = pixnr[i/2];
-      intx1 = (int) pix[nr][n].x;
-      inty1 = (int) pix[nr][n].y;
-      intx2 = intx1 + resi[i]*5000;
-      inty2 = inty1 + resi[i+1]*5000;
- 	orient_x1[nr][n]=intx1;
-	orient_y1[nr][n]=inty1;
-	orient_x2[nr][n]=intx2;
-	orient_y2[nr][n]=inty2;
-	orient_n[nr]=n;
-    }
-
+  for (i = 0; i < n_obs - 10; i += 2) {
+    n = pixnr[i/2];
+    //intx2 = intx1 + resi[i]*5000;
+    //inty2 = inty1 + resi[i+1]*5000;
+    resid_x[n]=resi[i];
+	resid_y[n]=resi[i+1];
+  }
+  *num_used = n; /* last n, maximal. */
 
 
   if (convergeflag){
       rotation_matrix (&Ex0);
       *Ex = Ex0;	*I = I0;	*ap = ap0; *G = G0;
+      return 1;
   }
   else{	
 	  puts ("orientation does not converge");
+      return 0;
   }
 }
 

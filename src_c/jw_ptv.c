@@ -115,6 +115,7 @@ int             x_calib[4][1000];
 int             y_calib[4][1000];
 int             z_calib[4][1000];
 int 		ncal_points[4];
+int orient_x1[4][1000], orient_y1[4][1000]; /* Saves leg coordinates of residual arrows */
 
 coord_2d       	crd[4][nmax];  	/* (distorted) metric coordinates */
 coord_2d       	geo[4][nmax];  	/* corrected metric coordinates */
@@ -485,6 +486,10 @@ int calibration_proc_c (int sel)
     int i, j,  i_img, k, n, sup,dummy,multi,planes;
     int prev, next; 
     int chfield;       		       	/* flag for field mode */
+    
+    double resid_x[1000], resid_y[1000]; /* raw residuals */
+    int pixnr[1000]; /* Array for numbers of points used by the end 
+                        orientation. Waits for a redesign. */
     
     double dummy_float;
     int intx1, inty1, intx2, inty2;
@@ -915,12 +920,18 @@ int calibration_proc_c (int sel)
                 /* resection routine */
                 /* ================= */
                 printf ("examine=%d\n",examine);
-                printf("inside jw_ptv.c before orient_v3 I.yh=%f \n",I[i_img].yh);
-                if (examine != 4)
+                if (examine != 4) {
                     orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], *(cpar->mm),
                                nfix, fix, crd[i_img],
-                               &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img);
-                printf("inside jw_ptv.c after orient_v3 I.yh=%f \n",I[i_img].yh);
+                               &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img,
+                               resid_x, resid_y, pixnr, orient_n + i_img);
+                    for (i = 0; i < orient_n[i_img]; i++) {
+                        orient_x1[i_img][i] = pix[i_img][pixnr[i]].x;
+                        orient_y1[i_img][i] = pix[i_img][pixnr[i]].y;
+                        orient_x2[i_img][i] = pix[i_img][pixnr[i]].x + 5000*resid_x[i];
+                        orient_y2[i_img][i] = pix[i_img][pixnr[i]].y + 5000*resid_y[i];
+                    }
+                }    
                 /* ================= */
                 
                 
@@ -990,13 +1001,15 @@ int calibration_proc_c (int sel)
                     
                     orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], *(cpar->mm),
                                nfix, fix, crd[i_img],
-                               &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img);
-                    
-                    
-                    
-                    
-                    
-                    
+                               &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img,
+                               resid_x, resid_y, pixnr,
+                               orient_n + i_img);
+                    for (i = 0; i < orient_n[i_img]; i++) {
+                        orient_x1[i_img][i] = pix[i_img][pixnr[i]].x;
+                        orient_y1[i_img][i] = pix[i_img][pixnr[i]].y;
+                        orient_x2[i_img][i] = pix[i_img][pixnr[i]].x + 5000*resid_x[i];
+                        orient_y2[i_img][i] = pix[i_img][pixnr[i]].y + 5000*resid_y[i];
+                    }
                     ///////////////////////////////////////////
                     
                     
@@ -1049,9 +1062,16 @@ int calibration_proc_c (int sel)
             
 			for (i_img = 0; i_img < cpar->num_cams; i_img++)
 			{
-				orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], *(cpar->mm),
-						   nfix, fix, crd[i_img],
-						   &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img);
+                orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], *(cpar->mm),
+                           nfix, fix, crd[i_img],
+                           &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img,
+                           resid_x, resid_y, pixnr, orient_n + i_img);
+                for (i = 0; i < orient_n[i_img]; i++) {
+                    orient_x1[i_img][i] = pix[i_img][pixnr[i]].x;
+                    orient_y1[i_img][i] = pix[i_img][pixnr[i]].y;
+                    orient_x2[i_img][i] = pix[i_img][pixnr[i]].x + 5000*resid_x[i];
+                    orient_y2[i_img][i] = pix[i_img][pixnr[i]].y + 5000*resid_y[i];
+                }
 				
 				/* save orientation and additional parameters */
 				//make safety copy of ori files
