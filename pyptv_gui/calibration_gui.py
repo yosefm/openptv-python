@@ -636,6 +636,8 @@ class calibration_gui(HasTraits):
             
         for f in calOriParams.img_ori:
             shutil.copyfile(f,f+'.bck')
+            g = f.replace('ori','addpar')
+            shutil.copyfile(g, g + '.bck')
 
     def restore_ori_files(self):
         # backup ORI/ADDPAR files to the backup_cal directory
@@ -645,6 +647,8 @@ class calibration_gui(HasTraits):
         for f in calOriParams.img_ori:
             print "restored %s " % f
             shutil.copyfile(f+'.bck',f)
+            g = f.replace('ori','addpar')
+            shutil.copyfile(g + '.bck', g)
 
     def protect_ori_files(self):
         # backup ORI/ADDPAR files to the backup_cal directory
