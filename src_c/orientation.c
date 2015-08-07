@@ -665,11 +665,15 @@ double *residual;
 void orient_v5(int n_img, int nfix, Exterior *Ex, Interior *I, Glass *G, ap_52 *ap){
 
     int  	i,j,itnum,max_itnum,i_img,dummy;
-    double       	residual, best_residual, old_val,dm = 0.0001,  drad = 0.00001,sens,factor,weight_scale;   
+    double       	residual, best_residual, old_val, dm, drad, sens, factor, weight_scale;   
     double 	Xp, Yp, Zp, xp, yp, xpd, ypd, r, qq;
 	double db_scale,eps0,epi_miss, dist;
 	int  	useflag, ccflag, scxflag, sheflag, interfflag, xhflag, yhflag,
     k1flag, k2flag, k3flag, p1flag, p2flag;
+    
+    dm = 1.0;
+    drad = 1.0;
+    printf("dm = %f, drad = %f\n", dm, drag);
 
 	fpp = fopen ("parameters/dumbbell.par", "r");
     if (fpp){
