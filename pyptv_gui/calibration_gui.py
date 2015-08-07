@@ -58,12 +58,9 @@ class clicker_tool(ImageInspectorTool):
             print self.x
             print self.y
             self.left_changed=1-self.left_changed
-         
-                 
             self.last_mouse_position = (event.x, event.y)
-        return
+
     def normal_right_down(self, event):
- 
         plot = self.component
         if plot is not None:
             ndx = plot.map_index((event.x, event.y))
@@ -79,7 +76,7 @@ class clicker_tool(ImageInspectorTool):
             
                    
             self.last_mouse_position = (event.x, event.y)
-        return
+
     def normal_mouse_move(self, event):
         pass
     def __init__(self, *args, **kwargs):
@@ -118,8 +115,8 @@ class plot_window (HasTraits):
     def left_clicked_event(self):
         print ("left clicked")
         if len(self._x)<4:
-                self._x.append( self._click_tool.x)
-                self._y.append( self._click_tool.y)
+            self._x.append( self._click_tool.x)
+            self._y.append( self._click_tool.y)
         print self._x
         print self._y
         self.drawcross("coord_x","coord_y",self._x,self._y,"red",5)
@@ -156,9 +153,9 @@ class plot_window (HasTraits):
         self._zoom_tool.max_zoom_out_factor=1.0
         self._img_plot.tools.append(self._zoom_tool)
         if self._plot.index_mapper is not None:
-                self._plot.index_mapper.on_trait_change(self.handle_mapper, 'updated', remove=False)
+            self._plot.index_mapper.on_trait_change(self.handle_mapper, 'updated', remove=False)
         if self._plot.value_mapper is not None:
-                self._plot.value_mapper.on_trait_change(self.handle_mapper, 'updated', remove=False)
+            self._plot.value_mapper.on_trait_change(self.handle_mapper, 'updated', remove=False)
                     
     
     def drawcross(self, str_x,str_y,x,y,color1,mrk_size):
@@ -233,16 +230,19 @@ class plot_window (HasTraits):
     def plot_num_overlay(self,x,y,txt):
         for i in range (0,len(x)):
             coord_x, coord_y=self._plot.map_screen([(x[i],y[i])])[0]
-            ovlay=TextBoxOverlay(component=self._plot, text=str(txt[i]), \
-            alternate_position=(coord_x,coord_y),real_position=(x[i],y[i]),\
-            text_color = "red", border_color = "red")
+            ovlay=TextBoxOverlay(component=self._plot, 
+            text=str(txt[i]), alternate_position=(coord_x,coord_y), 
+                real_position=(x[i],y[i]),
+                text_color = "white",
+                border_color = "red"
+                )
             self._plot.overlays.append(ovlay)
                     
     def update_image(self,image,is_float):
             if is_float:
-                    self._plot_data.set_data('imagedata',image.astype(np.float))
+                self._plot_data.set_data('imagedata',image.astype(np.float))
             else:
-                    self._plot_data.set_data('imagedata',image.astype(np.byte))
+                self._plot_data.set_data('imagedata',image.astype(np.byte))
             self._plot.request_redraw()
             
 # ---------------------------------------------------------
@@ -418,8 +418,8 @@ class calibration_gui(HasTraits):
                                 
     def _button_init_guess_fired(self):
             if self.need_reset:
-                    self.reset_show_images()
-                    self.need_reset=0
+                self.reset_show_images()
+                self.need_reset=0
             self.ptv.py_calibration(9)
             x=[]
             y=[]
@@ -437,11 +437,15 @@ class calibration_gui(HasTraits):
         x1_cyan=[]
         y1_cyan=[]
         pnr=[]
-        # import pdb; pdb.set_trace()
         self.ptv.py_get_from_sortgrid(x,y,pnr)
-        x = [[i for i in x[0] if i > 0]]
-        y = [[i for i in y[0] if i > 0]]
-        self.drawcross("sort_x","sort_y",x,y,"red",4)
+        # filter out -999 which is returned for the missing points:
+        while -999 in x[0]:
+            id = x[0].index(-999)
+            del x[0][id]
+            del y[0][id]
+            del pnr[0][id]
+
+        self.drawcross("sort_x","sort_y",x,y,"white",4)
         self.ptv.py_get_from_calib(x1_cyan,y1_cyan)
         self.drawcross("init_x","init_y",x1_cyan,y1_cyan,"cyan",4)
         for i in range (len(self.camera)):
@@ -464,8 +468,8 @@ class calibration_gui(HasTraits):
         self.ptv.py_get_from_calib(x1_cyan,y1_cyan)
         self.drawcross("init_x","init_y",x1_cyan,y1_cyan,"cyan",4)
         for i in range (len(self.camera)):
-                self.camera[i]._plot.overlays=[]
-                self.camera[i].plot_num_overlay(x[i],y[i],pnr[i])
+            self.camera[i]._plot.overlays=[]
+            self.camera[i].plot_num_overlay(x[i],y[i],pnr[i])
         self.status_text="Sort grid initial guess finished."
             
     def _button_orient_fired(self):
@@ -508,35 +512,34 @@ class calibration_gui(HasTraits):
         self.status_text="Orientation with particles finished."
 
     def _button_orient_dumbbell_fired(self):
-            print "Starting orientation from dumbbell"
-            self.ptv.py_ptv_set_dumbbell(1)
-            n_camera=len(self.camera)
-            print ("Starting sequence action")
-            seq_first=self.exp1.active_params.m_params.Seq_First
-            seq_last=self.exp1.active_params.m_params.Seq_Last
-            print seq_first,seq_last
-            base_name=[]
-            for i in range (n_camera):
-                    exec("base_name.append(self.exp1.active_params.m_params.Basename_%d_Seq)" %(i+1))
-                    #print base_name[i]
+        print "Starting orientation from dumbbell"
+        self.ptv.py_ptv_set_dumbbell(1)
+        n_camera=len(self.camera)
+        print ("Starting sequence action")
+        seq_first=self.exp1.active_params.m_params.Seq_First
+        seq_last=self.exp1.active_params.m_params.Seq_Last
+        print seq_first,seq_last
+        base_name=[]
+        for i in range (n_camera):
+            exec("base_name.append(self.exp1.active_params.m_params.Basename_%d_Seq)" %(i+1))
+            #print base_name[i]
            
             self.ptv.py_sequence_init(1)
             stepshake=self.ptv.py_get_from_sequence_init()
             if not stepshake:
-                    stepshake=1
+                stepshake=1
             
             temp_img=np.array([],dtype=np.ubyte)
             for i in range(seq_first,seq_last+1,stepshake):
-                    seq_ch="%04d" % i
-                    for j in range (n_camera):
-                            img_name=base_name[j]+seq_ch
-                            print ("Setting image: ",img_name)
-                            try:
-                                    temp_img=imread(img_name).astype(np.ubyte)
-                            except:
-                                    print "Error reading file"
-                                   
-                            self.ptv.py_set_img(temp_img,j)
+                seq_ch="%04d" % i
+                for j in range (n_camera):
+                    img_name=base_name[j]+seq_ch
+                    print ("Setting image: ",img_name)
+                    try:
+                        temp_img=imread(img_name).astype(np.ubyte)
+                    except:
+                        print "Error reading file"
+                        self.ptv.py_set_img(temp_img,j)
                     self.ptv.py_sequence_loop(1,i)
             print "Orientation from dumbbell - sequence finished"
             self.ptv.py_calibration(12)

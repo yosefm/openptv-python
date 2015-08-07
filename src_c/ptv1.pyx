@@ -106,7 +106,6 @@ def py_highpass(np.ndarray img1, np.ndarray img2, dim_lp1, filter_lp1, field1 ):
 
 def py_set_img(np.ndarray img_one, i):
     global img
-
     cdef int img_size=img_one.size
     cdef unsigned char *img_dest=<unsigned char *>img_one.data
     cdef int i1=i
@@ -116,14 +115,14 @@ def py_set_img(np.ndarray img_one, i):
 
 def py_get_img(np.ndarray img_one, i):
     global img, imgsize
-    print ("img_size=",imgsize)
+    print ("received from liboptv img_size=",imgsize)
     #cdef int i1=i
     
     memcpy(img_one.data,img[i],imgsize*sizeof(unsigned char))
     cdef unsigned char *img_dest=<unsigned char *>img_one.data
-    cdef int i1=i
-    for i1 in range(50):
-        print("img1 ", img_one[i1])
+    # cdef int i1=i
+    # for i1 in range(50):
+        # print("img1 ", img_one[i1])
 
 
     
@@ -403,10 +402,10 @@ def py_get_pix_N(x,y,n_image):
     x1=[]
     y1=[]
     for j in range(num[i]):
-      x1.append(pix[i][j].x)
-      y1.append(pix[i][j].y)
-      x.append(x1)
-      y.append(y1)
+        x1.append(pix[i][j].x)
+        y1.append(pix[i][j].y)
+        x.append(x1)
+        y.append(y1)
 
 def get_pix_crd(num_cams):
     """
