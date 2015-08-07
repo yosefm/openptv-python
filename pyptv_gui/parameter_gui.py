@@ -7,10 +7,10 @@ from traitsui.api \
            HGroup, VGroup, Handler, Group, Tabbed,spring
 from traitsui.menu \
     import Menu, Action, Separator
-# from traitsui.qt4.tree_editor \
-from traitsui.wx.tree_editor \
-    import NewAction, CopyAction, CutAction, \
-           PasteAction, DeleteAction, RenameAction
+
+from traitsui.wx.tree_editor import NewAction, CopyAction, CutAction,PasteAction, DeleteAction, RenameAction    
+#from traitsui.qt4.tree_editor import NewAction, CopyAction, CutAction, \
+#            PasteAction, DeleteAction, RenameAction
 
                  
 
@@ -139,10 +139,8 @@ class TrackHandler(Handler):
     def closed(self,info,is_ok):
         trackParams = info.object
         par_path = trackParams.par_path
-        print 'par_path', par_path
         Handler.closed(self,info,is_ok)
         if is_ok:
-            print 'trackParams.dvxmax', trackParams.dvxmax
             par.TrackingParams(trackParams.dvxmin, trackParams.dvxmax,
             trackParams.dvymin, trackParams.dvymax,
             trackParams.dvzmin, trackParams.dvzmax,
@@ -1078,7 +1076,6 @@ class Experiment (HasTraits):
 
         def populate_runs(self, exp_path):
         #Read all parameters directories from an experiment directory
-            print "inside populate runs"
             self.paramsets = []
             dir_contents = [f for f in os.listdir(exp_path) if os.path.isdir(os.path.join(exp_path, f))]
             dir_contents = [f for f in dir_contents if f.startswith(general.par_dir_prefix)]
