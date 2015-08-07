@@ -496,6 +496,7 @@ class calibration_gui(HasTraits):
         self.status_text="Orientation finished."
 
     def _button_orient_part_fired(self):
+        self.backup_ori_files()
         self.ptv.py_calibration(10)
         x1,y1,x2,y2=[],[],[],[]
         self.ptv.py_get_from_orient(x1,y1,x2,y2)
@@ -512,6 +513,7 @@ class calibration_gui(HasTraits):
         self.status_text="Orientation with particles finished."
 
     def _button_orient_dumbbell_fired(self):
+        self.backup_ori_files()
         print "Starting orientation from dumbbell"
         self.ptv.py_ptv_set_dumbbell(1)
         n_camera=len(self.camera)
@@ -523,7 +525,6 @@ class calibration_gui(HasTraits):
         for i in range (n_camera):
             exec("base_name.append(self.exp1.active_params.m_params.Basename_%d_Seq)" %(i+1))
             #print base_name[i]
-           
             self.ptv.py_sequence_init(1)
             stepshake=self.ptv.py_get_from_sequence_init()
             if not stepshake:
@@ -637,6 +638,8 @@ class calibration_gui(HasTraits):
             
         for f in calOriParams.img_ori:
             shutil.copyfile(f,f+'.bck')
+            g = f.replace('ori','addpar')
+            shutil.copyfile(g, g + '.bck')
 
     def restore_ori_files(self):
         # backup ORI/ADDPAR files to the backup_cal directory
@@ -646,6 +649,8 @@ class calibration_gui(HasTraits):
         for f in calOriParams.img_ori:
             print "restored %s " % f
             shutil.copyfile(f+'.bck',f)
+            g = f.replace('ori','addpar')
+            shutil.copyfile(g + '.bck', g)
 
     def protect_ori_files(self):
         # backup ORI/ADDPAR files to the backup_cal directory
