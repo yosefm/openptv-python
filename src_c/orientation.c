@@ -95,7 +95,7 @@ int	       	nr;  		/* image number for residual display */
      comes over a threshold and no more points are thrown out
      because of their residuals */
 
-  puts ("\n\nbegin of iterations");
+  printf("\n\nbegin of iterations, orient");
   itnum = 0;  stopflag = 0;
   while ((stopflag == 0) && (itnum < 20))
     {
@@ -459,12 +459,17 @@ void prepare_eval_shake(int n_img) {
     
     step_shake = (int)((double)(seq_last - seq_first + 1) /
         (double)max_shake_frames + 0.5);
+    printf ("shake step is %d\n", step_shake);
+    
     for (filenumber = seq_first + 2; filenumber < seq_last - 1; \
         filenumber += step_shake)
     {
         frame_used = 0;
         read_frame(&frm, "res/rt_is", "res/ptv_is", NULL,
             seq_par->img_base_name, filenumber);
+        
+        printf("read frame %d\n", filenumber);
+        printf("found %d particles \n", frm.num_parts);
 
         for (i = 0; i < frm.num_parts; i++) {
             part_used = 0;
@@ -709,7 +714,7 @@ I[2].yh = 0.0;
 I[3].yh = 0.0;*/
 
 
-  puts ("\n\nbegin of iterations");
+  printf("\n\nbegin of iterations, orient_v5");
   itnum = 0;  
   while (itnum < max_itnum){
     //printf ("\n\n%2d. iteration\n", ++itnum);
@@ -960,7 +965,7 @@ int	       	n_img,nfix;		/* # of object points */
     fclose (fp1);
 	
 
-  puts ("\n\nbegin of iterations");
+  printf("\n\nbegin of iterations, orient_v4");
   itnum = 0;  
   while (itnum < max_itnum){
     //printf ("\n\n%2d. iteration\n", ++itnum);
@@ -1238,11 +1243,11 @@ int	       	nr;  		/* image number for residual display */
   safety_y=G0.vec_y;
   safety_z=G0.vec_z;
 
-  puts ("\n\nbegin of iterations");
+  printf("\n\nbegin of iterations, orient_v3");
   itnum = 0;  stopflag = 0;
   while ((stopflag == 0) && (itnum < 80))
     {
-      //printf ("\n\n%2d. iteration\n", ++itnum);
+      printf ("\n\n%2d. iteration\n", ++itnum);
       itnum++;
       for (i=0, n=0; i<nfix; i++)  if (crd[i].pnr == fix[i].pnr)
 	{
@@ -1450,7 +1455,7 @@ int	       	nr;  		/* image number for residual display */
       //puts ("\n==> beta :\n");
       for (i=0; i<numbers; i++)
 	{
-	  //printf ("%10.6f  ",beta[i]);
+	  printf ("%10.6f\n  ",beta[i]);
 	  if (fabs (beta[i]) > 0.0001)  stopflag = 0;	/* more iterations */////Achtung
 	  if (fabs (beta[i]) > 0.01)  convergeflag = 0;
 	}
