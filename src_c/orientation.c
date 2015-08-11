@@ -673,7 +673,7 @@ void orient_v5(int n_img, int nfix, Exterior *Ex, Interior *I, Glass *G, ap_52 *
     
     dm = 1.0;
     drad = 1.0;
-    printf("dm = %f, drad = %f\n", dm, drag);
+    printf("dm = %f, drad = %f\n", dm, drad);
 
 	fpp = fopen ("parameters/dumbbell.par", "r");
     if (fpp){
