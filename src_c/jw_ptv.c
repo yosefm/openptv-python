@@ -301,9 +301,9 @@ int pre_processing_c(int y_remap_mode)
     {//read mask image
         for (i_img=0; i_img < cpar->num_cams; i_img++)
         {
-            highpass (img[i_img], img[i_img], sup, 0, y_remap_mode);
+            highpass (img[i_img], img[i_img], sup, 0, cpar);
             subtract_mask (img[i_img], img_mask[i_img], img_new[i_img]); //subtract mask from original image
-            copy_images (img_new[i_img], img[i_img]);//copy subtracted imgage on the original image
+            memcpy(img[i_img], img_new[i_img], imgsize);
             
             sprintf(val, "newimage %d", i_img+1);
         }
@@ -313,7 +313,7 @@ int pre_processing_c(int y_remap_mode)
     {
         for (i_img=0; i_img < cpar->num_cams; i_img++)
         {
-            highpass (img[i_img], img[i_img], sup, 0, y_remap_mode);//highpass original image
+            highpass (img[i_img], img[i_img], sup, 0, cpar);//highpass original image
         }
     }//end if
     
@@ -364,7 +364,7 @@ int detection_proc_c(char **image_names)
         zoom_y[i_img] = cpar->imy/2;
         zoom_f[i_img] = 1;
         /*copy images because the target recognition will set greyvalues to 0*/
-        copy_images (img[i_img], img0[i_img]);
+        memcpy(img0[i_img], img[i_img], imgsize);
     }
     
     /* target recognition */
