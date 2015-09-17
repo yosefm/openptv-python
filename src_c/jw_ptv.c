@@ -1348,7 +1348,7 @@ int determination_proc_c (int dumbbell)
         X /= cpar->num_cams; Y /= cpar->num_cams;
         /* ******************************** */
         
-        det_lsq_3d (Ex, I, G, ap, *(cpar->mm),
+        det_lsq_3d (glob_cal, *(cpar->mm),
                     x[0], y[0], x[1], y[1], x[2], y[2], x[3], y[3], &X, &Y, &Z,
                     cpar->num_cams);
         
