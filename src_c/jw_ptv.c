@@ -459,7 +459,7 @@ int correspondences_proc_c (char **img_base_names, int frame)
     {
         puts ("Init multimedia displacement LUTs");
         for (i_img = 0; i_img < cpar->num_cams; i_img++) 
-            init_mmLUT(i_img, glob_cal, cpar);
+            init_mmLUT(i_img, glob_cal + i_img, cpar);
         lut_inited = 1;
     }
     
