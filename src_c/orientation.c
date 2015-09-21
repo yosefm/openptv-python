@@ -953,23 +953,25 @@ int	       	n_img,nfix;		/* # of object points */
         fclose (fpp);
     }
 
-	fp1 = fopen_r ("parameters/orient.par");
-    fscanf (fp1,"%d", &useflag);
-    fscanf (fp1,"%d", &ccflag);
-    fscanf (fp1,"%d", &xhflag);
-    fscanf (fp1,"%d", &yhflag);
-    fscanf (fp1,"%d", &k1flag);
-    fscanf (fp1,"%d", &k2flag);
-    fscanf (fp1,"%d", &k3flag);
-    fscanf (fp1,"%d", &p1flag);
-    fscanf (fp1,"%d", &p2flag);
-    fscanf (fp1,"%d", &scxflag);
-    fscanf (fp1,"%d", &sheflag);
-    fscanf (fp1,"%d", &interfflag);
-    fclose (fp1);
+	fp1 = fopen ("parameters/orient.par", "r");
+	if (fp1) {
+        fscanf (fp1,"%d", &useflag);
+        fscanf (fp1,"%d", &ccflag);
+        fscanf (fp1,"%d", &xhflag);
+        fscanf (fp1,"%d", &yhflag);
+        fscanf (fp1,"%d", &k1flag);
+        fscanf (fp1,"%d", &k2flag);
+        fscanf (fp1,"%d", &k3flag);
+        fscanf (fp1,"%d", &p1flag);
+        fscanf (fp1,"%d", &p2flag);
+        fscanf (fp1,"%d", &scxflag);
+        fscanf (fp1,"%d", &sheflag);
+        fscanf (fp1,"%d", &interfflag);
+        fclose (fp1);
+    }
 	
 
-  printf("\n\nbegin of iterations, orient_v4");
+  printf("\n\ start iterations, orient_v4");
   itnum = 0;  
   while (itnum < max_itnum){
     //printf ("\n\n%2d. iteration\n", ++itnum);
@@ -1177,31 +1179,34 @@ int	       	nr;  		/* image number for residual display */
     k1flag, k2flag, k3flag, p1flag, p2flag;
   int  	intx1, intx2, inty1, inty2;
   double       	dm = 0.00001,  drad = 0.0000001,drad2 = 0.00001, dg=0.1;
-  double       	X[1800][19], Xh[1800][19], y[1800], yh[1800], ident[10],
-    XPX[19][19], XPy[19], beta[19], Xbeta[1800],
-    resi[1800], omega=0, sigma0, sigmabeta[19],
-    P[1800], p, sumP, pixnr[3600];
+  double       	X[10000][19], Xh[10000][19], y[10000], yh[10000], ident[10],
+    XPX[19][19], XPy[19], beta[19], Xbeta[10000],
+    resi[10000], omega=0, sigma0, sigmabeta[19],
+    P[10000], p, sumP, pixnr[20000];
   double 	Xp, Yp, Zp, xp, yp, xpd, ypd, r, qq;
   FILE 	*fp1;
   int dummy, multi,numbers;
   double al,be,ga,nGl,e1_x,e1_y,e1_z,e2_x,e2_y,e2_z,n1,n2,safety_x,safety_y,safety_z;
 
 
+
   /* read, which parameters shall be used */
-  fp1 = fopen_r ("parameters/orient.par");
-  fscanf (fp1,"%d", &useflag);
-  fscanf (fp1,"%d", &ccflag);
-  fscanf (fp1,"%d", &xhflag);
-  fscanf (fp1,"%d", &yhflag);
-  fscanf (fp1,"%d", &k1flag);
-  fscanf (fp1,"%d", &k2flag);
-  fscanf (fp1,"%d", &k3flag);
-  fscanf (fp1,"%d", &p1flag);
-  fscanf (fp1,"%d", &p2flag);
-  fscanf (fp1,"%d", &scxflag);
-  fscanf (fp1,"%d", &sheflag);
-  fscanf (fp1,"%d", &interfflag);
-  fclose (fp1);
+  fp1 = fopen ("parameters/orient.par","r");
+  if (fp1){     
+      fscanf (fp1,"%d", &useflag);
+      fscanf (fp1,"%d", &ccflag);
+      fscanf (fp1,"%d", &xhflag);
+      fscanf (fp1,"%d", &yhflag);
+      fscanf (fp1,"%d", &k1flag);
+      fscanf (fp1,"%d", &k2flag);
+      fscanf (fp1,"%d", &k3flag);
+      fscanf (fp1,"%d", &p1flag);
+      fscanf (fp1,"%d", &p2flag);
+      fscanf (fp1,"%d", &scxflag);
+      fscanf (fp1,"%d", &sheflag);
+      fscanf (fp1,"%d", &interfflag);
+      fclose (fp1);
+  }
 
 
   //if(interfflag){
@@ -1224,14 +1229,21 @@ int	       	nr;  		/* image number for residual display */
 	  be=0;
 	  ga=0;
   //}
+  
+  
+  printf("\n Inside orient_v3, initialize memory \n"); 
 
   /* init X, y (set to zero) */
-  for (i=0; i<1800; i++)
+  for (i=0; i<5000; i++)
     {
-      for (j=0; j<19; j++)  X[i][j] = 0;
-      y[i] = 0;  P[i] = 0;
+      for (j=0; j<19; j++) {  
+        X[i][j] = 0.0;
+      }
+      y[i] = 0.0;  P[i] = 0.0;
     }
 
+   printf("\n Memory is initialized, \n");
+   
   /* init identities */
   ident[0] = I0.cc;  ident[1] = I0.xh;  ident[2] = I0.yh;
   ident[3]=ap0.k1; ident[4]=ap0.k2; ident[5]=ap0.k3;
@@ -1247,14 +1259,17 @@ int	       	nr;  		/* image number for residual display */
   safety_y=G0.vec_y;
   safety_z=G0.vec_z;
 
-  printf("\n\nbegin of iterations, orient_v3");
+  printf("\n\n start iterations, orient_v3 \n");
   itnum = 0;  stopflag = 0;
   while ((stopflag == 0) && (itnum < 80))
     {
-      printf ("\n\n%2d. iteration\n", ++itnum);
+      
       itnum++;
-      for (i=0, n=0; i<nfix; i++)  if (crd[i].pnr == fix[i].pnr)
-	{
+      
+      printf ("\n\n %2d. iteration \n", itnum);
+      
+      for (i=0, n=0; i<nfix; i++) if (crd[i].pnr == fix[i].pnr) 
+	  {
 	  /* use only certain points as control points */
 	  switch (useflag)
 	    {
@@ -1270,8 +1285,15 @@ int	       	nr;  		/* image number for residual display */
 	  pixnr[n/2] = i;		/* for drawing residuals */
 	  Xp = fix[i].x;  Yp = fix[i].y;  Zp = fix[i].z;
 	  rotation_matrix (Ex0, Ex0.dm);
-	  img_coord (Xp,Yp,Zp, Ex0,I0, G0, ap0, mm, &xp,&yp);
-
+	  
+	  // Debugger print
+	  // printf("\n %d %f %f %f %d %d \n",i,Xp,Yp,Zp,crd[i].pnr, fix[i].pnr);
+	  
+	  img_coord (Xp, Yp, Zp, Ex0, I0, G0, ap0, mm, &xp, &yp);
+	  
+	  if ((i % 100) == 0){
+	   printf("\n %d %f %f %f %d %d %f %f \n",i,Xp,Yp,Zp,crd[i].pnr, fix[i].pnr,xp,yp);
+	  }
 
 	  /* derivatives of add. parameters */
 
@@ -1403,8 +1425,12 @@ int	       	nr;  		/* image number for residual display */
 	  y[n+1] = crd[i].y - yp;
 
 	  n += 2;
-	}
+	} // end if crd == fix
+      
+      
       n_obs = n;
+      
+      printf(" n_obs = %d\n", n_obs); 
 
 
       /* identities */
@@ -1459,7 +1485,7 @@ int	       	nr;  		/* image number for residual display */
       //puts ("\n==> beta :\n");
       for (i=0; i<numbers; i++)
 	{
-	  printf ("%10.6f\n  ",beta[i]);
+	  printf (" beta[%d] = %10.6f\n  ",i, beta[i]);
 	  if (fabs (beta[i]) > 0.0001)  stopflag = 0;	/* more iterations */////Achtung
 	  if (fabs (beta[i]) > 0.01)  convergeflag = 0;
 	}
@@ -1490,7 +1516,7 @@ int	       	nr;  		/* image number for residual display */
 	  //G0.vec_x+=G0.vec_x*nGl*beta[18];G0.vec_y+=G0.vec_y*nGl*beta[18];G0.vec_z+=G0.vec_z*nGl*beta[18];
 	  }
 	  beta[0]=beta[0];
-    }
+    } // end of while iterations and stopflag
 
 
 

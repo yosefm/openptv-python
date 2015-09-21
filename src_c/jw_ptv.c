@@ -993,57 +993,65 @@ int calibration_proc_c (int sel)
                 
                 /* resection routine */
                 /* ================= */
-                printf ("examine=%d\n",examine);
-                printf("inside jw_ptv.c before orient_v3 I.yh=%f \n",I[i_img].yh);
+                printf ("examine= %d \n",examine);
+                // printf("inside jw_ptv.c before orient_v3 I.yh=%f \n",I[i_img].yh);
                 if (examine != 4)
                     orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], mmp,
                                nfix, fix, crd[i_img],
                                &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img);
-                printf("inside jw_ptv.c after orient_v3 I.yh=%f \n",I[i_img].yh);
+                // printf("inside jw_ptv.c after orient_v3 I.yh = %f \n",I[i_img].yh);
                 /* ================= */
                 
                 
                 /* resection with dumped datasets */
                 if (examine == 4)
                 {
-                    
+                    printf("Resection with dumped datasets \n");
                     //printf("Resection with dumped datasets? (y/n)");
                     //scanf("%s",buf);
                     //if (buf[0] != 'y')	continue;
                     //strcpy (buf, "");
-                    if (multi==0)	continue;
+                    if (multi == 0)	continue;
                     
                     /* read calibration frame datasets */
                     //sprintf (multi_filename[0],"img/calib_a_cam");
                     //sprintf (multi_filename[1],"img/calib_b_cam");
                     
-                    fp1 = fopen_r ("parameters/multi_planes.par");
-                    fscanf (fp1,"%d\n", &planes);
-                    for(i=0;i<planes;i++) 
-                        fscanf (fp1,"%s\n", multi_filename[i]);//fscanf (fp1,"%s\n", &multi_filename[i]);
-                    fclose(fp1);
+                    fp1 = fopen("parameters/multi_planes.par","r");
+                    if (fp1) {
+                        fscanf (fp1,"%d\n", &planes);
+                        printf(" number of planes %d \n", planes);
+                        for(i=0;i<planes;i++) 
+                            fscanf (fp1,"%s\n", multi_filename[i]);//fscanf (fp1,"%s\n", &multi_filename[i]);
+                            printf ("%s\n", multi_filename[i]);
+                        fclose(fp1);
+                    }
+                                        
                     
                     for (n=0, nfix=0, dump_for_rdb=0; n<10; n++)
                     {
                         //sprintf (filename, "resect.fix%d", n);
                         
                         sprintf (filename, "%s%d.tif.fix", multi_filename[n],i_img+1);
+                        
                         fp1 = fopen (filename, "r");
                         if (! fp1)	continue;
                         
                         printf("reading file: %s\n", filename);
-                        printf ("reading dumped resect data #%d\n", n);
                         k = 0;
                         while ( fscanf (fp1, "%d %lf %lf %lf",
                                         &fix[nfix+k].pnr, &fix[nfix+k].x,
                                         &fix[nfix+k].y, &fix[nfix+k].z)
                                != EOF) k++;
                         fclose (fp1);
+                                                
                         /* read metric image coordinates */
                         //sprintf (filename, "resect_%d.crd%d", i_img, n);
                         sprintf (filename, "%s%d.tif.crd", multi_filename[n],i_img+1);
                         printf("reading file: %s\n", filename);
                         fp1 = fopen (filename, "r");
+                        if (! fp1)	continue;
+                        
                         for (i=nfix; i<nfix+k; i++)
                             fscanf (fp1, "%d %lf %lf",
                                     &crd[i_img][i].pnr,
@@ -1051,6 +1059,8 @@ int calibration_proc_c (int sel)
                         nfix += k;
                         fclose (fp1);
                     }
+                    
+                    printf("nfix = %d\n",nfix);
                     
                     /* resection */
                     /*Beat Mai 2007*/
@@ -1063,6 +1073,8 @@ int calibration_proc_c (int sel)
                     {
                         /* first crd->pix */
                         metric_to_pixel (crd[i_img][i].x, crd[i_img][i].y, imx,imy, pix_x,pix_y, &pix[i_img][i].x, &pix[i_img][i].y, chfield);
+                        
+                        // printf("%d %f %f \n",i,pix[i_img][i].x, pix[i_img][i].y);
                         /*then draw crosses*/
                         //intx1 = (int) pix[i_img][i].x;
                         //inty1 = (int) pix[i_img][i].y;
@@ -1073,7 +1085,11 @@ int calibration_proc_c (int sel)
                         
                     }
                     
-                    
+                    printf("read all the files successfully, nfix = %d\n",nfix);
+                    printf("last line is:\n");
+                    printf("%d %f %f \n",nfix-1,pix[i_img][nfix-1].x, pix[i_img][nfix-1].y);
+                    printf("===============================\n");
+                                        
                     orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], mmp,
                                nfix, fix, crd[i_img],
                                &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img);
