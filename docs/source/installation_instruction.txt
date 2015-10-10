@@ -63,11 +63,13 @@ Installing on Ubuntu (12.04):
 
 	$ bash Anaconda-2.1.0-Linux-x86.sh
 
-restart the bash terminal and update the packages::
+restart the bash terminal and update the packages (some might be already installed) ::
 
 	 conda update conda
 	 conda update anaconda
 	 conda install cython
+	 conda install chaco
+	 conda install wxpython
 
 #. Get OpenPTV library `liboptv`::  
 
