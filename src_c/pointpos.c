@@ -19,25 +19,6 @@ Routines contained:
 #include "ptv.h"
 #include "lsqadj.h"
 
-void dist_to_ray(x, y, Ex, I, G, ap, mm, Xp,Yp,Zp, dist)
-
-Exterior	Ex;
-Interior	I;
-Glass   	G;
-ap_52		ap;
-mm_np		mm;
-double		x, y,Xp,Yp,Zp, *dist;
-{
-  double    gX[4],gY[4],gZ[4],a[4],b[4],c[4];
-  double    x01,x02,x03,x12,x13,x23;
-  double    y01,y02,y03,y12,y13,y23;
-  double    z01,z02,z03,z12,z13,z23;
-  
-    
-  	
-  *dist=1;
-
-}
  
 void pos_from_ray(Ex, I, G, ap, mm, x1, y1, x2, y2, x3, y3, x4, y4, Xp, Yp, Zp, dist)
 

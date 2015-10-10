@@ -127,7 +127,6 @@ void init_mmLUT ();
 
 void correspondences_4();
 void pos_from_ray();
-void dist_to_ray();
  void ray_tracing();
 void point_line_line();
  void dot();
