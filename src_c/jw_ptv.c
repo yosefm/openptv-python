@@ -673,9 +673,9 @@ int calibration_proc_c (int sel)
                 fclose (fp1);
                 nfix = k;
                 
-                /* read initial guess orientation from the ori files, no add params */
-                read_ori (&Ex[i], &I[i], &G[i], img_ori0[i], &(ap[i]), 
-                    img_addpar0[i], "addpar.raw");
+                /* get approx for orientation and ap */
+                UPDATE_CALIBRATION(i, &Ex[i], &I[i], &G[i], img_ori0[i], &(ap[i]), 
+                    img_addpar0[i], "addpar.raw")
                 
                 /* presenting detected points by back-projection */
                 just_plot (Ex[i], I[i], G[i], ap[i], nfix, fix, i, cpar);
@@ -717,8 +717,8 @@ int calibration_proc_c (int sel)
                 }
                 
                 /* raw orientation with 4 points */
-                raw_orient_v3 (Ex[i], I[i], G[i], ap[i], *(cpar->mm), 4, fix4, crd0[i], 
-                    &Ex[i], &G[i], i, 0);
+                raw_orient_v3 (glob_cal[i], cpar->mm, 4, fix4, crd0[i], 
+                    &glob_cal[i], i, 0);
                 sprintf (filename, "raw%d.ori", i);
                 write_ori (Ex[i], I[i], G[i], ap[i], filename, NULL); /*ap ignored*/
                 
@@ -878,10 +878,9 @@ int calibration_proc_c (int sel)
                 /* ================= */
                 printf ("examine=%d\n",examine);
                 if (examine != 4) {
-                    orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], *(cpar->mm),
-                               nfix, fix, crd[i_img],
-                               &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img,
-                               resid_x, resid_y, pixnr, orient_n + i_img);
+                    orient_v3 (glob_cal[i_img], cpar, nfix, fix, crd[i_img],
+                        &glob_cal[i_img], i_img, resid_x, resid_y, pixnr,
+                        orient_n + i_img);
                     for (i = 0; i < orient_n[i_img]; i++) {
                         orient_x1[i_img][i] = pix[i_img][pixnr[i]].x;
                         orient_y1[i_img][i] = pix[i_img][pixnr[i]].y;
@@ -960,11 +959,9 @@ int calibration_proc_c (int sel)
                     }
                     
                     
-                    orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], *(cpar->mm),
-                               nfix, fix, crd[i_img],
-                               &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img,
-                               resid_x, resid_y, pixnr,
-                               orient_n + i_img);
+                    orient_v3 (glob_cal[i_img], cpar, nfix, fix, crd[i_img],
+                        &glob_cal[i_img], i_img, resid_x, resid_y, pixnr,
+                        orient_n + i_img);
                     for (i = 0; i < orient_n[i_img]; i++) {
                         orient_x1[i_img][i] = pix[i_img][pixnr[i]].x;
                         orient_y1[i_img][i] = pix[i_img][pixnr[i]].y;
@@ -1024,10 +1021,9 @@ int calibration_proc_c (int sel)
             
 			for (i_img = 0; i_img < cpar->num_cams; i_img++)
 			{
-                orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], *(cpar->mm),
-                           nfix, fix, crd[i_img],
-                           &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img,
-                           resid_x, resid_y, pixnr, orient_n + i_img);
+                orient_v3 (glob_cal[i_img], cpar, nfix, fix, crd[i_img],
+                    &glob_cal[i_img], i_img, resid_x, resid_y, pixnr, 
+                    orient_n + i_img);
                 for (i = 0; i < orient_n[i_img]; i++) {
                     orient_x1[i_img][i] = pix[i_img][pixnr[i]].x;
                     orient_y1[i_img][i] = pix[i_img][pixnr[i]].y;
