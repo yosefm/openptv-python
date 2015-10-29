@@ -61,7 +61,7 @@ cdef extern from "globals.h": # to lose the declspec
     void read_ascii_data(int filenumber)
     int determination_proc_c (int dumbbell)
 
-    int mouse_proc_c (int click_x, int click_y, int kind, int num_image, volume_par *vpar, control_par *cpar)
+    int mouse_proc_c (int click_x, int click_y, int kind, int num_image, volume_par *vpar, control_par *cpar, c_calibration *cals)
     target *p[4]
     target pix[4][20240]
     coord_2d geo[4][20240]
@@ -365,7 +365,7 @@ def py_right_click(int coord_x, int coord_y, n_image):
     x2_points,y2_points,x1,y1,x2,y2=[],[],[],[],[],[]
     
     cdef volume_par *vpar = read_volume_par("parameters/criteria.par")
-    r = mouse_proc_c (coord_x, coord_y, 3, n_image, vpar, cpar)
+    r = mouse_proc_c (coord_x, coord_y, 3, n_image, vpar, cpar, glob_cal)
     free(vpar)
     
     if r == -1:
@@ -389,7 +389,7 @@ def py_determination_proc_c(dumbbell):
     determination_proc_c (<int>dumbbell)
 
 def py_rclick_delete(coord_x,coord_y,n_image):
-    mouse_proc_c(<int>coord_x, <int> coord_y, 4,<int>n_image, NULL, NULL)
+    mouse_proc_c(<int>coord_x, <int> coord_y, 4,<int>n_image, NULL, NULL, NULL)
 
 def py_get_pix_N(x,y,n_image):
     global pix

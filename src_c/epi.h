@@ -13,8 +13,8 @@ typedef struct {
 
 double epi_line(double xl, double yl, Exterior Ex1, Interior I1, Glass G1,
     Exterior Ex2, Interior I2, Glass G2);
-int  epi_mm(int cam, double xl, double yl, Exterior Ex1, Interior I1, Glass G1,
-    Exterior Ex2, Interior I2, Glass G2, mm_np mmp, volume_par *vpar,
+int epi_mm (double x1, double y1, Calibration *cal_orig, Calibration *cal_proj,
+    control_par *cpar, volume_par *vpar, 
     double *xmin, double *ymin, double *xmax, double *ymax);
 int  epi_mm_2D(double xl, double yl, Exterior Ex1, Interior I1, Glass G1,
     mm_np mmp, volume_par *vpar, double *xout, double *yout, double *zout);

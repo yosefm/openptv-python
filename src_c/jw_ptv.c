@@ -108,6 +108,7 @@ Calibration glob_cal[4];
 #define UPDATE_CALIBRATION(num_cam, extp, intp, gp, imgo, app, imga, fn) \
   read_ori((extp), (intp), (gp), (imgo), (app), (imga), (fn));\
   memcpy(&(glob_cal[num_cam].ext_par), (extp), sizeof(Exterior));\
+  rotation_matrix(&(glob_cal[num_cam].ext_par));\
   memcpy(&(glob_cal[num_cam].int_par), (intp), sizeof(Interior));\
   memcpy(&(glob_cal[num_cam].glass_par), (gp), sizeof(Glass));\
   memcpy(&(glob_cal[num_cam].added_par), (app), sizeof(ap_52));\
@@ -146,6 +147,7 @@ int init_proc_c()
     /*  read from main parameter file  */
     cpar = read_control_par("parameters/ptv.par");
     cpar->mm->nlay = 1;
+    cpar->mm->lut = 0;
     
     for (i=0; i<4; i++)
     {
@@ -226,6 +228,7 @@ int start_proc_c()
     /*  read from main parameter file  */
     cpar = read_control_par("parameters/ptv.par");
     cpar->mm->nlay = 1;
+    cpar->mm->lut = 0;
     
     for (i=0; i<4; i++)
     {
@@ -442,9 +445,10 @@ int correspondences_proc_c (char **img_base_names, int frame)
                 pix[i_img][i].x, pix[i_img][i].y, cpar);
             crd[i_img][i].pnr = pix[i_img][i].pnr;
             
-            x = crd[i_img][i].x - I[i_img].xh;
-            y = crd[i_img][i].y - I[i_img].yh;
-            correct_brown_affin (x, y, ap[i_img], &geo[i_img][i].x, &geo[i_img][i].y);
+            x = crd[i_img][i].x - glob_cal[i_img].int_par.xh;
+            y = crd[i_img][i].y - glob_cal[i_img].int_par.yh;
+            correct_brown_affin (x, y, glob_cal[i_img].added_par, 
+                &geo[i_img][i].x, &geo[i_img][i].y);
             
             geo[i_img][i].pnr = crd[i_img][i].pnr;
         }
@@ -464,7 +468,7 @@ int correspondences_proc_c (char **img_base_names, int frame)
         lut_inited = 1;
     }
     
-    correspondences_4 (vpar, cpar);
+    correspondences_4 (vpar, cpar, glob_cal);
     
     /* --------------- */
     /* save pixel coords for tracking */

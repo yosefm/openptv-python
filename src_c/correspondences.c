@@ -23,7 +23,7 @@ Description:	       	establishment of correspondences for 2/3/4 cameras
 /*--------------- 4 camera model: consistent quadruplets -------------------*/
 /****************************************************************************/
 
-void correspondences_4 (volume_par *vpar, control_par *cpar)
+void correspondences_4 (volume_par *vpar, control_par *cpar, Calibration cals[])
 {
   int 	i,j,k,l,m,n,o,  i1,i2,i3;
   int   count, match0=0, match4=0, match3=0, match2=0, match1=0;
@@ -95,9 +95,8 @@ void correspondences_4 (volume_par *vpar, control_par *cpar)
      /* establish correspondences from num[i1] points of img[i1] to img[i2] */
 
       for (i=0; i<num[i1]; i++)	if (geo[i1][i].x != -999) {
-      o = epi_mm (i2, geo[i1][i].x,geo[i1][i].y,
-		      Ex[i1], I[i1], G[i1], Ex[i2], I[i2], G[i2], *(cpar->mm), vpar,
-		      &xa12, &ya12, &xb12, &yb12);
+      o = epi_mm (geo[i1][i].x, geo[i1][i].y, &(cals[i1]), &(cals[i2]), 
+          cpar, vpar, &xa12, &ya12, &xb12, &yb12);
 	  
     /////ich glaube, da muss ich einsteigen, wenn alles erledigt ist.
 	  ///////mit bild_1 x,y Epipole machen und dann selber was schreiben um die Distanz zu messen.

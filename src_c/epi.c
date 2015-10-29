@@ -7,6 +7,7 @@
 
 #include <optv/lsqadj.h>
 #include <optv/ray_tracing.h>
+#include <optv/imgcoord.h>
 
 int dumbbell_pyptv;
 
@@ -58,21 +59,20 @@ Glass     G1, G2;
 /* epi_mm() finds epipolar line search window.
    
    Arguments:
-   int cam - number of the camera on which the epipolar line is drawn. Only
-      needed if the LUT structure is used.
    double x1, y1 - image-plane coordinate of point in 1st image.
-   Exterior Ex1, Interior I1, Glass G1 - calibration of the camera from which
-      the line emanates
-   Exterior Ex2, Interior I2, Glass G2 - calibration of the camera on which 
-      the epipolar line is drawn.
-   mm_np mmp - multimed param. (layers)
+   Calibration *cal_orig - calibration of the camera from which the line 
+      emanates.
+   Calibration *cal_proj - calibration of the camera on which the epipolar 
+      line is drawn.
+   control_par *cpar - holding multimedia parameters (layers thickness and 
+      refraction index)
    volume_par *vpar - parameters of the observed volume
    
    Output parameters:
    double *xmin, *ymin, *xmax, *ymax - output search window.
 */
-int epi_mm (int cam, double x1, double y1, Exterior Ex1, Interior I1, Glass G1,
-    Exterior Ex2, Interior I2, Glass G2, mm_np mmp, volume_par *vpar, 
+int epi_mm (double x1, double y1, Calibration *cal_orig, Calibration *cal_proj,
+    control_par *cpar, volume_par *vpar, 
     double *xmin, double *ymin, double *xmax, double *ymax)
 {
   /*  ray tracing gives the point of exit and the direction
@@ -84,12 +84,8 @@ int epi_mm (int cam, double x1, double y1, Exterior Ex1, Interior I1, Glass G1,
   double a[3], xa,ya,xb,yb;
   double X1[3], X[3];
   double Zmin, Zmax;
-  Calibration cal1;
-  memcpy(&(cal1.ext_par), &Ex1, sizeof(Exterior));\
-  memcpy(&(cal1.int_par), &I1, sizeof(Interior));\
-  memcpy(&(cal1.glass_par), &G1, sizeof(Glass));\
 
-  ray_tracing(x1,y1, &(cal1), mmp, X1, a);
+  ray_tracing(x1, y1, cal_orig, *(cpar->mm), X1, a);
 
   /* calculate min and max depth for position (valid only for one setup) */
   Zmin = vpar->Zmin_lay[0]
@@ -102,12 +98,12 @@ int epi_mm (int cam, double x1, double y1, Exterior Ex1, Interior I1, Glass G1,
   X[2] = Zmin; \
   X[1] = X1[1] + (X[2] - X1[2]) * a[1]/a[2]; \
   X[0] = X1[0] + (X[2] - X1[2]) * a[0]/a[2]; \
-  img_xy_mm_geo(cam, X[0], X[1], X[2], Ex2, I2, G2, mmp, &xa, &ya);
+  img_xy_mm_geo(X, cal_proj, cpar->mm, &xa, &ya);
 
   X[2] = Zmax; \
   X[1] = X1[1] + (X[2] - X1[2]) * a[1]/a[2]; \
   X[0] = X1[0] + (X[2] - X1[2]) * a[0]/a[2]; \
-  img_xy_mm_geo(cam, X[0], X[1], X[2], Ex2, I2, G2, mmp, &xb, &yb);
+  img_xy_mm_geo(X, cal_proj, cpar->mm, &xb, &yb);
 
   /*  ==> window given by xa,ya,xb,yb  */
 

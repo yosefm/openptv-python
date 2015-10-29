@@ -1,6 +1,7 @@
 #include "ptv.h"
 #include <optv/parameters.h>
 #include <optv/trafo.h>
+#include <optv/calibration.h>
 #include "epi.h"
 #include "tools.h"
 
@@ -9,8 +10,9 @@ int rclick_intx1[4], rclick_inty1[4], rclick_intx2[4], rclick_inty2[4],\
     rclick_points_x1[4][10000], rclick_points_y1[4][10000], rclick_count[4],\
     rclick_points_intx1, rclick_points_inty1;
 
-int mouse_proc_c (int click_x, int click_y, int kind, int num_image, volume_par *vpar, \
-	control_par *cpar){
+int mouse_proc_c (int click_x, int click_y, int kind, int num_image,
+    volume_par *vpar, control_par *cpar, Calibration cals[])
+{
   int     i, j, n, zf;
   double  x, y;
   double  xa12, xb12, ya12, yb12;
@@ -39,9 +41,10 @@ int mouse_proc_c (int click_x, int click_y, int kind, int num_image, volume_par 
       y = (float) (click_y - cpar->imy/2)/zoom_f[n] + zoom_y[n];
 
       pixel_to_metric (&x, &y, x,y, cpar);
-      x -= I[n].xh;	y -= I[n].yh;
-      correct_brown_affin (x, y, ap[n], &x, &y);
-      
+      x -= cals[n].int_par.xh;
+      y -= cals[n].int_par.yh;
+      correct_brown_affin (x, y, cals[n].added_par, &x, &y);
+    
       k = nearest_neighbour_geo (geo[n], num[n], x, y, 0.05);
       
       if (k == -999){	  
@@ -63,8 +66,7 @@ int mouse_proc_c (int click_x, int click_y, int kind, int num_image, volume_par 
 	       	       	       
 	       for (i = 0; i < cpar->num_cams; i++) if (i != n) {
 		   /* calculate epipolar band in img[i] */
-		   epi_mm (i, geo[n][k].x,geo[n][k].y,
-			   Ex[n],I[n], G[n], Ex[i],I[i], G[i], *(cpar->mm), vpar,
+		   epi_mm (geo[n][k].x, geo[n][k].y, &(cals[n]), &(cals[i]), cpar, vpar,
 			   &xa12, &ya12, &xb12, &yb12);
 		   
 		   /* search candidate in img[i] */
@@ -74,10 +76,13 @@ int mouse_proc_c (int click_x, int click_y, int kind, int num_image, volume_par 
 					    pix[n][pt1].n, pix[n][pt1].nx, pix[n][pt1].ny,
 					    pix[n][pt1].sumg, cand, &count, i, vpar, cpar);
 
-		   distort_brown_affin (xa12,ya12, ap[i], &xa12,&ya12);
-		   distort_brown_affin (xb12,yb12, ap[i], &xb12,&yb12);
-		   xa12 += I[i].xh;	ya12 += I[i].yh;
-		   xb12 += I[i].xh;	yb12 += I[i].yh;
+		   distort_brown_affin (xa12,ya12, cals[i].added_par, &xa12,&ya12);
+		   distort_brown_affin (xb12,yb12, cals[i].added_par, &xb12,&yb12);
+           
+		   xa12 += cals[i].int_par.xh;
+           ya12 += cals[i].int_par.yh;
+		   xb12 += cals[i].int_par.xh;
+           yb12 += cals[i].int_par.yh;
             
 		   metric_to_pixel(&xa12, &ya12, xa12, ya12, cpar);
 		   metric_to_pixel(&xb12, &yb12, xb12, yb12, cpar);
