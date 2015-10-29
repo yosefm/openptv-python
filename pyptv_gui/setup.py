@@ -27,8 +27,7 @@ inc_dirs = [np.get_include()]
 ext_mods = [
     Extension("ptv1", ["ptv1.pyx", "segmentation.c", "tools.c",
         "image_processing.c", "jw_ptv.c", "peakfitting.c", 
-        "correspondences.c", "epi.c", "multimed.c", 
-        "imgcoord.c", "orientation.c","sortgrid.c",
+        "correspondences.c", "epi.c", "orientation.c","sortgrid.c",
         "pointpos.c", "intersect.c", "track.c", "ttools.c", "draw.c",
         "mousefunction.c", "tracking_run.c"],
         include_dirs=inc_dirs, libraries=['optv'], extra_compile_args=['-O3'],

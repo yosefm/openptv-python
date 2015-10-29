@@ -25,11 +25,15 @@ Description:	       	reads objects, detected by detection etc.,
 
 #include <optv/parameters.h>
 #include <optv/trafo.h>
+#include <optv/imgcoord.h>
+#include <optv/vec_utils.h>
 
-void just_plot (Exterior Ex, Interior I, Glass G, ap_52 ap, 
-    int nfix, coord_3d fix[], int n_img, control_par *cpar) {
+void just_plot (Calibration *cal, int nfix, coord_3d fix[], int n_img,
+    control_par *cpar) 
+{
   int	       	i;
   double       	xp, yp;
+  vec3d pos;
   
   ncal_points[n_img]=nfix;
   
@@ -37,8 +41,7 @@ void just_plot (Exterior Ex, Interior I, Glass G, ap_52 ap,
      and search a detected target nearby */
   
   for (i=0; i<nfix; i++) {
-      img_coord (n_img, fix[i].x, fix[i].y, fix[i].z,  Ex, I, G, ap, 
-          *(cpar->mm), &xp, &yp);
+      img_coord (pos, cal, cpar->mm, &xp, &yp);
       metric_to_pixel (&xp, &yp, xp, yp, cpar);
       
       /* draw projected points for check purpuses */
@@ -74,12 +77,13 @@ double 	x, y, eps;
 }
 
 
-void sortgrid_man (Exterior Ex, Interior I, Glass G, ap_52 ap, 
-    int nfix, coord_3d fix[], int num, target pix[], int n_img, 
-    control_par *cpar) {
+void sortgrid_man (Calibration *cal, int nfix, coord_3d fix[], int num, 
+    target pix[], int n_img, control_par *cpar) 
+{
   int	       	i, j;
   double       	xp, yp, eps=10.0;
   target       	old[1024];
+  vec3d pos;
   FILE *fpp;
   
   /* copy and re-initialize pixel data before sorting */
@@ -108,8 +112,8 @@ void sortgrid_man (Exterior Ex, Interior I, Glass G, ap_52 ap,
      and search a detected target nearby */
   
   for (i=0; i<nfix; i++) {
-      img_coord (n_img, fix[i].x, fix[i].y, fix[i].z,  Ex, I, G, ap, 
-        *(cpar->mm), &xp, &yp);
+      vec_set(pos, fix[i].x, fix[i].y, fix[i].z);
+      img_coord (pos, cal, cpar->mm, &xp, &yp);
       metric_to_pixel (&xp, &yp, xp, yp, cpar);
       
       /* draw projected points for check purpuses */
@@ -118,6 +122,7 @@ void sortgrid_man (Exterior Ex, Interior I, Glass G, ap_52 ap,
 
       if (xp > -eps  &&  yp > -eps  &&  xp < cpar->imx + eps  &&  yp < cpar->imy + eps) {
 	  j = nearest_neighbour_pix (old, num, xp, yp, eps);
+      printf("closest: %d\n", j);
 	  
 	  if (j != -999)
 	    {

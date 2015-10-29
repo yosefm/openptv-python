@@ -21,6 +21,7 @@
 #include <optv/calibration.h>
 #include <optv/parameters.h>
 #include <optv/trafo.h>
+#include <optv/multimed.h>
 
 #include "tools.h"
 #include "image_processing.h"
@@ -459,7 +460,7 @@ int correspondences_proc_c (char **img_base_names, int frame)
     {
         puts ("Init multimedia displacement LUTs");
         for (i_img = 0; i_img < cpar->num_cams; i_img++) 
-            init_mmLUT(i_img, glob_cal + i_img, cpar);
+            init_mmlut(vpar, cpar, &(glob_cal[i_img]));
         lut_inited = 1;
     }
     
@@ -723,8 +724,8 @@ int calibration_proc_c (int sel)
                 write_ori (Ex[i], I[i], G[i], ap[i], filename, NULL); /*ap ignored*/
                 
                 /* sorting of detected points by back-projection */
-                sortgrid_man (Ex[i], I[i], G[i], ap[i], nfix, fix, num[i], 
-                    pix[i], i, cpar);
+                sortgrid_man (&(glob_cal[i]), nfix, fix, num[i], pix[i], i, 
+                    cpar);
                 
                 /* adapt # of detected points */
                 num[i] = nfix;
