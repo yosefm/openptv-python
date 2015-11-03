@@ -1060,10 +1060,11 @@ int calibration_proc_c (int sel)
         case 12: puts ("Orientation from dumbbells"); strcpy(buf, "");
 			
             prepare_eval(cpar, &nfix); //goes and looks up what sequence is defined and takes all cord. from rt_is
-            orient_v5 (cpar, nfix, &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img]);
+            orient_v5 (cpar, nfix, glob_cal);
 			
             for(i_img = 0; i_img < cpar->num_cams; i_img++){
-                write_ori (Ex[i_img], I[i_img], G[i_img], ap[i_img],
+                write_ori (glob_cal[i_img].ext_par, glob_cal[i_img].int_par, 
+                    glob_cal[i_img].glass_par, glob_cal[i_img].added_par,
                     img_ori[i_img], img_addpar[i_img]);
             }
 			
@@ -1071,7 +1072,6 @@ int calibration_proc_c (int sel)
             
     }
     
-    //  return TCL_OK;
     return 0;
 }
 
