@@ -1156,6 +1156,7 @@ int sequence_proc_loop_c  (int dumbbell,int i)
     
     int step_shake;
     int j,k,pft_version = 3,ok;
+    char *seq_name_ptrs[4] = {seq_name[0], seq_name[1], seq_name[2], seq_name[3]};
     
     slice_step=seq_slice_step;
     slicethickness=seq_slicethickness;
@@ -1225,7 +1226,7 @@ int sequence_proc_loop_c  (int dumbbell,int i)
 		detection_proc_c (NULL); // added i to the detection_proc_c to get 'filenumber' for external API, Alex, 19.04.10
     }
     
-    correspondences_proc_c (seq_name, i);
+    correspondences_proc_c (seq_name_ptrs, i);
     
     if (cpar->num_cams > 1) {
 		determination_proc_c (dumbbell);
