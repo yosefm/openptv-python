@@ -79,7 +79,7 @@ int epi_mm (double x1, double y1, Calibration *cal_orig, Calibration *cal_proj,
       cosines at the waterside of the glass;
       min. and max. depth give window in object space,
       which can be transformed into _2 image
-      (use img_xy_mm because of comparison with img_geo)  */
+      (use flat_image_coord because of comparison with img_geo)  */
 
   double a[3], xa,ya,xb,yb;
   double X1[3], X[3];

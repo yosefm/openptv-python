@@ -87,7 +87,6 @@ extern coord_2d crd[4][nmax];   /* (distorted) metric coordinates */
 extern coord_2d geo[4][nmax];   /* corrected metric coordinates */
 extern coord_3d	fix[];          /* testfield points coordinates */
 extern n_tupel  con[];          /* list of correspondences */
-extern mm_LUT   mmLUT[4];       /* LUT for mm radial displacement */
 extern coord_3d *p_c3d;
 extern target   *p[4];
 extern target   *c[4];
@@ -97,14 +96,6 @@ extern corres  	*corrc;
 extern corres  	*corrn;
 
 // General functions:
-void multimed_nlay ();
-void multimed_nlay_v2 ();
-void trans_Cam_Point ();
-void back_trans_Point ();
-
-void img_xy_mm_geo ();
-void init_mmLUT ();
-
 void correspondences_4();
 void pos_from_ray();
 void dist_to_ray();
