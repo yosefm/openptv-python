@@ -35,7 +35,7 @@ control_par *cpar;
   int     		n_wait;	      	      /* size of waitlist for connectivity */
   int	       	x8[8], y8[8];  	      /* neighbours for connectivity */
   int	       	p2;	       	      /* considered point number */
-  int	      	sumg_min, gvthres[4], thres, disco, nxmin,nxmax, nymin,nymax, nnmin, nnmax;
+  int	      	sumg_min, gvthres[4], thres, disco, nxmin,nxmax, nymin,nymax, nnmin, nnmax, cr_sz;
   /* parameters for target acceptance */
   int           pnr, sumg, xn, yn;	/* collecting variables for center of gravity */
   int         	n_target=0;	/* # of targets detected */
@@ -53,9 +53,11 @@ control_par *cpar;
   peak	       	*peaks, *ptr_peak;    /* detected peaks */
   targpix       waitlist[2048];     /* pix to be tested for connectivity */
   FILE   	*fpp;	       	/* parameter file pointer */
+  int imgsize;
   
   imx = cpar->imx;
   imy = cpar->imy;
+  imgsize = imx*imy;
   
   /* read image name, threshold and shape limits from parameter file */
 
@@ -365,6 +367,7 @@ control_par *cpar;
 
 
   /* get number of touch events */
+  /*
   if (examine==10)
     {
       for (x=0,i=0; i<n_target; i++)
@@ -383,7 +386,8 @@ control_par *cpar;
       y = 2*n_target*n_target*x/imgsize;
       printf ("expected number of touch events: %6.0f\n", y);
     }
-
+  */
+  
   free (label_img);
   free (peaks);
 
