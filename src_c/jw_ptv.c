@@ -112,6 +112,8 @@ Calibration glob_cal[4];
   memcpy(&(glob_cal[num_cam].glass_par), (gp), sizeof(Glass));\
   memcpy(&(glob_cal[num_cam].added_par), (app), sizeof(ap_52));\
 
+int seq_step_shake;
+
 int             x_calib[4][1000];
 int             y_calib[4][1000];
 int             z_calib[4][1000];
@@ -721,7 +723,7 @@ int calibration_proc_c (int sel)
                 }
                 
                 /* raw orientation with 4 points */
-                raw_orient_v3 (glob_cal[i], cpar->mm, 4, fix4, crd0[i], 
+                raw_orient_v3 (glob_cal[i], cpar, 4, fix4, crd0[i], 
                     &glob_cal[i], i, 0);
                 sprintf (filename, "raw%d.ori", i);
                 write_ori (Ex[i], I[i], G[i], ap[i], filename, NULL); /*ap ignored*/

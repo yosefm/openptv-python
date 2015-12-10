@@ -4,6 +4,7 @@
 #include "typedefs.h"
 #include <optv/tracking_frame_buf.h>
 #include <optv/calibration.h>
+#include <optv/epi.h>
 #include <stdio.h>
 
 #ifndef GLOBALS_H

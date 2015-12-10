@@ -23,13 +23,6 @@ coord_3d;
 
 typedef struct
 {
-  int pnr;
-  double x, y;
-}
-coord_2d;
-
-typedef struct
-{
   double n1,n2,n3,d;
   int    lut;
 }

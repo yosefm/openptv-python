@@ -17,6 +17,7 @@ Routines contained:     pix_in_next, candsearch_in_pix, searchposition,
 ****************************************************************************/
 #include "ptv.h"
 #include <optv/imgcoord.h>
+#include <optv/vec_utils.h>
 #include <optv/parameters.h>
 #include <optv/trafo.h>
 #include <optv/vec_utils.h>
@@ -235,11 +236,14 @@ control_par *cpar;
       xl[i] = cpar->imx;
       yd[i]=0;
       yu[i] = cpar->imy;
-      img_coord (point, &glob_cal[i], cpar->mm, &xz,&yz);
+      
+      vec_set(pos, point.x, point.y, point.z);
+      img_coord (pos, &(glob_cal[i]), cpar->mm, &xz, &yz);
       metric_to_pixel (&xz, &yz, xz, yz, cpar);
 
-      for (pt = 0; pt < 8; pt++) {
-        img_coord (quader[pt], &glob_cal[i], cpar->mm, &x,&y);
+      for (k=0; k<8; k++) {
+        vec_set(pos, quader[k].x, quader[k].y, quader[k].z);
+        img_coord (pos, &(glob_cal[i]), cpar->mm, &x, &y);
 	    metric_to_pixel (&x, &y, x, y, cpar);
 
 	    if (x <xl[i] ) xl[i]=x;
