@@ -90,7 +90,7 @@ int	       	nr;		       	/* image number for display */
 
   /*------------------------------------------------------------------------*/
 
-  puts("Searching local maxima, connectivity analysis, peak factor 2 set");
+  // puts("Searching local maxima, connectivity analysis, peak factor 2 set");
 
   for (i=ymin; i<ymax-1; i++)  for (j=xmin; j<xmax; j++)//Beat Lüthi Jan 09 I changed to (i=ymin; i<ymax-1; i++), new:-1
     {
@@ -198,7 +198,7 @@ int	       	nr;		       	/* image number for display */
 
   /*------------------------------------------------------------------------*/
 
-  puts("Collecting peak data");
+  // puts("Collecting peak data");
 
   for (i=ymin; i<ymax; i++)  for (j=xmin; j<xmax; j++)
     {
@@ -241,7 +241,7 @@ int	       	nr;		       	/* image number for display */
 
   /*------------------------------------------------------------------------*/
 
-  puts("Unifying targets");
+  // puts("Unifying targets");
 
   for (i=0; i<n_peaks; i++)
     {
@@ -309,7 +309,7 @@ int	       	nr;		       	/* image number for display */
 
   /*------------------------------------------------------------------------*/
 
-  puts("Calculate centers of gravity");
+  // puts("Calculate centers of gravity");
 
   for (i=0; i<n_peaks; i++)
     {
