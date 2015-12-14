@@ -127,8 +127,6 @@ void correspondences_4 (volume_par *vpar, control_par *cpar)
   /* ------------------------------------------------------------------ */
   /* search consistent quadruplets in the list */
   if (cpar->num_cams == 4) {
-      printf ("Search consistent quadruplets\n");
-	printf("num0=%d\n",num[0]);
       for (i=0, match0=0; i<num[0]; i++)
 	{
 	  p1 = list[0][1][i].p1;
@@ -392,7 +390,5 @@ match1_g=match1;
         free (list[i1][i2]);
 
   free (con0);
-
-  printf ("End of correspondences_4, done \n ");
 }
 

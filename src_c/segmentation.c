@@ -37,9 +37,6 @@ int    		field;	       	/* field to be used */
 
   register unsigned char *ptr1, *ptr2, *ptr3;
 
-printf("image_size_orig = %d\n",imgsize);
-  printf("inside highpass2\n");
-printf ("dim_lp = %d\n", dim_lp);
 
   img_lp = (unsigned char *) calloc (imgsize, 1);
   if ( ! img_lp)
@@ -47,9 +44,7 @@ printf ("dim_lp = %d\n", dim_lp);
       puts ("calloc for img_lp --> error");
       exit (1);
     }
-  printf("after img_lp\n");
   unsharp_mask (dim_lp, img, img_lp);
-  printf("after unsharpen_mask\n");
 
   for (ptr1=img, ptr2=img_lp, ptr3=img_hp, i=0; i<imgsize;
        ptr1++, ptr2++, ptr3++, i++)
