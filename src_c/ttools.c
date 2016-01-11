@@ -16,9 +16,10 @@ Routines contained:     pix_in_next, candsearch_in_pix, searchposition,
 
 ****************************************************************************/
 #include "ptv.h"
-#include "imgcoord.h"
+#include <optv/imgcoord.h>
 #include <optv/parameters.h>
 #include <optv/trafo.h>
+#include <optv/vec_utils.h>
 
 int pix_in_next (next, num, x, y, dl, dr, du, dd, found)
 target  next[];
@@ -203,76 +204,47 @@ double x1, y1, x2, y2, *x3, *y3;
   return;
 }
 
-void searchquader(X, Y, Z, xr, xl, yd, yu, tpar, cpar)
-double X, Y, Z, xr[4], xl[4], yd[4], yu[4];
+void searchquader(point, xr, xl, yd, yu, tpar, cpar)
+vec3d point;
+double xr[4], xl[4], yd[4], yu[4];
 track_par *tpar;
 control_par *cpar;
 {
-  int k, i;
+  int i, pt, dim;
+  double X, Y, Z;
   double x, y, xz, yz;
-  coord_3d quader[8], point;
+  vec3d quader[8];
 
-  /* project quader in image space to define search area */
-  for (k=0; k<8; k++)
-    {
-      quader[k].pnr=k;
+  /* 3D positions of search volume - eight corners of a box */
+  for (pt = 0; pt < 8; pt++) {
+    vec_copy(quader[pt], point);
+    for (dim = 0; dim < 3; dim++) {
+        if (pt & 1<<dim) {
+            quader[pt][dim] += tpar->dvxmax;
+        } else {
+            quader[pt][dim] += tpar->dvxmin;
+        }
     }
-  /* calculation of quader points */
-  point.pnr=0; point.x=X; point.y=Y; point.z=Z;
+  }
 
-    quader[0].x = X + tpar->dvxmin;
-    quader[0].y = Y + tpar->dvymin;
-    quader[0].z = Z + tpar->dvzmin; /* --- */
-    
-    quader[1].x = X + tpar->dvxmax;
-    quader[1].y = Y + tpar->dvymin;
-    quader[1].z = Z + tpar->dvzmin; /* +-- */
-    
-    quader[2].x = X + tpar->dvxmin;
-    quader[2].y = Y + tpar->dvymax;
-    quader[2].z = Z + tpar->dvzmin; /* -+- */
-    
-    quader[3].x = X + tpar->dvxmin;
-    quader[3].y = Y + tpar->dvymin;
-    quader[3].z = Z + tpar->dvzmax; /* --+ */ //changed by Beat and JuliAn Nov 2008
-    
-    quader[4].x = X + tpar->dvxmax;
-    quader[4].y = Y + tpar->dvymax;
-    quader[4].z = Z + tpar->dvzmin; /* ++- */
-    
-    quader[5].x = X + tpar->dvxmax;
-    quader[5].y = Y + tpar->dvymin;
-    quader[5].z = Z + tpar->dvzmax; /* +-+ */
-    
-    quader[6].x = X + tpar->dvxmin;
-    quader[6].y = Y + tpar->dvymax;
-    quader[6].z = Z + tpar->dvzmax; /* -++ */
-    
-    quader[7].x = X + tpar->dvxmax;
-    quader[7].y = Y + tpar->dvymax;
-    quader[7].z = Z + tpar->dvzmax; /* +++ */
-
-  /* calculation of search area */
-  for (i = 0; i < cpar->num_cams; i++)
-    {
+  /* calculation of search area in each camera */
+  for (i = 0; i < cpar->num_cams; i++) {
       xr[i]=0;
       xl[i] = cpar->imx;
       yd[i]=0;
       yu[i] = cpar->imy;
-      img_coord (i, point.x, point.y, point.z, 
-        Ex[i], I[i], G[i], ap[i], *(cpar->mm), &xz,&yz);
+      img_coord (point, &glob_cal[i], cpar->mm, &xz,&yz);
       metric_to_pixel (&xz, &yz, xz, yz, cpar);
 
-      for (k=0; k<8; k++) {
-        img_coord (i, quader[k].x, quader[k].y, quader[k].z, 
-            Ex[i], I[i], G[i], ap[i], *(cpar->mm), &x,&y);
-	  metric_to_pixel (&x, &y, x, y, cpar);
+      for (pt = 0; pt < 8; pt++) {
+        img_coord (quader[pt], &glob_cal[i], cpar->mm, &x,&y);
+	    metric_to_pixel (&x, &y, x, y, cpar);
 
-	  if (x <xl[i] ) xl[i]=x;
-	  if (y <yu[i] ) yu[i]=y;
-	  if (x >xr[i] ) xr[i]=x;
-	  if (y >yd[i] ) yd[i]=y;
-	}
+	    if (x <xl[i] ) xl[i]=x;
+	    if (y <yu[i] ) yu[i]=y;
+	    if (x >xr[i] ) xr[i]=x;
+	    if (y >yd[i] ) yd[i]=y;
+	  }
       if (xl[i] < 0 ) xl[i]=0;
       if (yu[i] < 0 ) yu[i]=0;
       if (xr[i] > cpar->imx)
@@ -284,9 +256,7 @@ control_par *cpar;
       xl[i]=xz-xl[i];
       yd[i]=yd[i]-yz;
       yu[i]=yz-yu[i];
-    }
-  return;
-
+  }
 }
 
 

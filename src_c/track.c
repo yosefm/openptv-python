@@ -25,11 +25,12 @@ Routines contained:    	trackcorr_c
 #include <optv/tracking_frame_buf.h>
 #include <optv/parameters.h>
 #include <optv/trafo.h>
+#include <optv/imgcoord.h>
+#include <optv/multimed.h>
 #include "tracking_run.h"
 #include <optv/vec_utils.h>
 #include "tools.h"
 #include "ttools.h"
-#include "imgcoord.h"
 
 /* Global variables marked extern in 'globals.h' and not defined elsewhere: */
 int intx0_tr[4][10000], inty0_tr[4][10000], intx1_tr[4][10000],\
@@ -77,8 +78,9 @@ tracking_run* trackcorr_c_init() {
     ret->lmax = norm((ret->tpar->dvxmin - ret->tpar->dvxmax), \
         (ret->tpar->dvymin - ret->tpar->dvymax), \
         (ret->tpar->dvzmin - ret->tpar->dvzmax));
-    volumedimension (glob_cal, &(ret->vpar->X_lay[1]), &(ret->vpar->X_lay[0]), &(ret->ymax), 
-        &(ret->ymin), &(ret->vpar->Zmax_lay[1]), &(ret->vpar->Zmin_lay[0]), cpar);
+    volumedimension (&(ret->vpar->X_lay[1]), &(ret->vpar->X_lay[0]), &(ret->ymax), 
+        &(ret->ymin), &(ret->vpar->Zmax_lay[1]), &(ret->vpar->Zmin_lay[0]), 
+        ret->vpar, ret->cpar, glob_cal);
 
     // Denis - globals below are used in trackcorr_finish
     npart=0;
@@ -290,16 +292,14 @@ void trackcorr_c_loop (tracking_run *run_info, int step, int display)
             search_volume_center_moving(ref_path_inf->x, curr_path_inf->x, X[2]);
             
 	        for (j = 0; j < fb->num_cams; j++) {
-                img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j], ap[j],
-                    *(cpar->mm), &xn[j], &yn[j]);
+                img_coord(X[2], &glob_cal[j], cpar->mm, &xn[j], &yn[j]);
 		        metric_to_pixel(&x1[j], &y1[j], xn[j], yn[j], cpar);
 	        }
 	    } else {  
             vec_copy(X[2], X[1]);
 	        for (j=0; j < fb->num_cams; j++) {
 	            if (curr_corres->p[j] == -1) {
-                    img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j],
-                        ap[j], *(cpar->mm), &xn[j], &yn[j]);
+                    img_coord(X[2], &glob_cal[j], cpar->mm, &xn[j], &yn[j]);
                     metric_to_pixel(&x1[j], &y1[j], xn[j], yn[j], cpar);
 	            } else {
                     _ix = curr_corres->p[j];
@@ -310,7 +310,7 @@ void trackcorr_c_loop (tracking_run *run_info, int step, int display)
 	    } 
         
 	    /* calculate searchquader and reprojection in image space */
-	    searchquader(X[2][0], X[2][1], X[2][2], xr, xl, yd, yu, tpar, cpar);
+	    searchquader(X[2], xr, xl, yd, yu, tpar, cpar);
 
 	    /* search in pix for candidates in next time step */
 	    for (j = 0; j < fb->num_cams; j++) {
@@ -344,11 +344,10 @@ void trackcorr_c_loop (tracking_run *run_info, int step, int display)
 	        } else {
                 search_volume_center_moving(X[1], X[3], X[5]);
             }
-            searchquader(X[5][0], X[5][1], X[5][2], xr, xl, yd, yu, tpar, cpar);
+            searchquader(X[5], xr, xl, yd, yu, tpar, cpar);
 
 	        for (j = 0; j < fb->num_cams; j++) {
-                img_coord (j, X[5][0], X[5][1], X[5][2], Ex[j],I[j], G[j], ap[j],
-                    *(cpar->mm), &xn[j], &yn[j]);
+                img_coord(X[5], &glob_cal[j], cpar->mm, &xn[j], &yn[j]);
 		        metric_to_pixel(&x2[j], &y2[j], xn[j], yn[j], cpar);
 	        }
 
@@ -411,8 +410,7 @@ void trackcorr_c_loop (tracking_run *run_info, int step, int display)
 	        /* creating new particle position */
 	        /* *************************************************************** */
 	        for (j = 0;j < fb->num_cams; j++) {
-                img_coord (j, X[5][0], X[5][1], X[5][2], Ex[j],I[j], G[j], ap[j],
-                    *(cpar->mm), &xn[j], &yn[j]);
+                img_coord(X[5], &glob_cal[j], cpar->mm, &xn[j], &yn[j]);
 		        metric_to_pixel(&xn[j], &yn[j], xn[j], yn[j], cpar);
 	        }
 
@@ -525,8 +523,7 @@ void trackcorr_c_loop (tracking_run *run_info, int step, int display)
 	    if (tpar->add) {
 	        if ( curr_path_inf->inlist == 0 && curr_path_inf->prev >= 0 ) {
                 for (j = 0; j < fb->num_cams; j++) {
-                    img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j],
-                        ap[j], *(cpar->mm), &xn[j], &yn[j]);
+                    img_coord(X[2], &glob_cal[j], cpar->mm, &xn[j], &yn[j]);
 		            metric_to_pixel(&xn[j], &yn[j], xn[j], yn[j], cpar);
 		            x2[j]=-1e10;
                     y2[j]=-1e10;
@@ -806,8 +803,8 @@ void trackback_c ()
     
     lmax = norm((tpar->dvxmin - tpar->dvxmax), (tpar->dvymin - tpar->dvymax),
 	    (tpar->dvzmin - tpar->dvzmax));
-    volumedimension (glob_cal, &(vpar->X_lay[1]), &(vpar->X_lay[0]), &Ymax,
-        &Ymin, &(vpar->Zmax_lay[1]), &(vpar->Zmin_lay[0]), cpar);
+    volumedimension (&(vpar->X_lay[1]), &(vpar->X_lay[0]), &Ymax,
+        &Ymin, &(vpar->Zmax_lay[1]), &(vpar->Zmin_lay[0]), vpar, cpar, glob_cal);
 
     /* sequence loop */
     for (step = seq_par->last - 1; step > seq_par->first; step--) {
@@ -834,13 +831,12 @@ void trackback_c ()
             search_volume_center_moving(ref_path_inf->x, curr_path_inf->x, X[2]);
 
             for (j=0; j < fb->num_cams; j++) {   
-                img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j], ap[j],
-                    *(cpar->mm), &xn[j], &yn[j]);
+                img_coord(X[2], &glob_cal[j], cpar->mm, &xn[j], &yn[j]);
                 metric_to_pixel(&xn[j], &yn[j], xn[j], yn[j], cpar);
             }
 
             /* calculate searchquader and reprojection in image space */
-            searchquader(X[2][0], X[2][1], X[2][2], xr, xl, yd, yu, tpar, cpar);
+            searchquader(X[2], xr, xl, yd, yu, tpar, cpar);
 
             for (j = 0; j < fb->num_cams; j++) {
                 zaehler1 = candsearch_in_pix (
