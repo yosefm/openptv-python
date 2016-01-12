@@ -16,8 +16,9 @@ Routines contained:     drawcross, drawvector, draw_pnr, mark_detections
 
 ****************************************************************************/
 #include "ptv.h"
-#include "imgcoord.h"
+#include <optv/imgcoord.h>
 #include <optv/parameters.h>
+#include <optv/vec_utils.h>
 
 /* draws crosses for detected points in a displayed image 
 
@@ -35,6 +36,7 @@ int trajectories_c(int i, control_par *cpar)
   double color;
   coord_2d p1[4], p2[4];
   sequence_par *seq_par;
+  vec3d pos;
 
       if (i < 10)             sprintf (val, "res/ptv_is.%1d", i);
       else if (i < 100)       sprintf (val, "res/ptv_is.%2d",  i);
@@ -81,15 +83,14 @@ int trajectories_c(int i, control_par *cpar)
 
 	if (m >= 0)  {	  
         
-	  for (k=0; k < cpar->num_cams; k++)
-	    {
-	      img_coord (k, line1[j].x1, line1[j].y1, line1[j].z1, 
-            Ex[k],I[k], G[k], ap[k], *(cpar->mm), &p1[k].x, &p1[k].y);
-	      metric_to_pixel (&p1[k].x, &p1[k].y, p1[k].x, p1[k].y, cpar);
+	  for (k=0; k < cpar->num_cams; k++) {
+        vec_set(pos, line1[j].x1, line1[j].y1, line1[j].z1);
+        img_coord (pos, &(glob_cal[k]), cpar->mm, &p1[k].x, &p1[k].y);
+	    metric_to_pixel (&p1[k].x, &p1[k].y, p1[k].x, p1[k].y, cpar);
 	      
-	      img_coord (k, line2[m].x1, line2[m].y1, line2[m].z1, 
-            Ex[k],I[k], G[k], ap[k], *(cpar->mm), &p2[k].x, &p2[k].y);
-	      metric_to_pixel(&p2[k].x, &p2[k].y, p2[k].x, p2[k].y, cpar); 
+        vec_set(pos, line2[j].x1, line2[j].y1, line2[j].z1);
+        img_coord (pos, &(glob_cal[k]), cpar->mm, &p2[k].x, &p2[k].y);
+	    metric_to_pixel (&p2[k].x, &p2[k].y, p2[k].x, p2[k].y, cpar);
 	      
 	      if ( fabs( p2[k].x-zoom_x[k]) < cpar->imx/(2*zoom_f[k])
 		   && ( fabs(p2[k].y-zoom_y[k]) < cpar->imy/(2*zoom_f[k])) )
