@@ -88,7 +88,7 @@ int trajectories_c(int i, control_par *cpar)
         img_coord (pos, &(glob_cal[k]), cpar->mm, &p1[k].x, &p1[k].y);
 	    metric_to_pixel (&p1[k].x, &p1[k].y, p1[k].x, p1[k].y, cpar);
 	      
-        vec_set(pos, line2[j].x1, line2[j].y1, line2[j].z1);
+        vec_set(pos, line2[m].x1, line2[m].y1, line2[m].z1);
         img_coord (pos, &(glob_cal[k]), cpar->mm, &p2[k].x, &p2[k].y);
 	    metric_to_pixel (&p2[k].x, &p2[k].y, p2[k].x, p2[k].y, cpar);
 	      
