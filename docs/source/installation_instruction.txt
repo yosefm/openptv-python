@@ -89,7 +89,7 @@ restart the bash terminal and update the packages (some might be already install
 #. Get 3D-PTV test folder and create a missing `res/` folder::
 
 	 cd ~
-	 git clone https://bitbucket.org/turbulencelabtau/ptv_test_folder.git
+	 git clone https://github.com/OpenPTV/test_cavity.git
 	 cd ptv_test_folder
 	 mkdir res
 	 
