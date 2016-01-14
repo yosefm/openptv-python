@@ -22,13 +22,11 @@
 #include <optv/parameters.h>
 #include <optv/trafo.h>
 #include <optv/multimed.h>
+#include <optv/image_processing.h>
 
 #include "tools.h"
-#include "image_processing.h"
 #include "orientation.h"
 #include "track.h"
-
-#define nmax 20240
 
 /*  global declarations for ptv  */
 /*-------------------------------------------------------------------------*/
@@ -299,8 +297,8 @@ int pre_processing_c(int y_remap_mode)
     {//read mask image
         for (i_img=0; i_img < cpar->num_cams; i_img++)
         {
-            highpass (img[i_img], img[i_img], sup, 0, cpar);
-            subtract_mask (img[i_img], img_mask[i_img], img_new[i_img]); //subtract mask from original image
+            prepare_image (img[i_img], img[i_img], sup, 0, NULL, cpar);
+            subtract_mask (img[i_img], img_mask[i_img], img_new[i_img], cpar); //subtract mask from original image
             memcpy(img[i_img], img_new[i_img], imgsize);
             
             // sprintf(val, "newimage %d", i_img+1);
@@ -311,7 +309,7 @@ int pre_processing_c(int y_remap_mode)
     {
         for (i_img=0; i_img < cpar->num_cams; i_img++)
         {
-            highpass (img[i_img], img[i_img], sup, 0, cpar);//highpass original image
+            prepare_image (img[i_img], img[i_img], sup, 0, NULL, cpar);//highpass original image
         }
     }//end if
     

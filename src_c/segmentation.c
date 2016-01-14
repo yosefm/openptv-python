@@ -228,7 +228,7 @@ control_par *cpar;
 		pix[n_targets].x = x;
 		pix[n_targets].y = y;
 		pix[n_targets].pnr = n_targets;
-		n_targets++;
+        n_targets++;
 
 		xn = x;  yn = y;
 	//	drawcross (interp, (int) xn, (int) yn, cr_sz, nr, "Blue");
@@ -356,8 +356,9 @@ control_par *cpar;
 	      pix[n_targets].x = x;
 	      pix[n_targets].y = y;
 	      pix[n_targets].tnr = -1;
-	      pix[n_targets].pnr = n_targets; // pix[n_targets].pnr = n_targets++;
+	      pix[n_targets].pnr = n_targets;
           n_targets++;
+
 	      xn =  x;  yn = y;
 	  //    drawcross (xn, yn, cr_sz, 8);
 	    }

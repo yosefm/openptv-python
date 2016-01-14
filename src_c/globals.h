@@ -9,7 +9,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#define nmax 20240
+#define nmax 202400
 
 #include <optv/parameters.h>
 extern control_par *cpar; /* From jw_ptv.c, temporary Windows-build thing */

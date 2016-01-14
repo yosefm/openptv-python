@@ -358,9 +358,8 @@ control_par *cpar;
 	  pix[n_target].nx = peaks[i].xmax - peaks[i].xmin + 1;
 	  pix[n_target].ny = peaks[i].ymax - peaks[i].ymin + 1;
 	  pix[n_target].tnr = -1;
-	  // pix[n_target].pnr = n_target++;
 	  pix[n_target].pnr = n_target;
-	  n_target++;
+      n_target++;
 	}
     }
 
