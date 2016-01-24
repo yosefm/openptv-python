@@ -23,9 +23,9 @@ Routines contained:    	trackcorr_c
 
 #include "ptv.h"
 #include <optv/tracking_frame_buf.h>
+#include <optv/parameters.h>
 #include "tracking_run.h"
 #include "vec_utils.h"
-#include "parameters.h"
 #include "tools.h"
 #include "ttools.h"
 
@@ -292,7 +292,7 @@ void trackcorr_c_loop (tracking_run *run_info, int step, int display)
             search_volume_center_moving(ref_path_inf->x, curr_path_inf->x, X[2]);
             
 	        for (j = 0; j < fb->num_cams; j++) {
-                img_coord (X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j], ap[j],
+                img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j], ap[j],
                     mmp, &xn[j], &yn[j]);
 		        metric_to_pixel (xn[j], yn[j], imx,imy, pix_x,pix_y, &x1[j], &y1[j], chfield);
 	        }
@@ -300,7 +300,7 @@ void trackcorr_c_loop (tracking_run *run_info, int step, int display)
             copy_pos3d(X[2], X[1]);
 	        for (j=0; j < fb->num_cams; j++) {
 	            if (curr_corres->p[j] == -1) {
-                    img_coord (X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j],
+                    img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j],
                         ap[j], mmp, &xn[j], &yn[j]);
                     metric_to_pixel (xn[j], yn[j], imx, imy, pix_x, pix_y,
                         &x1[j], &y1[j], chfield);
@@ -350,7 +350,7 @@ void trackcorr_c_loop (tracking_run *run_info, int step, int display)
             searchquader(X[5][0], X[5][1], X[5][2], xr, xl, yd, yu, tpar, cpar);
 
 	        for (j = 0; j < fb->num_cams; j++) {
-                img_coord (X[5][0], X[5][1], X[5][2], Ex[j],I[j], G[j], ap[j],
+                img_coord (j, X[5][0], X[5][1], X[5][2], Ex[j],I[j], G[j], ap[j],
                     mmp, &xn[j], &yn[j]);
 		        metric_to_pixel (xn[j], yn[j], imx,imy, pix_x,pix_y, &x2[j], &y2[j], chfield);
 	        }
@@ -414,7 +414,7 @@ void trackcorr_c_loop (tracking_run *run_info, int step, int display)
 	        /* creating new particle position */
 	        /* *************************************************************** */
 	        for (j = 0;j < fb->num_cams; j++) {
-                img_coord (X[5][0], X[5][1], X[5][2], Ex[j],I[j], G[j], ap[j],
+                img_coord (j, X[5][0], X[5][1], X[5][2], Ex[j],I[j], G[j], ap[j],
                     mmp, &xn[j], &yn[j]);
 		        metric_to_pixel (xn[j], yn[j], imx,imy, pix_x,pix_y, &xn[j], &yn[j], chfield);
 	        }
@@ -527,7 +527,7 @@ void trackcorr_c_loop (tracking_run *run_info, int step, int display)
 	    if (tpar->add) {
 	        if ( curr_path_inf->inlist == 0 && curr_path_inf->prev >= 0 ) {
                 for (j = 0; j < fb->num_cams; j++) {
-                    img_coord (X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j],
+                    img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j],
                         ap[j], mmp, &xn[j], &yn[j]);
 		            metric_to_pixel (xn[j], yn[j], imx,imy, pix_x,pix_y, &xn[j], &yn[j], chfield);
 		            x2[j]=-1e10;
@@ -835,7 +835,7 @@ void trackback_c ()
             search_volume_center_moving(ref_path_inf->x, curr_path_inf->x, X[2]);
 
             for (j=0; j < fb->num_cams; j++) {   
-                img_coord (X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j], ap[j],
+                img_coord (j, X[2][0], X[2][1], X[2][2], Ex[j],I[j], G[j], ap[j],
                     mmp, &xn[j], &yn[j]);
                 metric_to_pixel (xn[j], yn[j], imx,imy, pix_x,pix_y, &xn[j],
                     &yn[j], chfield);

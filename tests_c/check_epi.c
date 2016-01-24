@@ -3,8 +3,9 @@
 #include <check.h>
 #include <stdlib.h>
 
-#include "../src_c/calibration.h"
-#include "../src_c/parameters.h"
+#include <optv/calibration.h>
+#include <optv/parameters.h>
+
 #include "../src_c/typedefs.h"
 #include "../src_c/epi.h"
 #include "../src_c/globals.h"
@@ -25,7 +26,7 @@ START_TEST(test_epi_mm)
     
     xin = 10.;
     yin = 10.;
-    epi_mm(xin, yin,
+    epi_mm(0, xin, yin,
         cal[0]->ext_par, cal[0]->int_par, cal[0]->glass_par,
         cal[1]->ext_par, cal[1]->int_par, cal[1]->glass_par,
         media_par, vpar, &xmin, &ymin, &xmax, &ymax);

@@ -25,7 +25,7 @@ cdef extern from "stdlib.h":
     void free(void *ptr)
     enum: NULL
 
-cdef extern from "parameters.h":
+cdef extern from "optv/parameters.h":
     ctypedef struct control_par:
         int num_cams
     ctypedef struct volume_par:
@@ -410,7 +410,7 @@ def py_get_pix_N(x,y,n_image):
         x.append(x1)
         y.append(y1)
 
-def get_pix_crd(num_cams):
+def get_pix_crd(int num_cams):
     """
     For testing purposes, while pix and crd arrays exist, return them as
     numpy arrays.
@@ -435,6 +435,27 @@ def get_pix_crd(num_cams):
         crd_arr[img, part, 2] = crd[img][part].pnr
     
     return pix_arr, crd_arr
+    
+def get_xy_calib(int num_cams):
+    """
+    For testing purposes, while *_calib exist, return them as
+    numpy arrays.
+    
+    Arguments:
+    num_cams - number of cameras in the PTV system.
+    
+    Returns:
+    calib_arr - a (num_cams, nmax, 2) int array, copy of the x_calib and 
+        y_calib arrays (last dimension is x,y, so that calib_arr[...,0] is 
+        x_calib etc.) that are filled-in by sortgrid.c:just_plot().
+    """
+    calib_arr = np.zeros((num_cams, nmax, 2), dtype=np.int_)
+    
+    for part, img in np.ndindex((nfix, num_cams)):
+        calib_arr[img, part, 0] = x_calib[img][part]
+        calib_arr[img, part, 1] = y_calib[img][part]
+    
+    return calib_arr
     
 def py_prepare_eval(num_cams):
     """

@@ -10,7 +10,7 @@
 
 #define nmax 20240
 
-#include "parameters.h"
+#include <optv/parameters.h>
 extern control_par *cpar; /* From jw_ptv.c, temporary Windows-build thing */
 
 extern int n_img;          /* no of images */
@@ -117,7 +117,6 @@ void multimed_nlay_v2 ();
 void trans_Cam_Point ();
 void back_trans_Point ();
 
-void rotation_matrix();
 void img_xy_mm_geo ();
  void pixel_to_metric();
 void metric_to_pixel ();

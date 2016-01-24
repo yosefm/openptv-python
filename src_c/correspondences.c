@@ -15,7 +15,7 @@ Description:	       	establishment of correspondences for 2/3/4 cameras
 ****************************************************************************/
 
 #include "ptv.h"
-#include "parameters.h"
+#include <optv/parameters.h>
 #include "epi.h"
 #include "tools.h"
 
@@ -94,10 +94,10 @@ void correspondences_4 (volume_par *vpar, control_par *cpar)
      printf ("Establishing correspondences  %d - %d\n", i1, i2);
      /* establish correspondences from num[i1] points of img[i1] to img[i2] */
 
-	  for (i=0; i<num[i1]; i++)	if (geo[i1][i].x != -999) {
-		  o = epi_mm (geo[i1][i].x,geo[i1][i].y,
-				  Ex[i1], I[i1], G[i1], Ex[i2], I[i2], G[i2], mmp, vpar,
-				  &xa12, &ya12, &xb12, &yb12);
+      for (i=0; i<num[i1]; i++)	if (geo[i1][i].x != -999) {
+      o = epi_mm (i2, geo[i1][i].x,geo[i1][i].y,
+		      Ex[i1], I[i1], G[i1], Ex[i2], I[i2], G[i2], mmp, vpar,
+		      &xa12, &ya12, &xb12, &yb12);
 	  
 		/////ich glaube, da muss ich einsteigen, wenn alles erledigt ist.
 		  ///////mit bild_1 x,y Epipole machen und dann selber was schreiben um die Distanz zu messen.

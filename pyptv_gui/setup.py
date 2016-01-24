@@ -27,20 +27,14 @@ inc_dirs = [np.get_include()]
 ext_mods = [
     Extension("ptv1", ["ptv1.pyx", "segmentation.c", "tools.c",
         "image_processing.c", "trafo.c", "jw_ptv.c", "peakfitting.c", 
-        "rotation.c", "correspondences.c", "epi.c", "multimed.c", 
+        "correspondences.c", "epi.c", "multimed.c", 
         "ray_tracing.c", "imgcoord.c", "lsqadj.c", "orientation.c","sortgrid.c",
         "pointpos.c", "intersect.c", "track.c", "ttools.c", "draw.c",
-        "mousefunction.c", "vec_utils.c", "parameters.c", "tracking_run.c"],
-        include_dirs=inc_dirs, libraries=['optv'], 
-        extra_compile_args=['-O3'],
-	pyrex_include_dirs=['.']),
-    Extension("tracking_framebuf", ["tracking_framebuf.pyx"], 
-    	libraries=['optv'], include_dirs=inc_dirs,
-	pyrex_include_dirs=['.']),
-    Extension("tracking_run_py", ["tracking_run_py.pyx", 
-        "tracking_run.c", "parameters.c"], 
-	libraries=['optv'], include_dirs=inc_dirs,
-	pyrex_include_dirs=['.']) 
+        "mousefunction.c", "vec_utils.c", "tracking_run.c"],
+        include_dirs=inc_dirs, libraries=['optv'], extra_compile_args=['-O3'],
+	    pyrex_include_dirs=['.']),
+    Extension("tracking_run_py", ["tracking_run_py.pyx", "tracking_run.c"], 
+        libraries=['optv'], include_dirs=inc_dirs, pyrex_include_dirs=['.'])
     ]
 
 setup(

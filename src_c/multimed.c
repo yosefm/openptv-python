@@ -19,14 +19,19 @@ Routines contained:		-
 ****************************************************************************/
 
 #include "ptv.h"
+#include <optv/parameters.h>
 
 double get_mmf_from_mmLUT ();
 
-void  multimed_nlay_v2 (ex,ex_o,mm,X,Y,Z,Xq,Yq)
-Exterior	ex;
-Exterior	ex_o;
-mm_np		mm;
-double  	X, Y, Z, *Xq,*Yq;
+/* multimed_nlay_v2()
+   
+   Arguments:
+   ...
+   int cam - the camera number, for getting LUT data. If no LUT data is to be
+        used, then this variable is ignored.
+ */
+void  multimed_nlay_v2 (Exterior ex, Exterior ex_o, mm_np mm, 
+    double X, double Y, double Z, double *Xq, double *Yq, int cam)
 {
   
   //Beat Lüthi, Nov 2007 comment actually only Xq is affected since all Y and Yq are always zero
@@ -34,14 +39,8 @@ double  	X, Y, Z, *Xq,*Yq;
   double	beta1, beta2[32], beta3, r, rbeta, rdiff, rq, mmf;
   
   // interpolation in mmLUT, if selected (requires some global variables) 
-  if (mm.lut)
-    {    
-      // check, which is the correct image 
-      for (i=0; i<n_img; i++)
-	if (Ex[i].x0 == ex_o.x0  &&  Ex[i].y0 == ex_o.y0  &&  Ex[i].z0 == ex_o.z0)
-	  break;
-      
-      mmf = get_mmf_from_mmLUT (i, X,Y,Z);
+  if (mm.lut) {
+      mmf = get_mmf_from_mmLUT (cam, X, Y, Z);
       
       if (mmf > 0)
 	{
@@ -159,7 +158,9 @@ double      *cross_p, *cross_c;
   //--Beat Lüthi June 07: I change the stuff to a system perpendicular to the interface
   double dist_cam_glas,dist_point_glas,dist_o_glas; //glas inside at water 
   
+  // Origin to glass.
   dist_o_glas=sqrt(gl.vec_x*gl.vec_x+gl.vec_y*gl.vec_y+gl.vec_z*gl.vec_z);
+  // camera to glass. Assumes origin and camera are on opposite sides of glass.
   dist_cam_glas   = ex.x0*gl.vec_x/dist_o_glas+ex.y0*gl.vec_y/dist_o_glas+ex.z0*gl.vec_z/dist_o_glas-dist_o_glas-mm.d[0];
   dist_point_glas = X    *gl.vec_x/dist_o_glas+Y    *gl.vec_y/dist_o_glas+Z    *gl.vec_z/dist_o_glas-dist_o_glas; 
 
@@ -195,20 +196,30 @@ double *X,*Y,*Z;
 	nVe=sqrt( pow(cross_p[0]-(cross_c[0]-mm.d[0]*G.vec_x/nGl),2.)
 		     +pow(cross_p[1]-(cross_c[1]-mm.d[0]*G.vec_y/nGl),2.)
 			 +pow(cross_p[2]-(cross_c[2]-mm.d[0]*G.vec_z/nGl),2.));
-	
 
-	*X=cross_c[0]-mm.d[0]*G.vec_x/nGl+X_t*(cross_p[0]-(cross_c[0]-mm.d[0]*G.vec_x/nGl))/nVe+Z_t*G.vec_x/nGl;
-	*Y=cross_c[1]-mm.d[0]*G.vec_y/nGl+X_t*(cross_p[1]-(cross_c[1]-mm.d[0]*G.vec_y/nGl))/nVe+Z_t*G.vec_y/nGl;
-	*Z=cross_c[2]-mm.d[0]*G.vec_z/nGl+X_t*(cross_p[2]-(cross_c[2]-mm.d[0]*G.vec_z/nGl))/nVe+Z_t*G.vec_z/nGl;
+	*X = cross_c[0]-mm.d[0]*G.vec_x/nGl + Z_t*G.vec_x/nGl;
+	*Y = cross_c[1]-mm.d[0]*G.vec_y/nGl + Z_t*G.vec_y/nGl;
+	*Z = cross_c[2]-mm.d[0]*G.vec_z/nGl + Z_t*G.vec_z/nGl;
 
+    if (nVe > 0) {  
+        // We need this for when the cam-point line is exactly perp. to glass.
+        // The degenerate case will have nVe == 0 and produce NaNs on the
+        // following calculations.
+        *X += X_t*(cross_p[0] - (cross_c[0] - mm.d[0]*G.vec_x/nGl))/nVe;
+        *Y += X_t*(cross_p[1] - (cross_c[1] - mm.d[0]*G.vec_y/nGl))/nVe;
+        *Z += X_t*(cross_p[2] - (cross_c[2] - mm.d[0]*G.vec_z/nGl))/nVe;
+    }
 }
 
-double multimed_r_nlay_v2 (ex,ex_o,mm,X,Y,Z)
-/* calculates and returns the radial shift */
-Exterior	ex;
-Exterior	ex_o;
-mm_np		mm;
-double		X, Y, Z;
+/* multimed_r_nlay_v2() alculates and returns the radial shift.
+   
+   Arguments:
+   ...
+   int cam - the camera number, for getting LUT data. If no LUT data is to be
+        used, then this variable is ignored.
+ */
+double multimed_r_nlay_v2 (Exterior ex, Exterior ex_o, mm_np mm,
+    double X, double Y, double Z, int cam)
 {
   int  	i, it=0;
   double beta1, beta2[32], beta3, r, rbeta, rdiff, rq, mmf;
@@ -229,17 +240,10 @@ double		X, Y, Z;
   
   
   // interpolation in mmLUT, if selected (requires some global variables) 
-  if (mm.lut)
-    {
-      // check, which is the correct image 
-      for (i=0; i<n_img; i++)
-	if (Ex[i].x0 == ex_o.x0  &&  Ex[i].y0 == ex_o.y0  &&  Ex[i].z0 == ex_o.z0)
-	  break;
-      
-      mmf = get_mmf_from_mmLUT (i, X,Y,Z);
-      
-      if (mmf > 0)	return (mmf);
-    }
+  if (mm.lut) {
+    mmf = get_mmf_from_mmLUT(cam, X, Y, Z);
+    if (mmf > 0) return (mmf);
+  }
  
   // iterative procedure 
   r = sqrt ((X-ex.x0)*(X-ex.x0)+(Y-ex.y0)*(Y-ex.y0));
@@ -440,9 +444,10 @@ int    	i_cam;
 	//old mmLUT[i_cam].data[i*nz + j]= multimed_r_nlay (Ex[i_cam], mmp, 
 	//      	                                        Ri[i]+Ex[i_cam].x0, Ex[i_cam].y0, Zi[j]);
 	//trans
-	// trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
-    mmLUT[i_cam].data[i*nz + j] = multimed_r_nlay_v2 (Ex_t[i_cam], Ex[i_cam], mmp, \
-		                  Ri[i]+Ex_t[i_cam].x0, Ex_t[i_cam].y0, Zi[j]);
+	trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
+      mmLUT[i_cam].data[i*nz + j]
+	= multimed_r_nlay_v2 (Ex_t[i_cam], Ex[i_cam], mmp, 
+		                  Ri[i]+Ex_t[i_cam].x0, Ex_t[i_cam].y0, Zi[j], i_cam);
     }
     
     free (Ri);	// preventing memory leaks, Ad Holten, 04-2013

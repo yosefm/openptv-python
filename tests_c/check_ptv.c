@@ -8,8 +8,10 @@
 #include <check.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "../src_c/ptv.h"
+#include "../src_c/orientation.h"
 
 /* Generate a calibration object with example values matching those in the
    files read by test_read_ori.
@@ -26,7 +28,7 @@ Calibration test_cal(void) {
     ap_52 correct_addp = {0., 0., 0., 0., 0., 1., 0.};
     Calibration correct_cal = {correct_ext, correct_int, correct_glass, 
         correct_addp};
-    rotation_matrix(correct_cal.ext_par, correct_cal.ext_par.dm);
+    rotation_matrix(&(correct_cal.ext_par));
     
     return correct_cal;
 }
@@ -68,6 +70,40 @@ START_TEST(test_write_ori)
 }
 END_TEST
 
+/* Exterior jacobian in the case of no glass or water is easy to verify
+   analytically.
+*/
+START_TEST(test_num_deriv_exterior)
+{
+    int der;
+    
+    Calibration cal = {
+        .ext_par = {0., 0., 400., 0., 0., 0., 
+            {{1., 0., 0.}, {0., 1., 0.}, {0., 0., 1.}} // rotation matrix
+        },
+        .int_par = {0., 0., 1.},
+        .glass_par = {0., 0., 200.},
+        .added_par = {0., 0., 0., 0., 0., 1., 0.}
+    };
+    mm_np trivial_mm = {1., 1., {1., 0., 0.}, {.1, 0., 0.}, 1., 0.};
+    pos3d pos = {0., 0., 100.};
+    
+    double x_ders[6], y_ders[6];
+    double dpos = 1., dang = M_PI/6.;
+    
+    double x_ders_correct[] = {-1./300, 0., 0., 0., tan(dang)/dang, 0.};
+    double y_ders_correct[] = {0., -1./300, 0., -tan(dang)/dang, 0., 0.};
+    
+    num_deriv_exterior(0, cal.ext_par, cal.int_par, cal.glass_par, cal.added_par,
+        trivial_mm, dpos, dang, pos, x_ders, y_ders);
+    
+    for (der = 0; der < 6; der++) {
+        fail_unless(fabs(x_ders[der] - x_ders_correct[der]) < 1e-6);
+        fail_unless(fabs(y_ders[der] - y_ders_correct[der]) < 1e-6);
+    }
+}
+END_TEST
+
 Suite* ptv_suite(void) {
     Suite *s = suite_create ("PTV");
 
@@ -79,6 +115,10 @@ Suite* ptv_suite(void) {
     tcase_add_test(tc_wori, test_write_ori);
     suite_add_tcase (s, tc_wori);
 
+    TCase *tc_numder = tcase_create ("Numeric derivative of an Exterior object");
+    tcase_add_test(tc_numder, test_num_deriv_exterior);
+    suite_add_tcase (s, tc_numder);
+    
     return s;
 }
 

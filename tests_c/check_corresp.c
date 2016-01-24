@@ -12,8 +12,8 @@
 #include <unistd.h>
 
 #include <optv/tracking_frame_buf.h>
-#include "../src_c/calibration.h"
-#include "../src_c/parameters.h"
+#include <optv/calibration.h>
+#include <optv/parameters.h>
 #include "../src_c/typedefs.h"
 
 extern int init_proc_c(); /* Until main parameters are moved to parameters.h */
