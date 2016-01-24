@@ -72,7 +72,7 @@ START_TEST(test_find_candidate_plus)
         .cnx = 1, 
         .cny = 1,
         .csumg = 0.1, 
-        .eps0 = 0.04
+        .eps0 = 0.2
     };
     
     /* We'll have a 45 deg epipolar line and a slightly flatter candidates 
@@ -98,6 +98,7 @@ START_TEST(test_find_candidate_plus)
     
     find_candidate_plus(crd, pix, 10, minval, minval, maxval, maxval,
         n, nx, ny, sumg, cand, &count, 0, &vpar);
+    printf("count %d\n", count);
     fail_unless(count == 2);
 }
 END_TEST

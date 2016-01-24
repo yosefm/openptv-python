@@ -786,7 +786,7 @@ void trackback_c ()
     
     display = 1; 
     /* read data */
-    seq_par = read_sequence_par("parameters/sequence.par");
+    seq_par = read_sequence_par("parameters/sequence.par", 4);
     tpar = read_track_par("parameters/track.par");
     vpar = read_volume_par("parameters/criteria.par");
     cpar = read_control_par("parameters/ptv.par");

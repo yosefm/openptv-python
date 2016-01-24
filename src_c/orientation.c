@@ -51,7 +51,7 @@ int n_img;
     frame frm;
     frame_init(&frm, n_img, MAX_TARGETS);
     
-	seq_par = read_sequence_par("parameters/sequence.par");
+	seq_par = read_sequence_par("parameters/sequence.par", n_img);
 
 	fpp = fopen ("parameters/dumbbell.par", "r");
     if (fpp){
@@ -116,7 +116,7 @@ void prepare_eval_shake(int n_img) {
     frame frm;
     frame_init(&frm, n_img, MAX_TARGETS);
     
-	seq_par = read_sequence_par("parameters/sequence.par");
+	seq_par = read_sequence_par("parameters/sequence.par", n_img);
 
 	fpp = fopen ("parameters/shaking.par", "r");
     fscanf (fpp,"%d\n", &seq_first);
