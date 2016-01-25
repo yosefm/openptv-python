@@ -744,32 +744,11 @@ int calibration_proc_c (int sel)
                 fclose (fp1);
                 nfix = k;
                 
-                /* take clicked points from control point data set */
-                for (j=0; j<4; j++)	for (k=0; k<nfix; k++)
-                {
-                    if (fix[k].pnr == nr[i][j])	fix4[j] = fix[k];
-                }
-                
-                /* get approx for orientation and ap */
+                /* read initial guess orientation from the ori files, no add params */
                 read_ori (&Ex[i], &I[i], &G[i], img_ori0[i], &(ap[i]), 
                     img_addpar0[i], "addpar.raw");
                 
-                /* transform clicked points */
-                for (j=0; j<4; j++)
-                {
-                    pixel_to_metric (pix0[i][j].x, pix0[i][j].y,
-                                     imx,imy, pix_x, pix_y,
-                                     &crd0[i][j].x, &crd0[i][j].y,
-                                     chfield);
-                    correct_brown_affin (crd0[i][j].x, crd0[i][j].y, ap[i],
-                                         &crd0[i][j].x, &crd0[i][j].y);
-                }
-                
-                /* raw orientation with 4 points */
-                raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i], 
-                    &Ex[i],&G[i], i, 1);
-                
-                /* sorting of detected points by back-projection */
+                /* presenting detected points by back-projection */
                 just_plot (Ex[i], I[i], G[i], ap[i], mmp,
                            imx,imy, pix_x,pix_y,
                            nfix, fix,  chfield, i);
@@ -889,34 +868,11 @@ int calibration_proc_c (int sel)
                 fclose (fp1);
                 nfix = k;
                 
-                /* take clicked points from control point data set */
-                for (j=0; j<4; j++)	for (k=0; k<nfix; k++)
-                {
-                    if (fix[k].pnr == nr[i][j])	fix4[j] = fix[k];
-                }
-                
                 /* get approx for orientation and ap */
                 read_ori (&Ex[i], &I[i], &G[i], img_ori0[i], &(ap[i]),
                     img_addpar0[i], "addpar.raw");
                 
-				/* transform clicked points */
-				for (j=0; j<4; j++)
-				{
-					pixel_to_metric (pix0[i][j].x, pix0[i][j].y,
-                                     imx,imy, pix_x, pix_y,
-                                     &crd0[i][j].x, &crd0[i][j].y,
-                                     chfield);
-					correct_brown_affin (crd0[i][j].x, crd0[i][j].y, ap[i],
-                                         &crd0[i][j].x, &crd0[i][j].y);
-				}
-                
-				/* raw orientation with 4 points */
-				raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i],
-                    &Ex[i], &G[i], i, 1); 
-				sprintf (filename, "raw%d.ori", i);
-                write_ori (Ex[i], I[i], G[i], ap[i], filename, NULL); /*ap ignored*/
-                
-				/* sorting of detected points by back-projection */
+                /* sorting of detected points by back-projection */
 				sortgrid_man (Ex[i], I[i], G[i], ap[i], mmp,
                               imx,imy, pix_x,pix_y,
                               nfix, fix, num[i], pix[i], chfield, i);
@@ -1001,21 +957,17 @@ int calibration_proc_c (int sel)
                 
                 /* resection routine */
                 /* ================= */
-                printf ("examine= %d \n",examine);
-                // printf("inside jw_ptv.c before orient_v3 I.yh=%f \n",I[i_img].yh);
+                printf ("examine=%d\n",examine);
+                //printf("inside jw_ptv.c before orient_v3 I.yh=%f \n",I[i_img].yh);
                 if (examine != 4)
                     orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], mmp,
                                nfix, fix, crd[i_img],
-                               &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img);
-                // printf("inside jw_ptv.c after orient_v3 I.yh = %f \n",I[i_img].yh);
-                /* ================= */
-                
+                               &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img);                
                 
                 /* resection with dumped datasets */
                 if (examine == 4)
                 {
-                    printf("Resection with dumped datasets \n");
-                    //printf("Resection with dumped datasets? (y/n)");
+                    printf("Resection with dumped datasets? (y/n)");
                     //scanf("%s",buf);
                     //if (buf[0] != 'y')	continue;
                     //strcpy (buf, "");
@@ -1025,17 +977,12 @@ int calibration_proc_c (int sel)
                     //sprintf (multi_filename[0],"img/calib_a_cam");
                     //sprintf (multi_filename[1],"img/calib_b_cam");
                     
-                    fp1 = fopen("parameters/multi_planes.par","r");
-                    if (fp1) {
-                        fscanf (fp1,"%d\n", &planes);
-                        printf(" number of planes %d \n", planes);
-                        for(i=0;i<planes;i++) 
-                            fscanf (fp1,"%s\n", multi_filename[i]);//fscanf (fp1,"%s\n", &multi_filename[i]);
-                            printf ("%s\n", multi_filename[i]);
-                        fclose(fp1);
-                    }
-                                        
-                    
+                    fp1 = fopen_r ("parameters/multi_planes.par");
+                    fscanf (fp1,"%d\n", &planes);
+                    for(i=0;i<planes;i++) 
+                        fscanf (fp1,"%s\n", multi_filename[i]);
+                        //fscanf (fp1,"%s\n", &multi_filename[i]);
+                    fclose(fp1);
                     for (n=0, nfix=0, dump_for_rdb=0; n<10; n++)
                     {
                         //sprintf (filename, "resect.fix%d", n);
