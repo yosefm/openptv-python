@@ -73,7 +73,7 @@ void correspondences_4 (volume_par *vpar, control_par *cpar)
 		fprintf (fp1, "%4d\n", num[0]);
 	  for (i=0; i<num[0]; i++){
           o = epi_mm_2D (geo[0][i].x,geo[0][i].y,
-		      Ex[0], I[0],  G[0], mmp, vpar,
+		      Ex[0], I[0],  G[0], *(cpar->mm), vpar,
 		      &X,&Y,&Z);
           pix[0][geo[0][i].pnr].tnr=i;
 		  fprintf (fp1, "%4d", i+1);
@@ -96,32 +96,32 @@ void correspondences_4 (volume_par *vpar, control_par *cpar)
 
       for (i=0; i<num[i1]; i++)	if (geo[i1][i].x != -999) {
       o = epi_mm (i2, geo[i1][i].x,geo[i1][i].y,
-		      Ex[i1], I[i1], G[i1], Ex[i2], I[i2], G[i2], mmp, vpar,
+		      Ex[i1], I[i1], G[i1], Ex[i2], I[i2], G[i2], *(cpar->mm), vpar,
 		      &xa12, &ya12, &xb12, &yb12);
 	  
-		/////ich glaube, da muss ich einsteigen, wenn alles erledigt ist.
-		  ///////mit bild_1 x,y Epipole machen und dann selber was schreiben um die Distanz zu messen.
-		  ///////zu Punkt in bild_2.
+    /////ich glaube, da muss ich einsteigen, wenn alles erledigt ist.
+	  ///////mit bild_1 x,y Epipole machen und dann selber was schreiben um die Distanz zu messen.
+	  ///////zu Punkt in bild_2.
 
-		  /* origin point in the list */
-		  p1 = i;  list[i1][i2][p1].p1 = p1;	pt1 = geo[i1][p1].pnr;
+	  /* origin point in the list */
+	  p1 = i;  list[i1][i2][p1].p1 = p1;	pt1 = geo[i1][p1].pnr;
 
-		  /* search for a conjugate point in geo[i2] */
-		  find_candidate_plus (geo[i2], pix[i2], num[i2],
-					   xa12, ya12, xb12, yb12, 
-					   pix[i1][pt1].n,pix[i1][pt1].nx,pix[i1][pt1].ny,
-					   pix[i1][pt1].sumg, cand, &count, i2, vpar);
-		  /* write all corresponding candidates to the preliminary list */
-		  /* of correspondences */
-		  if (count > maxcand)	count = maxcand; 
-	  
-		  for (j=0; j<count; j++) {
-			  list[i1][i2][p1].p2[j] = cand[j].pnr;
-			  list[i1][i2][p1].corr[j] = cand[j].corr;
-			  list[i1][i2][p1].dist[j] = cand[j].tol;
-			}
-		  list[i1][i2][p1].n = count;
-		}
+	  /* search for a conjugate point in geo[i2] */
+      find_candidate_plus (geo[i2], pix[i2], num[i2],
+			       xa12, ya12, xb12, yb12, 
+			       pix[i1][pt1].n,pix[i1][pt1].nx,pix[i1][pt1].ny,
+			       pix[i1][pt1].sumg, cand, &count, i2, vpar, cpar);
+	  /* write all corresponding candidates to the preliminary list */
+	  /* of correspondences */
+	  if (count > maxcand)	{ count = maxcand; }
+	  for (j=0; j<count; j++)
+	    {
+	      list[i1][i2][p1].p2[j] = cand[j].pnr;
+	      list[i1][i2][p1].corr[j] = cand[j].corr;
+	      list[i1][i2][p1].dist[j] = cand[j].tol;
+	    }
+	  list[i1][i2][p1].n = count;
+	}
   }
 
   /* ------------------------------------------------------------------ */
@@ -208,7 +208,8 @@ void correspondences_4 (volume_par *vpar, control_par *cpar)
   /* ----------------------------------------------------------------------- */
 
   /* search consistent triplets :  123, 124, 134, 234 */
-  if ((cpar->num_cams == 4 && allCam_flag==0) || cpar->num_cams == 3){
+  if ((cpar->num_cams == 4 && cpar->allCam_flag == 0) || cpar->num_cams == 3)
+    {
    //   puts ("Search consistent triplets");
       printf("Search consistent triplets \n");
       match0 = 0;
@@ -286,8 +287,8 @@ void correspondences_4 (volume_par *vpar, control_par *cpar)
 
   /* search consistent pairs :  12, 13, 14, 23, 24, 34 */
   /* only if an object model is available or if only 2 images are used */
-	if(cpar->num_cams > 1 && allCam_flag==0){
-		 printf(" Search pairs \n");
+      if(cpar->num_cams > 1 && cpar->allCam_flag == 0){
+	printf("Search pairs");
 
 
 		  match0 = 0;

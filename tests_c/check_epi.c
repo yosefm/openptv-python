@@ -75,6 +75,13 @@ START_TEST(test_find_candidate_plus)
         .eps0 = 0.2
     };
     
+    control_par cpar = {
+        .imx = 30, 
+        .imy = 30,
+        .pix_x = 1,
+        .pix_y = 1
+    };
+    
     /* We'll have a 45 deg epipolar line and a slightly flatter candidates 
        line crossing it. */
     for (cix = 0; cix < 10; cix++) {
@@ -93,12 +100,9 @@ START_TEST(test_find_candidate_plus)
     
     read_ori(Ex, I, G, "testing_fodder/cal/cam1.tif.ori", ap, "", "");
     I[0].xh = 0; I[0].yh = 0;
-    imx = 30; imy = 30;
-    pix_x = 1; pix_y = 1.;
     
     find_candidate_plus(crd, pix, 10, minval, minval, maxval, maxval,
-        n, nx, ny, sumg, cand, &count, 0, &vpar);
-    printf("count %d\n", count);
+        n, nx, ny, sumg, cand, &count, 0, &vpar, &cpar);
     fail_unless(count == 2);
 }
 END_TEST

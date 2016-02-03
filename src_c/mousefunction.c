@@ -1,5 +1,6 @@
 #include "ptv.h"
 #include <optv/parameters.h>
+#include <optv/trafo.h>
 #include "epi.h"
 #include "tools.h"
 
@@ -34,11 +35,10 @@ int mouse_proc_c (int click_x, int click_y, int kind, int num_image, volume_par 
     case 3: /* generate epipolar line segments */
       
       /* get geometric coordinates of nearest point in img[n] */
-      x = (float) (click_x - imx/2)/zoom_f[n] + zoom_x[n];
-      y = (float) (click_y - imy/2)/zoom_f[n] + zoom_y[n];
+      x = (float) (click_x - cpar->imx/2)/zoom_f[n] + zoom_x[n];
+      y = (float) (click_y - cpar->imy/2)/zoom_f[n] + zoom_y[n];
 
-      pixel_to_metric (x,y, imx,imy, pix_x,pix_y, &x,&y, chfield);
-      
+      pixel_to_metric (&x, &y, x,y, cpar);
       x -= I[n].xh;	y -= I[n].yh;
       correct_brown_affin (x, y, ap[n], &x, &y);
       
@@ -51,8 +51,8 @@ int mouse_proc_c (int click_x, int click_y, int kind, int num_image, volume_par 
 	      
 	      pt1 = geo[n][k].pnr;
 
-      intx1 = (int) ( imx/2 + zoom_f[n] * (pix[n][pt1].x-zoom_x[n]));
-      inty1 = (int) ( imy/2 + zoom_f[n] * (pix[n][pt1].y-zoom_y[n]));
+      intx1 = (int) ( cpar->imx/2 + zoom_f[n] * (pix[n][pt1].x-zoom_x[n]));
+      inty1 = (int) ( cpar->imy/2 + zoom_f[n] * (pix[n][pt1].y-zoom_y[n]));
       rclick_points_intx1=intx1;
       rclick_points_inty1=inty1;
     
@@ -64,7 +64,7 @@ int mouse_proc_c (int click_x, int click_y, int kind, int num_image, volume_par 
 	       for (i = 0; i < cpar->num_cams; i++) if (i != n) {
 		   /* calculate epipolar band in img[i] */
 		   epi_mm (i, geo[n][k].x,geo[n][k].y,
-			   Ex[n],I[n], G[n], Ex[i],I[i], G[i], mmp, vpar,
+			   Ex[n],I[n], G[n], Ex[i],I[i], G[i], *(cpar->mm), vpar,
 			   &xa12, &ya12, &xb12, &yb12);
 		   
 		   /* search candidate in img[i] */
@@ -72,20 +72,20 @@ int mouse_proc_c (int click_x, int click_y, int kind, int num_image, volume_par 
 		   find_candidate_plus_msg (geo[i], pix[i], num[i],
 					    xa12, ya12, xb12, yb12,
 					    pix[n][pt1].n, pix[n][pt1].nx, pix[n][pt1].ny,
-					    pix[n][pt1].sumg, cand, &count, i, vpar);
+					    pix[n][pt1].sumg, cand, &count, i, vpar, cpar);
 
 		   distort_brown_affin (xa12,ya12, ap[i], &xa12,&ya12);
 		   distort_brown_affin (xb12,yb12, ap[i], &xb12,&yb12);
 		   xa12 += I[i].xh;	ya12 += I[i].yh;
 		   xb12 += I[i].xh;	yb12 += I[i].yh;
-		   metric_to_pixel (xa12, ya12, imx,imy, pix_x,pix_y,
-				    &xa12, &ya12, chfield);
-		   metric_to_pixel (xb12, yb12, imx,imy, pix_x,pix_y,
-				    &xb12, &yb12, chfield);
-		   intx1 = (int) ( imx/2 + zoom_f[i] * (xa12 - zoom_x[i]));
-		   inty1 = (int) ( imy/2 + zoom_f[i] * (ya12 - zoom_y[i]));
-		   intx2 = (int) ( imx/2 + zoom_f[i] * (xb12 - zoom_x[i]));
-		   inty2 = (int) ( imy/2 + zoom_f[i] * (yb12 - zoom_y[i]));
+            
+		   metric_to_pixel(&xa12, &ya12, xa12, ya12, cpar);
+		   metric_to_pixel(&xb12, &yb12, xb12, yb12, cpar);
+            
+		   intx1 = (int) ( cpar->imx/2 + zoom_f[i] * (xa12 - zoom_x[i]));
+		   inty1 = (int) ( cpar->imy/2 + zoom_f[i] * (ya12 - zoom_y[i]));
+		   intx2 = (int) ( cpar->imx/2 + zoom_f[i] * (xb12 - zoom_x[i]));
+		   inty2 = (int) ( cpar->imy/2 + zoom_f[i] * (yb12 - zoom_y[i]));
            
             rclick_intx1[i]=intx1;
             rclick_inty1[i]=inty1;
@@ -98,8 +98,8 @@ int mouse_proc_c (int click_x, int click_y, int kind, int num_image, volume_par 
                    for (j=0; j<count; j++)
                      {
                        pt2 = cand[j].pnr;
-                       intx2 = (int) ( imx/2 + zoom_f[i] * (pix[i][pt2].x - zoom_x[i]));
-                       inty2 = (int) ( imy/2 + zoom_f[i] * (pix[i][pt2].y - zoom_y[i]));
+                       intx2 = (int) ( cpar->imx/2 + zoom_f[i] * (pix[i][pt2].x - zoom_x[i]));
+                       inty2 = (int) ( cpar->imy/2 + zoom_f[i] * (pix[i][pt2].y - zoom_y[i]));
                          rclick_points_x1[i][j]=intx2;
                          rclick_points_y1[i][j]=inty2;
                        //drawcross (interp, intx2, inty2, cr_sz+2, i, "orange");

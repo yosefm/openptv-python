@@ -4,7 +4,9 @@
 
 #include "epi.h"
 #include "globals.h"
-#include "lsqadj.h"
+
+#include <optv/lsqadj.h>
+#include <optv/ray_tracing.h>
 
 int dumbbell_pyptv;
 
@@ -31,7 +33,7 @@ Glass     G1, G2;
   p1l[0] = xl;  p1l[1] = yl;	p1l[2] = - I1.cc;
 
   /* beam O1 -> P in space */
-  matmul (vect2, (double *) Ex1.dm, p1l, 3,3,1);
+  matmul(vect2, (double *) Ex1.dm, p1l, 3, 3, 1, 3, 3);
 
   /* normale to epipolar plane */
   crossprod (vect1,vect2,nk);
@@ -40,14 +42,14 @@ Glass     G1, G2;
   vect3[0] = 0;	vect3[1] = 0;	vect3[2] = - I2.cc;
 
   /* normale to image 2, in space */
-  matmul (n2, (double *) Ex2.dm, vect3, 3,3,1);
+  matmul(n2, (double *) Ex2.dm, vect3, 3, 3, 1, 3, 3);
 
   /* epipolar line in image2, in space */
   crossprod (nk,n2,K2);
 
   /* epipolar line in image2 */
   for (i=0; i<3; i++)  for (j=0; j<3; j++)  D2t[i][j] = Ex2.dm[j][i];
-  matmul (k2, (double *) D2t, K2, 3,3,1);
+  matmul(k2, (double *) D2t, K2, 3, 3, 1, 3, 3);
   m2 = k2[1] / k2[0];
   return (m2);
 }
@@ -79,28 +81,33 @@ int epi_mm (int cam, double x1, double y1, Exterior Ex1, Interior I1, Glass G1,
       which can be transformed into _2 image
       (use img_xy_mm because of comparison with img_geo)  */
 
-  double a, b, c, xa,ya,xb,yb;
-  double X1,Y1,Z1, X, Y, Z;
+  double a[3], xa,ya,xb,yb;
+  double X1[3], X[3];
   double Zmin, Zmax;
+  Calibration cal1;
+  memcpy(&(cal1.ext_par), &Ex1, sizeof(Exterior));\
+  memcpy(&(cal1.int_par), &I1, sizeof(Interior));\
+  memcpy(&(cal1.glass_par), &G1, sizeof(Glass));\
 
-  //ray_tracing    (x1,y1, Ex1, I1,     mmp, &X1, &Y1, &Z1, &a, &b, &c);
-  ray_tracing_v2 (x1,y1, Ex1, I1, G1, mmp, &X1, &Y1, &Z1, &a, &b, &c);
+  ray_tracing(x1,y1, &(cal1), mmp, X1, a);
 
   /* calculate min and max depth for position (valid only for one setup) */
   Zmin = vpar->Zmin_lay[0]
-    + (X1 - vpar->X_lay[0]) * (vpar->Zmin_lay[1] - vpar->Zmin_lay[0]) / 
+    + (X1[0] - vpar->X_lay[0]) * (vpar->Zmin_lay[1] - vpar->Zmin_lay[0]) / 
     (vpar->X_lay[1] - vpar->X_lay[0]);
   Zmax = vpar->Zmax_lay[0]
-    + (X1 - vpar->X_lay[0]) * (vpar->Zmax_lay[1] - vpar->Zmax_lay[0]) / 
+    + (X1[0] - vpar->X_lay[0]) * (vpar->Zmax_lay[1] - vpar->Zmax_lay[0]) / 
     (vpar->X_lay[1] - vpar->X_lay[0]);
 
-  Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-  //img_xy_mm_geo_old (X,Y,Z, Ex2, I2,     mmp, &xa, &ya);
-  img_xy_mm_geo(cam, X, Y, Z, Ex2, I2, G2, mmp, &xa, &ya);
+  X[2] = Zmin; \
+  X[1] = X1[1] + (X[2] - X1[2]) * a[1]/a[2]; \
+  X[0] = X1[0] + (X[2] - X1[2]) * a[0]/a[2]; \
+  img_xy_mm_geo(cam, X[0], X[1], X[2], Ex2, I2, G2, mmp, &xa, &ya);
 
-  Z = Zmax;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-  //img_xy_mm_geo_old (X,Y,Z, Ex2, I2,     mmp, &xb, &yb);
-  img_xy_mm_geo(cam, X, Y, Z, Ex2, I2, G2, mmp, &xb, &yb);
+  X[2] = Zmax; \
+  X[1] = X1[1] + (X[2] - X1[2]) * a[1]/a[2]; \
+  X[0] = X1[0] + (X[2] - X1[2]) * a[0]/a[2]; \
+  img_xy_mm_geo(cam, X[0], X[1], X[2], Ex2, I2, G2, mmp, &xb, &yb);
 
   /*  ==> window given by xa,ya,xb,yb  */
 
@@ -118,8 +125,6 @@ Glass      G1;	      	/* glass data */
 mm_np	   mmp;		        /* multimed param. (layers) */
 volume_par *vpar;
 double *xp, *yp, *zp;
-//double	   *xmin, *ymin, *xmax, *ymax;    /* output search window */
-
 {
   /*  ray tracing gives the point of exit and the direction
       cosines at the waterside of the glass;
@@ -127,32 +132,37 @@ double *xp, *yp, *zp;
       which can be transformed into _2 image
       (use img_xy_mm because of comparison with img_geo)  */
 
-  double a, b, c;
-  double X1,Y1,Z1,X,Y,Z;
-  
+  double a[3], xa,ya,xb,yb;
+  double X1[3], X[3];
   double Zmin, Zmax;
-
-  ray_tracing_v2 (x1,y1, Ex1, I1, G1, mmp, &X1, &Y1, &Z1, &a, &b, &c);
+  Calibration cal1;
+  memcpy(&(cal1.ext_par), &Ex1, sizeof(Exterior));\
+  memcpy(&(cal1.int_par), &I1, sizeof(Interior));\
+  memcpy(&(cal1.glass_par), &G1, sizeof(Glass));\
+  
+  ray_tracing(x1,y1, &(cal1), mmp, X1, a);
 
   /* calculate min and max depth for position (valid only for one setup) */
   Zmin = vpar->Zmin_lay[0]
-    + (X1 - vpar->X_lay[0]) * (vpar->Zmin_lay[1] - vpar->Zmin_lay[0]) / 
+    + (X1[0] - vpar->X_lay[0]) * (vpar->Zmin_lay[1] - vpar->Zmin_lay[0]) / 
     (vpar->X_lay[1] - vpar->X_lay[0]);
   Zmax = vpar->Zmax_lay[0]
-    + (X1 - vpar->X_lay[0]) * (vpar->Zmax_lay[1] - vpar->Zmax_lay[0]) /
+    + (X1[0] - vpar->X_lay[0]) * (vpar->Zmax_lay[1] - vpar->Zmax_lay[0]) /
     (vpar->X_lay[1] - vpar->X_lay[0]);
 
-  Z = 0.5*(Zmin+Zmax);   
-  X = X1 + (Z-Z1) * a/c;   
-  Y = Y1 + (Z-Z1) * b/c;
+  X[2] = 0.5*(Zmin+Zmax);   
+  X[0] = X1[0] + (X[2] - X1[2]) * a[0]/a[2];   
+  X[1] = X1[1] + (X[2] - X1[2]) * a[1]/a[2];
   
-  *xp=X; *yp=Y; *zp=Z;
+  *xp = X[0];
+  *yp = X[1];
+  *zp = X[2];
 
   return (0);
 }
 
 void find_candidate_plus (crd, pix, num, xa,ya,xb,yb, n, nx, ny, sumg,
-						  cand, count, nr, vpar)
+						  cand, count, nr, vpar, cpar)
 /*  binarized search in a x-sorted coord-set, exploits shape information  */
 
 coord_2d	crd[];
@@ -163,8 +173,7 @@ int    		n, nx, ny, sumg;
 candidate	cand[];
 int	       	nr;	       	/* image number for ap etc. */
 volume_par *vpar;
-//const char** argv;
-
+control_par *cpar;
 
 {
   register int	j;
@@ -201,8 +210,12 @@ volume_par *vpar;
   }
 
   /* define sensor format for search interrupt */
-  xmin = (-1) * pix_x * imx/2;	xmax = pix_x * imx/2;
-  ymin = (-1) * pix_y * imy/2;	ymax = pix_y * imy/2;
+  xmin = (-1) * cpar->pix_x * cpar->imx/2;
+  xmax = cpar->pix_x * cpar->imx/2;
+  
+  ymin = (-1) * cpar->pix_y * cpar->imy/2;
+  ymax = cpar->pix_y * cpar->imy/2;
+  
   xmin -= I[nr].xh;	ymin -= I[nr].yh;
   xmax -= I[nr].xh;	ymax -= I[nr].yh;
   correct_brown_affin (xmin,ymin, ap[nr], &xmin,&ymin);
@@ -302,7 +315,7 @@ volume_par *vpar;
 
 
 void find_candidate_plus_msg (crd, pix, num, xa,ya,xb,yb, n, nx, ny, sumg,
-							  cand, count, i12, vpar)
+							  cand, count, i12, vpar, cpar)
 
 /*  binarized search in a x-sorted coord-set, exploits shape information  */
 /*  gives messages (in examination)  */
@@ -313,6 +326,7 @@ int    		num, *count, i12;
 double		xa, ya, xb, yb;
 int    		n, nx, ny, sumg;
 volume_par *vpar;
+control_par *cpar;
 /*
 candidate	cand[3];
 */
@@ -326,8 +340,12 @@ candidate	cand[];
   double tol_band_width,particle_size;
 
   /* define sensor format for search interrupt */
-  xmin = (-1) * pix_x * imx/2;	xmax = pix_x * imx/2;
-  ymin = (-1) * pix_y * imy/2;	ymax = pix_y * imy/2;
+  xmin = (-1) * cpar->pix_x * cpar->imx/2;
+  xmax = cpar->pix_x * cpar->imx/2;
+  
+  ymin = (-1) * cpar->pix_y * cpar->imy/2;
+  ymax = cpar->pix_y * cpar->imy/2;
+
   xmin -= I[i12].xh;	ymin -= I[i12].yh;
   xmax -= I[i12].xh;	ymax -= I[i12].yh;
   correct_brown_affin (xmin,ymin, ap[i12], &xmin,&ymin);

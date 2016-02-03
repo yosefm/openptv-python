@@ -16,7 +16,5 @@ int kill_in_list (int nr, int num, int ms_x, int ms_y);
 
 int nearest_neighbour_geo(coord_2d crd[], int num, double x, double y,
     double eps);
-int nearest_neighbour_pix(target pix[], int num, double x, double y,
-    double eps);
 
 #endif
