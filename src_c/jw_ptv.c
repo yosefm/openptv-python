@@ -117,6 +117,7 @@ coord_3d       	fix[20096];     	/* testfield points coordinates */ //Beat chang
 n_tupel	       	con[nmax];     	/* list of correspondences */
 
 mm_LUT	       	mmLUT[4];     	/* LUT for multimedia radial displacement */
+int lut_inited = 0;  /* temp. until integration of multimedia changes */
 coord_3d        *p_c3d;
 
 /***************************************************************************/
@@ -488,11 +489,11 @@ int correspondences_proc_c ()
     /* init multimedia radial displacement LUTs */
     /* ======================================== */
     
-    if ( !mmp.lut && (mmp.n1 != 1 || mmp.n2[0] != 1 || mmp.n3 != 1))
+    if ( !lut_inited && (mmp.n1 != 1 || mmp.n2[0] != 1 || mmp.n3 != 1))
     {
         puts ("Init multimedia displacement LUTs");
         for (i_img = 0; i_img < cpar->num_cams; i_img++) init_mmLUT(i_img);
-        mmp.lut = 1;
+        lut_inited = 1;
     }
     
     correspondences_4 (vpar, cpar);

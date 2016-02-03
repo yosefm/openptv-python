@@ -22,6 +22,7 @@ Routines contained:		-
 #include <optv/parameters.h>
 
 double get_mmf_from_mmLUT ();
+extern int lut_inited; /* temp. until optv multimed integ */
 
 /* multimed_nlay_v2()
    
@@ -39,7 +40,7 @@ void  multimed_nlay_v2 (Exterior ex, Exterior ex_o, mm_np mm,
   double	beta1, beta2[32], beta3, r, rbeta, rdiff, rq, mmf;
   
   // interpolation in mmLUT, if selected (requires some global variables) 
-  if (mm.lut) {
+  if (lut_inited) {
       mmf = get_mmf_from_mmLUT (cam, X, Y, Z);
       
       if (mmf > 0)
@@ -240,7 +241,7 @@ double multimed_r_nlay_v2 (Exterior ex, Exterior ex_o, mm_np mm,
   
   
   // interpolation in mmLUT, if selected (requires some global variables) 
-  if (mm.lut) {
+  if (lut_inited) {
     mmf = get_mmf_from_mmLUT(cam, X, Y, Z);
     if (mmf > 0) return (mmf);
   }
