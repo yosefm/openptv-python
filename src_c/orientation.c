@@ -718,21 +718,21 @@ int	       	nr;  		/* image number for residual display */
 	  be=0;
 	  ga=0;
   //}
-  
-  
-  printf("\n Inside orient_v3, initialize memory \n"); 
+
+
+  printf("\n Inside orient_v3, initialize memory \n");
 
   /* init X, y (set to zero) */
-  for (i=0; i<5000; i++)
+  for (i=0; i<1800; i++)
     {
-      for (j=0; j<19; j++) {  
+      for (j=0; j<19; j++) {
         X[i][j] = 0.0;
       }
       y[i] = 0.0;  P[i] = 0.0;
     }
 
    printf("\n Memory is initialized, \n");
-   
+
   /* init identities */
   ident[0] = I0.cc;  ident[1] = I0.xh;  ident[2] = I0.yh;
   ident[3]=ap0.k1; ident[4]=ap0.k2; ident[5]=ap0.k3;
