@@ -1,5 +1,5 @@
 
-cdef extern from "parameters.h":
+cdef extern from "optv/parameters.h":
     ctypedef struct sequence_par:
         int first, last
 

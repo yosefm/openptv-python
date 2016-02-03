@@ -8,8 +8,8 @@ http://opensource.org/licenses/MIT
 
 """
 from traits.etsconfig.api import ETSConfig
-# ETSConfig.toolkit = 'qt4'
-ETSConfig.toolkit = 'wx'
+ETSConfig.toolkit = 'qt4'
+# ETSConfig.toolkit = 'wx'
 
 from traits.api \
     import HasTraits, Str, Int, List, Bool, Enum, Instance, Any
@@ -61,7 +61,7 @@ if not os.path.isdir(src_path):
 sys.path.append(src_path) 
 
 import ptv1 as ptv
-from tracking_framebuf import read_targets
+from optv.tracking_framebuf import read_targets
 
 # pyPTV specific imports
 import general

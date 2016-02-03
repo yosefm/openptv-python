@@ -17,7 +17,10 @@
  
  ****************************************************************************/
 #include "ptv.h"
-
+#include <optv/parameters.h>
+#include "tools.h"
+#include "image_processing.h"
+#include "orientation.h"
 
 #define nmax 20240
 
@@ -114,6 +117,7 @@ coord_3d       	fix[20096];     	/* testfield points coordinates */ //Beat chang
 n_tupel	       	con[nmax];     	/* list of correspondences */
 
 mm_LUT	       	mmLUT[4];     	/* LUT for multimedia radial displacement */
+int lut_inited = 0;  /* temp. until integration of multimedia changes */
 coord_3d        *p_c3d;
 
 /***************************************************************************/
@@ -275,7 +279,7 @@ int start_proc_c()
         /*  read orientation and additional parameters  */
         read_ori (&Ex[i], &I[i], &G[i], img_ori[i], &(ap[i]), img_addpar[i],
             NULL);
-        rotation_matrix (Ex[i], Ex[i].dm);
+        rotation_matrix(&(Ex[i]));
     
     }
     
@@ -319,7 +323,7 @@ int pre_processing_c ()
     /*if the checkmark is set, read mask-image and subtract it from the filtered-original image.*/
     if (mask==1)
     {//read mask image
-        for (i_img=0; i_img<n_img; i_img++)
+        for (i_img=0; i_img < cpar->num_cams; i_img++)
         {
             highpass (img[i_img], img[i_img], sup, 0, chfield);
             subtract_mask (img[i_img], img_mask[i_img], img_new[i_img]); //subtract mask from original image
@@ -331,7 +335,7 @@ int pre_processing_c ()
     
     if (mask==2)//Beat April 090402 was ==0
     {
-        for (i_img=0; i_img<n_img; i_img++)
+        for (i_img=0; i_img < cpar->num_cams; i_img++)
         {
             highpass (img[i_img], img[i_img], sup, 0, chfield);
         }
@@ -365,7 +369,8 @@ int detection_proc_c()
     fpp = fopen ("parameters/pft_version.par", "r");
     if (fpp){
         fscanf (fpp, "%d\n", &pft_version);
-        pft_version=pft_version+3;
+        pft_version = pft_version + 3;
+        printf(" Peak fitting version is %d\n", pft_version);
         fclose (fpp);
     }
     else{
@@ -391,6 +396,7 @@ int detection_proc_c()
             case 3:	/* pft with profile and distance check */
                 /* newest version */
                 xmin=0; /* vertical line restriction */
+                
                 num[i_img] = peak_fit_new (img[i_img],
                                            "parameters/targ_rec.par",
                                            xmin, imx, 1, imy, pix[i_img], i_img);
@@ -483,11 +489,11 @@ int correspondences_proc_c ()
     /* init multimedia radial displacement LUTs */
     /* ======================================== */
     
-    if ( !mmp.lut && (mmp.n1 != 1 || mmp.n2[0] != 1 || mmp.n3 != 1))
+    if ( !lut_inited && (mmp.n1 != 1 || mmp.n2[0] != 1 || mmp.n3 != 1))
     {
         puts ("Init multimedia displacement LUTs");
         for (i_img = 0; i_img < cpar->num_cams; i_img++) init_mmLUT(i_img);
-        mmp.lut = 1;
+        lut_inited = 1;
     }
     
     correspondences_4 (vpar, cpar);
@@ -610,7 +616,7 @@ int calibration_proc_c (int sel)
             fclose (fp1);
             
             /*  create file names  */
-            for (i=0; i<n_img; i++)
+            for (i=0; i < cpar->num_cams; i++)
             {
                 strcpy (img_ori[i], img_name[i]);
                 strcat (img_ori[i], ".ori");
@@ -656,7 +662,7 @@ int calibration_proc_c (int sel)
             // pre_processing_c ();
             
             /* reset zoom values */
-            for (i=0; i<n_img; i++)
+            for (i = 0; i < cpar->num_cams; i++)
             {
                 zoom_x[i] = imx/2; zoom_y[i] = imy/2; zoom_f[i] = 1;
             }
@@ -664,13 +670,13 @@ int calibration_proc_c (int sel)
             /* copy images because the target recognition
              will set greyvalues to zero */
             printf("\n after high pass inside detection");
-            for (i=0; i<n_img; i++)
+            for (i = 0; i < cpar->num_cams; i++)
             {
                 copy_images (img[i], img0[i]);
             }
             
             /* target recognition */
-            for (i=0; i<n_img; i++)
+            for (i = 0; i < cpar->num_cams; i++)
             {
                 targ_rec (img[i], img0[i], "parameters/detect_plate.par",
                           0, imx, 1, imy, pix[i], i, &num[i]);
@@ -684,7 +690,7 @@ int calibration_proc_c (int sel)
             }
             printf("\n after targ_rec inside detection");
             /* save pixel coord as approx. for template matching */
-            if (examine)	for (i=0; i<n_img; i++)
+            if (examine) for (i = 0; i < cpar->num_cams; i++)
             {
                 sprintf (filename, "%s_pix", img_name[i]);
                 fp1 = fopen (filename, "w");
@@ -709,7 +715,7 @@ int calibration_proc_c (int sel)
             
             /* read point numbers of pre-clicked points */
             fp1 = fopen_r ("parameters/man_ori.par");
-            for (i=0; i<n_img; i++)
+            for (i = 0; i < cpar->num_cams; i++)
             {
                 fscanf (fp1, "%d %d %d %d \n",
                         &nr[i][0], &nr[i][1], &nr[i][2], &nr[i][3]);
@@ -719,7 +725,7 @@ int calibration_proc_c (int sel)
             /* read coordinates of pre-clicked points */
             fp1 = fopen ("man_ori.dat", "r");
             if (! fp1)	break;
-            for (i_img=0; i_img<n_img; i_img++)	for (i=0; i<4; i++)
+            for (i_img = 0; i_img < cpar->num_cams; i_img++) for (i=0; i<4; i++)
             {
                 fscanf (fp1, "%lf %lf\n",
                         &pix0[i_img][i].x, &pix0[i_img][i].y);
@@ -729,7 +735,7 @@ int calibration_proc_c (int sel)
             
             break;
         case 9: puts ("Plot initial guess");
-            for (i=0; i<n_img; i++)
+            for (i=0; i < cpar->num_cams; i++)
             {
                 /* read control point coordinates for man_ori points */
                 fp1 = fopen_r (fixp_name);
@@ -761,7 +767,8 @@ int calibration_proc_c (int sel)
                 }
                 
                 /* raw orientation with 4 points */
-                raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i], &Ex[i],&G[i],1);
+                raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i], 
+                    &Ex[i],&G[i], i, 1);
                 
                 /* sorting of detected points by back-projection */
                 just_plot (Ex[i], I[i], G[i], ap[i], mmp,
@@ -775,7 +782,7 @@ int calibration_proc_c (int sel)
             
             break;
         case 5: puts ("Sort grid points - Alex test 18.5.11");
-            for (i=0; i<n_img; i++)
+            for (i = 0; i < cpar->num_cams; i++)
             {
                 /* read control point coordinates for man_ori points */
                 fp1 = fopen_r (fixp_name);
@@ -807,7 +814,8 @@ int calibration_proc_c (int sel)
                 }
                 
                 /* raw orientation with 4 points */
-                raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i], &Ex[i],&G[i],0); //Beat Nov 2008
+                raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i], 
+                    &Ex[i], &G[i], i, 0);
                 sprintf (filename, "raw%d.ori", i);
                 write_ori (Ex[i], I[i], G[i], ap[i], filename, NULL); /*ap ignored*/
                 
@@ -844,7 +852,7 @@ int calibration_proc_c (int sel)
                 {
                     fprintf (fp1, "%4d %10.3f %10.3f %10.3f   %d    ",
                              fix[i].pnr, fix[i].x, fix[i].y, fix[i].z, 0);
-                    for (i_img=0; i_img<n_img; i_img++)
+                    for (i_img=0; i_img < cpar->num_cams; i_img++)
                     {
                         if (pix[i_img][i].pnr >= 0)
                         {
@@ -872,7 +880,7 @@ int calibration_proc_c (int sel)
             
         case 14: puts ("Sortgrid = initial guess");
             
-            for (i=0; i<n_img; i++)
+            for (i=0; i < cpar->num_cams; i++)
             {
                 /* read control point coordinates for man_ori points */
                 fp1 = fopen_r (fixp_name);
@@ -904,7 +912,8 @@ int calibration_proc_c (int sel)
 				}
                 
 				/* raw orientation with 4 points */
-				raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i], &Ex[i],&G[i],1); /* correction 0 to 1 , al*/
+				raw_orient_v3 (Ex[i], I[i], G[i], ap[i], mmp, 4, fix4, crd0[i],
+                    &Ex[i], &G[i], i, 1); 
 				sprintf (filename, "raw%d.ori", i);
                 write_ori (Ex[i], I[i], G[i], ap[i], filename, NULL); /*ap ignored*/
                 
@@ -948,7 +957,7 @@ int calibration_proc_c (int sel)
             strcpy (safety_addpar[3], "safety_3");
             strcat (safety_addpar[3], ".addpar");
             
-            for (i_img=0; i_img<n_img; i_img++)
+            for (i_img = 0; i_img < cpar->num_cams; i_img++)
             {
                 for (i=0; i<nfix ; i++)
                 {
@@ -993,57 +1002,65 @@ int calibration_proc_c (int sel)
                 
                 /* resection routine */
                 /* ================= */
-                printf ("examine=%d\n",examine);
-                printf("inside jw_ptv.c before orient_v3 I.yh=%f \n",I[i_img].yh);
+                printf ("examine= %d \n",examine);
+                // printf("inside jw_ptv.c before orient_v3 I.yh=%f \n",I[i_img].yh);
                 if (examine != 4)
                     orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], mmp,
                                nfix, fix, crd[i_img],
                                &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img);
-                printf("inside jw_ptv.c after orient_v3 I.yh=%f \n",I[i_img].yh);
+                // printf("inside jw_ptv.c after orient_v3 I.yh = %f \n",I[i_img].yh);
                 /* ================= */
                 
                 
                 /* resection with dumped datasets */
                 if (examine == 4)
                 {
-                    
+                    printf("Resection with dumped datasets \n");
                     //printf("Resection with dumped datasets? (y/n)");
                     //scanf("%s",buf);
                     //if (buf[0] != 'y')	continue;
                     //strcpy (buf, "");
-                    if (multi==0)	continue;
+                    if (multi == 0)	continue;
                     
                     /* read calibration frame datasets */
                     //sprintf (multi_filename[0],"img/calib_a_cam");
                     //sprintf (multi_filename[1],"img/calib_b_cam");
                     
-                    fp1 = fopen_r ("parameters/multi_planes.par");
-                    fscanf (fp1,"%d\n", &planes);
-                    for(i=0;i<planes;i++) 
-                        fscanf (fp1,"%s\n", multi_filename[i]);//fscanf (fp1,"%s\n", &multi_filename[i]);
-                    fclose(fp1);
+                    fp1 = fopen("parameters/multi_planes.par","r");
+                    if (fp1) {
+                        fscanf (fp1,"%d\n", &planes);
+                        printf(" number of planes %d \n", planes);
+                        for(i=0;i<planes;i++) 
+                            fscanf (fp1,"%s\n", multi_filename[i]);//fscanf (fp1,"%s\n", &multi_filename[i]);
+                            printf ("%s\n", multi_filename[i]);
+                        fclose(fp1);
+                    }
+                                        
                     
                     for (n=0, nfix=0, dump_for_rdb=0; n<10; n++)
                     {
                         //sprintf (filename, "resect.fix%d", n);
                         
                         sprintf (filename, "%s%d.tif.fix", multi_filename[n],i_img+1);
+                        
                         fp1 = fopen (filename, "r");
                         if (! fp1)	continue;
                         
                         printf("reading file: %s\n", filename);
-                        printf ("reading dumped resect data #%d\n", n);
                         k = 0;
                         while ( fscanf (fp1, "%d %lf %lf %lf",
                                         &fix[nfix+k].pnr, &fix[nfix+k].x,
                                         &fix[nfix+k].y, &fix[nfix+k].z)
                                != EOF) k++;
                         fclose (fp1);
+                                                
                         /* read metric image coordinates */
                         //sprintf (filename, "resect_%d.crd%d", i_img, n);
                         sprintf (filename, "%s%d.tif.crd", multi_filename[n],i_img+1);
                         printf("reading file: %s\n", filename);
                         fp1 = fopen (filename, "r");
+                        if (! fp1)	continue;
+                        
                         for (i=nfix; i<nfix+k; i++)
                             fscanf (fp1, "%d %lf %lf",
                                     &crd[i_img][i].pnr,
@@ -1051,6 +1068,8 @@ int calibration_proc_c (int sel)
                         nfix += k;
                         fclose (fp1);
                     }
+                    
+                    printf("nfix = %d\n",nfix);
                     
                     /* resection */
                     /*Beat Mai 2007*/
@@ -1063,6 +1082,8 @@ int calibration_proc_c (int sel)
                     {
                         /* first crd->pix */
                         metric_to_pixel (crd[i_img][i].x, crd[i_img][i].y, imx,imy, pix_x,pix_y, &pix[i_img][i].x, &pix[i_img][i].y, chfield);
+                        
+                        // printf("%d %f %f \n",i,pix[i_img][i].x, pix[i_img][i].y);
                         /*then draw crosses*/
                         //intx1 = (int) pix[i_img][i].x;
                         //inty1 = (int) pix[i_img][i].y;
@@ -1073,7 +1094,11 @@ int calibration_proc_c (int sel)
                         
                     }
                     
-                    
+                    printf("read all the files successfully, nfix = %d\n",nfix);
+                    printf("last line is:\n");
+                    printf("%d %f %f \n",nfix-1,pix[i_img][nfix-1].x, pix[i_img][nfix-1].y);
+                    printf("===============================\n");
+                                        
                     orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], mmp,
                                nfix, fix, crd[i_img],
                                &Ex[i_img], &I[i_img], &G[i_img], &ap[i_img], i_img);
@@ -1131,13 +1156,10 @@ int calibration_proc_c (int sel)
 			strcpy (safety_addpar[3], "safety_3");
 			strcat (safety_addpar[3], ".addpar");
 			
-            fpp = fopen_r ("parameters/ptv.par");
-            fscanf (fpp, "%d\n", &n_img);
-            fclose (fpp);
+            cpar = read_control_par("parameters/ptv.par");
+            prepare_eval_shake(cpar->num_cams);
             
-            prepare_eval_shake(n_img);
-            
-			for (i_img=0; i_img<n_img; i_img++)
+			for (i_img = 0; i_img < cpar->num_cams; i_img++)
 			{
 				orient_v3 (Ex[i_img], I[i_img], G[i_img], ap[i_img], mmp,
 						   nfix, fix, crd[i_img],
@@ -1167,10 +1189,10 @@ int calibration_proc_c (int sel)
             
         case 12: puts ("Orientation from dumbbells"); strcpy(buf, "");
 			
-            prepare_eval(n_img,&nfix); //goes and looks up what sequence is defined and takes all cord. from rt_is
-            orient_v5 (n_img, nfix, Ex, I, G, ap); // orient_v5 (n_img, nfix,&Ex, &I, &G, &ap);
+            prepare_eval(cpar->num_cams, &nfix); //goes and looks up what sequence is defined and takes all cord. from rt_is
+            orient_v5 (cpar->num_cams, nfix, &Ex, &I, &G, &ap);
 			
-            for(i_img=0;i_img<n_img;i_img++){
+            for(i_img = 0; i_img < cpar->num_cams; i_img++){
                 write_ori (Ex[i_img], I[i_img], G[i_img], ap[i_img],
                     img_ori[i_img], img_addpar[i_img]);
             }

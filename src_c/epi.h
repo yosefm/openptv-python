@@ -1,10 +1,10 @@
 #ifndef EPI_H
 #define EPI_H
 
-#include "calibration.h"
 #include "typedefs.h"
+#include <optv/calibration.h>
 #include <optv/tracking_frame_buf.h>
-#include "parameters.h"
+#include <optv/parameters.h>
 
 typedef struct {
   int  	pnr;
@@ -13,7 +13,7 @@ typedef struct {
 
 double epi_line(double xl, double yl, Exterior Ex1, Interior I1, Glass G1,
     Exterior Ex2, Interior I2, Glass G2);
-int  epi_mm(double xl, double yl, Exterior Ex1, Interior I1, Glass G1,
+int  epi_mm(int cam, double xl, double yl, Exterior Ex1, Interior I1, Glass G1,
     Exterior Ex2, Interior I2, Glass G2, mm_np mmp, volume_par *vpar,
     double *xmin, double *ymin, double *xmax, double *ymax);
 int  epi_mm_2D(double xl, double yl, Exterior Ex1, Interior I1, Glass G1,

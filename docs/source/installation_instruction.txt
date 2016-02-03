@@ -63,11 +63,13 @@ Installing on Ubuntu (12.04):
 
 	$ bash Anaconda-2.1.0-Linux-x86.sh
 
-restart the bash terminal and update the packages::
+restart the bash terminal and update the packages (some might be already installed) ::
 
 	 conda update conda
 	 conda update anaconda
 	 conda install cython
+	 conda install chaco
+	 conda install wxpython
 
 #. Get OpenPTV library `liboptv`::  
 
@@ -87,7 +89,7 @@ restart the bash terminal and update the packages::
 #. Get 3D-PTV test folder and create a missing `res/` folder::
 
 	 cd ~
-	 git clone https://bitbucket.org/turbulencelabtau/ptv_test_folder.git
+	 git clone https://github.com/OpenPTV/test_cavity.git
 	 cd ptv_test_folder
 	 mkdir res
 	 

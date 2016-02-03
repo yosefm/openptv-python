@@ -37,9 +37,6 @@ int    		field;	       	/* field to be used */
 
   register unsigned char *ptr1, *ptr2, *ptr3;
 
-printf("image_size_orig = %d\n",imgsize);
-  printf("inside highpass2\n");
-printf ("dim_lp = %d\n", dim_lp);
 
   img_lp = (unsigned char *) calloc (imgsize, 1);
   if ( ! img_lp)
@@ -47,9 +44,7 @@ printf ("dim_lp = %d\n", dim_lp);
       puts ("calloc for img_lp --> error");
       exit (1);
     }
-  printf("after img_lp\n");
   unsharp_mask (dim_lp, img, img_lp);
-  printf("after unsharpen_mask\n");
 
   for (ptr1=img, ptr2=img_lp, ptr3=img_hp, i=0; i<imgsize;
        ptr1++, ptr2++, ptr3++, i++)
@@ -102,19 +97,26 @@ int	       	*num;	       		/* number of detections */
   targpix	       	waitlist[2048];
 
   /* read image name, filter dimension and threshold from parameter file */
-  fpp = fopen_r (par_file);
-  fscanf (fpp, "%d", &gvthres[0]);      /* threshold for binarization 1.image */
-  fscanf (fpp, "%d", &gvthres[1]);      /* threshold for binarization 2.image */
-  fscanf (fpp, "%d", &gvthres[2]);      /* threshold for binarization 3.image */
-  fscanf (fpp, "%d", &gvthres[3]);      /* threshold for binarization 4.image */
-  fscanf (fpp, "%d", &disco);    	/* threshold value for discontinuity */
-  fscanf (fpp, "%d  %d", &nnmin, &nnmax);  /* min. and max. number of  */
-  fscanf (fpp, "%d  %d", &nxmin, &nxmax);	 /* pixels per target, */
-  fscanf (fpp, "%d  %d", &nymin, &nymax);  /* abs, in x, in y    */
-  fscanf (fpp, "%d", &sumg_min);	       	/* min. sumg	       */
-  fscanf (fpp, "%d", &cr_sz);    	    	/* size of crosses     */
-  fclose (fpp);
-
+  printf("inside targ_rec (segmentation.c) \n");
+  fpp = fopen(par_file,"r");
+  if (fpp){
+  	printf("opened file %s", &par_file);
+  	printf("assigned file header %d", fpp);
+  	fscanf (fpp, "%d", &gvthres[0]);      /* threshold for binarization 1.image */
+  	fscanf (fpp, "%d", &gvthres[1]);      /* threshold for binarization 2.image */
+  	fscanf (fpp, "%d", &gvthres[2]);      /* threshold for binarization 3.image */
+  	fscanf (fpp, "%d", &gvthres[3]);      /* threshold for binarization 4.image */
+  	fscanf (fpp, "%d", &disco);		/* max discontinuity */
+  	fscanf (fpp, "%d  %d", &nnmin, &nnmax);	/* min. and max. number of */
+  	fscanf (fpp, "%d  %d", &nxmin, &nxmax);	/* pixels per target,  	*/
+  	fscanf (fpp, "%d  %d", &nymin, &nymax);	/* abs, in x, in y    	*/
+  	fscanf (fpp, "%d", &sumg_min);		       	/* min. sumg */
+  	fscanf (fpp, "%d", &cr_sz);				/* size of crosses */
+  	fclose (fpp);
+  }
+  else{
+  	printf("problem opening %s\n", &par_file);
+  }
   /* give thres value refering to image number */
   thres=gvthres[nr];
 

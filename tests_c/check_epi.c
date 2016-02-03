@@ -3,8 +3,9 @@
 #include <check.h>
 #include <stdlib.h>
 
-#include "../src_c/calibration.h"
-#include "../src_c/parameters.h"
+#include <optv/calibration.h>
+#include <optv/parameters.h>
+
 #include "../src_c/typedefs.h"
 #include "../src_c/epi.h"
 #include "../src_c/globals.h"
@@ -25,7 +26,7 @@ START_TEST(test_epi_mm)
     
     xin = 10.;
     yin = 10.;
-    epi_mm(xin, yin,
+    epi_mm(0, xin, yin,
         cal[0]->ext_par, cal[0]->int_par, cal[0]->glass_par,
         cal[1]->ext_par, cal[1]->int_par, cal[1]->glass_par,
         media_par, vpar, &xmin, &ymin, &xmax, &ymax);
@@ -71,7 +72,7 @@ START_TEST(test_find_candidate_plus)
         .cnx = 1, 
         .cny = 1,
         .csumg = 0.1, 
-        .eps0 = 0.04
+        .eps0 = 0.2
     };
     
     /* We'll have a 45 deg epipolar line and a slightly flatter candidates 
@@ -97,6 +98,7 @@ START_TEST(test_find_candidate_plus)
     
     find_candidate_plus(crd, pix, 10, minval, minval, maxval, maxval,
         n, nx, ny, sumg, cand, &count, 0, &vpar);
+    printf("count %d\n", count);
     fail_unless(count == 2);
 }
 END_TEST

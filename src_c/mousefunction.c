@@ -1,5 +1,5 @@
 #include "ptv.h"
-#include "parameters.h"
+#include <optv/parameters.h>
 #include "epi.h"
 #include "tools.h"
 
@@ -63,7 +63,7 @@ int mouse_proc_c (int click_x, int click_y, int kind, int num_image, volume_par 
 	       	       	       
 	       for (i = 0; i < cpar->num_cams; i++) if (i != n) {
 		   /* calculate epipolar band in img[i] */
-		   epi_mm (geo[n][k].x,geo[n][k].y,
+		   epi_mm (i, geo[n][k].x,geo[n][k].y,
 			   Ex[n],I[n], G[n], Ex[i],I[i], G[i], mmp, vpar,
 			   &xa12, &ya12, &xb12, &yb12);
 		   

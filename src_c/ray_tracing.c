@@ -21,6 +21,7 @@ Routines contained:		-
 
 #include "ptv.h"
 #include "lsqadj.h"
+#include <optv/parameters.h>
 
 void modu(double a[3], double *m);
 void norm_cross(double a[3], double b[3], double *n1, double *n2, double *n3);
