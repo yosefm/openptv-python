@@ -21,6 +21,7 @@ Routines contained:		-
 #include "ptv.h"
 #include <optv/parameters.h>
 #include <optv/ray_tracing.h>
+#include <optv/trafo.h>
 
 double get_mmf_from_mmLUT ();
 extern int lut_inited; /* temp. until optv multimed integ */

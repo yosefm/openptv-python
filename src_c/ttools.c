@@ -18,6 +18,7 @@ Routines contained:     pix_in_next, candsearch_in_pix, searchposition,
 #include "ptv.h"
 #include "imgcoord.h"
 #include <optv/parameters.h>
+#include <optv/trafo.h>
 
 int pix_in_next (next, num, x, y, dl, dr, du, dd, found)
 target  next[];

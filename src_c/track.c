@@ -29,6 +29,7 @@ Routines contained:    	trackcorr_c
 #include <optv/vec_utils.h>
 #include "tools.h"
 #include "ttools.h"
+#include "imgcoord.h"
 
 /* Global variables marked extern in 'globals.h' and not defined elsewhere: */
 int intx0_tr[4][10000], inty0_tr[4][10000], intx1_tr[4][10000],\
@@ -217,7 +218,7 @@ void angle_acc(vec3d start, vec3d pred, vec3d cand, double *angle, double *acc)
     if ((v0[0] == -v1[0]) && (v0[1] == -v1[1]) && (v0[2] == -v1[2])) {
         *angle = 200;
     } else {
-        *angle = (200./M_PI) * acos(vec_dot(v0, v1) / vec_norm(v0) \ 
+        *angle = (200./M_PI) * acos(vec_dot(v0, v1) / vec_norm(v0) \
             / vec_norm(v1));
     }
 }
