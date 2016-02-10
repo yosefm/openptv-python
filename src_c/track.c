@@ -446,7 +446,7 @@ void trackcorr_c_loop (tracking_run *run_info, int step, int display)
                 vec_copy(X[4], X[5]);
 		        invol=0; 
 
-		        det_lsq_3d (Ex, I, G, ap, *(cpar->mm), x2[0], y2[0], x2[1], y2[1], 
+		        det_lsq_3d (glob_cal, *(cpar->mm), x2[0], y2[0], x2[1], y2[1], 
                     x2[2], y2[2], x2[3], y2[3],
                     &(X[4][0]), &(X[4][1]), &(X[4][2]), fb->num_cams);
 
@@ -558,7 +558,7 @@ void trackcorr_c_loop (tracking_run *run_info, int step, int display)
                     vec_copy(X[3], X[2]);
 		            invol=0; 
     
-	    	        det_lsq_3d (Ex, I, G, ap, *(cpar->mm),
+	    	        det_lsq_3d (glob_cal, *(cpar->mm),
                         x2[0], y2[0], x2[1], y2[1], x2[2], y2[2], x2[3], y2[3],
                         &(X[3][0]), &(X[3][1]), &(X[3][2]), fb->num_cams);
 
@@ -929,7 +929,7 @@ void trackback_c ()
                         vec_copy(X[3], X[2]);
                         invol=0;
 
-                        det_lsq_3d (Ex, I, G, ap, *(cpar->mm),
+                        det_lsq_3d (glob_cal, *(cpar->mm),
                             x2[0], y2[0], x2[1], y2[1], x2[2], y2[2], x2[3], y2[3],
                             &(X[3][0]), &(X[3][1]), &(X[3][2]), fb->num_cams);
 

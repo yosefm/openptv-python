@@ -447,7 +447,7 @@ void volumedimension (Calibration cal[4], double *xmax, double *xmin,
     double *ymax, double *ymin, double *zmax, double *zmin, control_par *cpar)
 {
   int	i_cam;
-  Exterior Ex;
+  Exterior Ex = cal[i_cam].ext_par;
   double X[3], R, X1[3], Zmin, Rmax = 0, Zmax, a[3];
   double x,y;
   
