@@ -544,14 +544,14 @@ int	       	nfix;		# of object points
 			cal[1].int_par.cc  =cal[0].int_par.cc;
 			cal[2].int_par.cc  =cal[0].int_par.cc;
 			cal[3].int_par.cc  =cal[0].int_par.cc;
-	        eval_ori_v2(db_scale, weight_scale, cpar->num_cams, nfix,
-                &epi_miss, &dist, &residual, *(cpar->mm));
+            eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix, 
+                    &epi_miss, &dist, &residual, *(cpar->mm));
 		    if(best_residual-residual < 0){ //then try other direction
 			    cal[0].int_par.cc -= 2*dm;
 				cal[1].int_par.cc  =cal[0].int_par.cc;
 			    cal[2].int_par.cc  =cal[0].int_par.cc;
 			    cal[3].int_par.cc  =cal[0].int_par.cc;
-	            eval_ori_v2(db_scale,weight_scale, cpar->num_cams, nfix,
+                eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix, 
                     &epi_miss, &dist, &residual, *(cpar->mm));
 			    if(best_residual-residual < 0){// then leave it unchanged
                     cal[0].int_par.cc += dm;
