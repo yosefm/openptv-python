@@ -147,7 +147,6 @@ int init_proc_c()
     /*  read from main parameter file  */
     cpar = read_control_par("parameters/ptv.par");
     cpar->mm->nlay = 1;
-    cpar->mm->lut = 0;
     
     for (i=0; i<4; i++)
     {
@@ -228,7 +227,6 @@ int start_proc_c()
     /*  read from main parameter file  */
     cpar = read_control_par("parameters/ptv.par");
     cpar->mm->nlay = 1;
-    cpar->mm->lut = 0;
     
     for (i=0; i<4; i++)
     {
