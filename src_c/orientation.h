@@ -11,9 +11,8 @@ orientation.c */
 void prepare_eval(control_par *cpar, int *n_fix);
 void prepare_eval_shake(control_par *cpar);
 
-void num_deriv_exterior(int cam, Exterior ext, Interior I0, Glass G0, ap_52 ap0,
-    mm_np mm, double dpos, double dang, vec3d pos,
-    double x_ders[6], double y_ders[6]);
+void num_deriv_exterior(Calibration cal, control_par *cpar, 
+    double dpos, double dang, vec3d pos, double x_ders[6], double y_ders[6]);
 
 int orient_v3 (Calibration init_cal, control_par *cpar, 
     int nfix, coord_3d fix[], coord_2d crd[], Calibration *res_cal, 
