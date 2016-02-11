@@ -6,7 +6,7 @@ libptv_la_SOURCES = tools.c ttools.c imgcoord.c multimed.c \
     ptv.h track.c pointpos.c intersect.c orientation.c epi.c \
     jw_ptv.c segmentation.c peakfitting.c \
     correspondences.c sortgrid.c image_processing.c \
-    tracking_run.c tracking_run.h corresp.c btree.c
+    tracking_run.c tracking_run.h 
 libptv_la_LIBADD = -lm -loptv 
 
 check_PROGRAMS = main
