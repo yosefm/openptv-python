@@ -98,12 +98,12 @@ int epi_mm (double x1, double y1, Calibration *cal_orig, Calibration *cal_proj,
   X[2] = Zmin; \
   X[1] = X1[1] + (X[2] - X1[2]) * a[1]/a[2]; \
   X[0] = X1[0] + (X[2] - X1[2]) * a[0]/a[2]; \
-  img_xy_mm_geo(X, cal_proj, cpar->mm, &xa, &ya);
+  flat_image_coord(X, cal_proj, cpar->mm, &xa, &ya);
 
   X[2] = Zmax; \
   X[1] = X1[1] + (X[2] - X1[2]) * a[1]/a[2]; \
   X[0] = X1[0] + (X[2] - X1[2]) * a[0]/a[2]; \
-  img_xy_mm_geo(X, cal_proj, cpar->mm, &xb, &yb);
+  flat_image_coord(X, cal_proj, cpar->mm, &xb, &yb);
 
   /*  ==> window given by xa,ya,xb,yb  */
 

@@ -2,7 +2,7 @@
 
 check_LTLIBRARIES = libptv.la
 
-libptv_la_SOURCES = tools.c ttools.c imgcoord.c multimed.c \
+libptv_la_SOURCES = tools.c ttools.c \
     ptv.h track.c pointpos.c intersect.c orientation.c epi.c \
     jw_ptv.c segmentation.c peakfitting.c \
     correspondences.c sortgrid.c image_processing.c \

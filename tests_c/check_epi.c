@@ -14,7 +14,11 @@ START_TEST(test_epi_mm)
 {
     double xin, yin;
     double xmin, ymin, xmax, ymax;
-    mm_np media_par = {1, 1., {1.49, 0., 0.}, {5., 0., 0.}, 1.33, 1.};
+    
+    control_par cpar;
+    mm_np media_par = {1, 1., {1.49, 0., 0.}, {5., 0., 0.}, 1.33};
+    cpar.mm = &media_par;
+    
     volume_par *vpar;
     Calibration* cal[2];
     
@@ -26,10 +30,8 @@ START_TEST(test_epi_mm)
     
     xin = 10.;
     yin = 10.;
-    epi_mm(0, xin, yin,
-        cal[0]->ext_par, cal[0]->int_par, cal[0]->glass_par,
-        cal[1]->ext_par, cal[1]->int_par, cal[1]->glass_par,
-        media_par, vpar, &xmin, &ymin, &xmax, &ymax);
+    epi_mm(xin, yin, cal[0], cal[1],
+        &cpar, vpar, &xmin, &ymin, &xmax, &ymax);
     
     fail_unless((abs(xmin - (-9.209233)) < 1e-6) && (abs(ymin - 21.758034) < 1e-6) 
         && (abs(xmax - 10.067018) < 1e-6) && (abs(ymax - 20.877886) < 1e-6));
