@@ -2,6 +2,7 @@ import numpy as np
 cimport numpy as np
 
 from tracking_run_py cimport tracking_run, TrackingRun
+from optv.calibration cimport calibration
 
 ctypedef extern struct n_tupel:
     int     p[4]
@@ -39,6 +40,8 @@ cdef enum:
     nmax = 20240
 
 cdef extern from "globals.h": # to lose the declspec
+    calibration glob_cal[4]
+    
     void prepare_eval(control_par *cpar, int *n_fix)
 
     void highpass(unsigned char *img, unsigned char *img_hp, int dim_lp, 
@@ -61,7 +64,7 @@ cdef extern from "globals.h": # to lose the declspec
     void read_ascii_data(int filenumber)
     int determination_proc_c (int dumbbell)
 
-    int mouse_proc_c (int click_x, int click_y, int kind, int num_image, volume_par *vpar, control_par *cpar, c_calibration *cals)
+    int mouse_proc_c (int click_x, int click_y, int kind, int num_image, volume_par *vpar, control_par *cpar, calibration *cals)
     target *p[4]
     target pix[4][20240]
     coord_2d geo[4][20240]
