@@ -586,7 +586,7 @@ class TreeMenuHandler (Handler):
                         print "Error reading file"
                            
                     ptv.py_set_img(temp_img,j)
-                    ptv.py_sequence_loop(0,i)
+                ptv.py_sequence_loop(0,i)
         else:
             print "Sequence by using "+extern_sequence
             sequence=seq.Sequence(ptv=ptv, exp1=info.object.exp1,camera_list=info.object.camera_list)

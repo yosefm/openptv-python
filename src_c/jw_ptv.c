@@ -461,8 +461,10 @@ int correspondences_proc_c (char **img_base_names, int frame)
     if ( !lut_inited && (cpar->mm->n1 != 1 || cpar->mm->n2[0] != 1 || cpar->mm->n3 != 1))
     {
         puts ("Init multimedia displacement LUTs");
-        for (i_img = 0; i_img < cpar->num_cams; i_img++) 
+        for (i_img = 0; i_img < cpar->num_cams; i_img++) {
+            glob_cal[i_img].mmlut.data = NULL; /* signal that nothing was malloced */
             init_mmlut(vpar, cpar, &(glob_cal[i_img]));
+        }
         lut_inited = 1;
     }
     
