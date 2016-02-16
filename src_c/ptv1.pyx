@@ -35,6 +35,12 @@ cdef extern from "optv/parameters.h":
         pass
     volume_par* read_volume_par(char* vpar_fname)
 
+cdef extern from "track.h":
+    tracking_run* trackcorr_c_init()
+    int trackcorr_c_loop(tracking_run *run_info, int step, int display)
+    int trackcorr_c_finish(tracking_run *run_info, int step)
+    int trackback_c()
+
 # Apologies. This is needed until orientation overhaul begins.
 cdef enum:
     nmax = 20240
@@ -56,10 +62,6 @@ cdef extern from "globals.h": # to lose the declspec
     int sequence_proc_c(int dumb_flag)
     int sequence_proc_loop_c(int dumbell, int i)
 
-    tracking_run* trackcorr_c_init()
-    int trackcorr_c_loop (tracking_run *run_info, int step, int display)
-    int trackcorr_c_finish(tracking_run *run_info, int step)
-    int trackback_c ()
     int trajectories_c(int i, control_par *cpar)
     void read_ascii_data(int filenumber)
     int determination_proc_c (int dumbbell)

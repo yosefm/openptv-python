@@ -26,6 +26,7 @@
 #include "tools.h"
 #include "image_processing.h"
 #include "orientation.h"
+#include "track.h"
 
 #define nmax 20240
 

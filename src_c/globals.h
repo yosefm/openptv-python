@@ -111,5 +111,4 @@ void just_plot();
 void det_lsq_3d ();
 void orient();
 
-tracking_run* trackcorr_c_init();
 #endif
