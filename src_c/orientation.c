@@ -22,36 +22,40 @@ Routines contained:
 Related routines:
 
 ******************************************************************/
-#include <stdio.h>
+#include <optv/calibration.h>
 #include <optv/tracking_frame_buf.h>
 #include <optv/parameters.h>
+#include <optv/trafo.h>
+#include <optv/ray_tracing.h>
+#include <optv/lsqadj.h>
 
-#include "lsqadj.h"
 #include <optv/vec_utils.h>
 #include "ptv.h"
 
 #define MAX_TARGETS 20000
 
+/* Conversion radians -> gradians */
+#include <math.h>
+#define ro 200 / M_PI
+
+/* Only needed while orientation funcions still do I/O */
+#include <stdio.h>
+
 /* Variables declared extern in 'globals.h' and not defined elsewhere: */
-int orient_x1[4][1000], orient_y1[4][1000], orient_x2[4][1000],\
-    orient_y2[4][1000], orient_n[4];
+int orient_x2[4][1000], orient_y2[4][1000], orient_n[4];
 
-void prepare_eval (n_img,n_fix)
-
-int *n_fix;
-int n_img;
-
-{
+void prepare_eval (control_par *cpar, int *n_fix) {
     int     i_img, i, filenumber, step_shake, count = 0;
 	double  dummy;
     sequence_par *seq_par;
+    FILE *fpp;
     
     int part_pointer; /* Holds index of particle later */
     
     frame frm;
-    frame_init(&frm, n_img, MAX_TARGETS);
+    frame_init(&frm, cpar->num_cams, MAX_TARGETS);
     
-	seq_par = read_sequence_par("parameters/sequence.par", n_img);
+	seq_par = read_sequence_par("parameters/sequence.par", cpar->num_cams);
 
 	fpp = fopen ("parameters/dumbbell.par", "r");
     if (fpp){
@@ -70,7 +74,7 @@ int n_img;
             filenumber);
 
 		for (i = 0; i < frm.num_parts; i++) {
-            for (i_img = 0; i_img < n_img; i_img++) {
+            for (i_img = 0; i_img < cpar->num_cams; i_img++) {
                 part_pointer = frm.correspond[i].p[i_img];
                 if (part_pointer != CORRES_NONE) {
                     pix[i_img][count].x = frm.targets[i_img][part_pointer].x;
@@ -81,10 +85,8 @@ int n_img;
                 }
                 
 				if(pix[i_img][count].x>-999 && pix[i_img][count].y>-999){
-				   pixel_to_metric (pix[i_img][count].x, pix[i_img][count].y,
-			                        imx,imy, pix_x, pix_y,
-			                        &crd[i_img][count].x, &crd[i_img][count].y,
-			                        chfield);
+				   pixel_to_metric (&crd[i_img][count].x, &crd[i_img][count].y,
+                       pix[i_img][count].x, pix[i_img][count].y, cpar);
 				}
 				else{
                    crd[i_img][count].x=-1e10;
@@ -102,7 +104,8 @@ int n_img;
 /* This is very similar to prepare_eval, but it is sufficiently different in
    small but devious ways, not only parameters, that for now it'll be a 
    different function. */
-void prepare_eval_shake(int n_img) {
+void prepare_eval_shake(control_par *cpar) {
+    FILE *fpp;
     char* target_file_base[4];
     int i_img, i, filenumber, step_shake, count = 0, frame_count = 0;
     int seq_first, seq_last;
@@ -114,9 +117,9 @@ void prepare_eval_shake(int n_img) {
     int part_pointer; /* Holds index of particle later */
     
     frame frm;
-    frame_init(&frm, n_img, MAX_TARGETS);
+    frame_init(&frm, cpar->num_cams, MAX_TARGETS);
     
-	seq_par = read_sequence_par("parameters/sequence.par", n_img);
+	seq_par = read_sequence_par("parameters/sequence.par", cpar->num_cams);
 
 	fpp = fopen ("parameters/shaking.par", "r");
     fscanf (fpp,"%d\n", &seq_first);
@@ -142,7 +145,7 @@ void prepare_eval_shake(int n_img) {
         for (i = 0; i < frm.num_parts; i++) {
             part_used = 0;
             
-            for (i_img = 0; i_img < n_img; i_img++) {
+            for (i_img = 0; i_img < cpar->num_cams; i_img++) {
                 part_pointer = frm.correspond[i].p[i_img];
                 if ((part_pointer != CORRES_NONE) && \
                     (frm.path_info[i].prev != PREV_NONE) && \
@@ -152,9 +155,8 @@ void prepare_eval_shake(int n_img) {
                     pix[i_img][count].y = frm.targets[i_img][part_pointer].y;
                     pix[i_img][count].pnr = count;
                                 
-                    pixel_to_metric (pix[i_img][count].x, pix[i_img][count].y,
-                        imx,imy, pix_x, pix_y,
-                        &crd[i_img][count].x, &crd[i_img][count].y, chfield);
+                    pixel_to_metric(&crd[i_img][count].x, &crd[i_img][count].y,
+                        pix[i_img][count].x, pix[i_img][count].y, cpar);
                     crd[i_img][count].pnr = count;
                     
                     frame_used = 1;
@@ -233,19 +235,21 @@ double *dist,*XX,*YY,*ZZ;
 
 }
 
-void eval_ori_v2 (db_scale,weight_scale,n_img, nfix, d_outer,av_dist_error,residual)
-
+void eval_ori_v2 (cal, db_scale,weight_scale,n_img, nfix, d_outer,av_dist_error,residual, mmp)
+Calibration *cal;
 double db_scale;
 double weight_scale;
 int n_img,nfix;
 double *d_outer;
 double *av_dist_error;
 double *residual;
+mm_np mmp;
 
 {
 	int     i_img,i,count_inner=0,count_outer=0,pair_count=0,count_dist=0,n,m;
 	double  xa,ya,xb,yb,temp,d_inner=0.,av_dist=0.,x,y;
-	double X[4],Y[4],Z[4],a[4],b[4],c[4],dist,dist_error,X_pos,Y_pos,Z_pos,XX,YY,ZZ,X1,Y1,Z1,X2,Y2,Z2;
+	double X[4][3], a[4][3];
+    double dist,dist_error,X_pos,Y_pos,Z_pos,XX,YY,ZZ,X1,Y1,Z1,X2,Y2,Z2;
 	double tmp_d=0.,tmp_dist=0.;
 	*d_outer=0.;
 	*av_dist_error=0.;
@@ -254,28 +258,28 @@ double *residual;
 	for(i=0;i<nfix;i++){
 		//new det_lsq function, bloody fast!
 		if(crd[0][i].x>-999){
-			x = crd[0][i].x - I[0].xh;
-	        y = crd[0][i].y - I[0].yh;
+			x = crd[0][i].x - cal[0].int_par.xh;
+	        y = crd[0][i].y - cal[0].int_par.yh;
 	        //correct_brown_affin (x, y, ap[0], &x, &y);
-		    ray_tracing_v2 (x,y, Ex[0], I[0], G[0], mmp, &X[0], &Y[0], &Z[0], &a[0], &b[0], &c[0]);
+		    ray_tracing(x,y, &(cal[0]), mmp, X[0], a[0]);
 		}		
 		if(crd[1][i].x>-999){
-			x = crd[1][i].x - I[1].xh;
-	        y = crd[1][i].y - I[1].yh;
+			x = crd[1][i].x - cal[1].int_par.xh;
+	        y = crd[1][i].y - cal[1].int_par.yh;
 	        //correct_brown_affin (x, y, ap[1], &x, &y);
-		    ray_tracing_v2 (x,y, Ex[1], I[1], G[1], mmp, &X[1], &Y[1], &Z[1], &a[1], &b[1], &c[1]);
+		    ray_tracing(x,y, &(cal[1]), mmp, X[1], a[1]);
 		}		
 		if(crd[2][i].x>-999){
-			x = crd[2][i].x - I[2].xh;
-	        y = crd[2][i].y - I[2].yh;
+			x = crd[2][i].x - cal[2].int_par.xh;
+	        y = crd[2][i].y - cal[2].int_par.yh;
 	        //correct_brown_affin (x, y, ap[2], &x, &y);
-		    ray_tracing_v2 (x,y, Ex[2], I[2], G[2], mmp, &X[2], &Y[2], &Z[2], &a[2], &b[2], &c[2]);
+		    ray_tracing(x,y, &(cal[2]), mmp, X[2], a[2]);
 		}		
 		if(crd[3][i].x>-999){
-			x = crd[3][i].x - I[3].xh;
-	        y = crd[3][i].y - I[3].yh;
+			x = crd[3][i].x - cal[3].int_par.xh;
+	        y = crd[3][i].y - cal[3].int_par.yh;
 	        //correct_brown_affin (x, y, ap[3], &x, &y);
-		    ray_tracing_v2 (x,y, Ex[3], I[3], G[3], mmp, &X[3], &Y[3], &Z[3], &a[3], &b[3], &c[3]);
+		    ray_tracing(x,y, &(cal[3]), mmp, X[3], a[3]);
 		}
 
 		count_inner=0;
@@ -283,7 +287,10 @@ double *residual;
 		for (n=0;n<n_img;n++){
 			for(m=n+1;m<n_img;m++){
 				if(crd[n][i].x>-999 && crd[m][i].x>-999){
-                    mid_point(X[n],Y[n],Z[n],a[n],b[n],c[n],X[m],Y[m],Z[m],a[m],b[m],c[m],&dist,&XX,&YY,&ZZ);
+                    mid_point(X[n][0], X[n][1], X[n][2],
+                        a[n][0], a[n][1], a[n][2], 
+                        X[m][0], X[m][1], X[m][2],
+                        a[m][0], a[m][1], a[m][2], &dist,&XX,&YY,&ZZ);
 					count_inner++;
                     d_inner += dist;
 					X_pos+=XX;Y_pos+=YY;Z_pos+=ZZ;
@@ -294,8 +301,8 @@ double *residual;
 		X_pos/=(double)count_inner;Y_pos/=(double)count_inner;Z_pos/=(double)count_inner;
 		//end of new det_lsq
 
-		if(Z_pos>G[0].vec_z){
-            d_inner=Z_pos-G[0].vec_z+d_inner;
+		if(Z_pos > cal[0].glass_par.vec_z){
+            d_inner = Z_pos - cal->glass_par.vec_z+d_inner;
 		}
 		*d_outer +=d_inner;
 		
@@ -330,8 +337,18 @@ double *residual;
 	*residual=*d_outer+weight_scale*(*av_dist_error);
 }
 
-void orient_v5(int n_img, int nfix, Exterior *Ex, Interior *I, Glass *G, ap_52 *ap){
+void orient_v5 (control_par *cpar, int nfix, Calibration cal[])
 
+/*
+Exterior	*Ex;	 exterior orientation, approx and result 
+Interior	*I;		 interior orientation, approx and result 
+Glass   	*G;		 glass orientation, approx and result 
+ap_52		*ap;	 add. parameters, approx and result 
+int	       	nfix;		# of object points 
+*/
+
+{
+    FILE *fp1, *fpp;
     int  	i,j,itnum,max_itnum,i_img,dummy;
     double       	residual, best_residual, old_val, dm, drad, sens, factor, weight_scale;   
     double 	Xp, Yp, Zp, xp, yp, xpd, ypd, r, qq;
@@ -354,7 +371,7 @@ void orient_v5(int n_img, int nfix, Exterior *Ex, Interior *I, Glass *G, ap_52 *
         fclose (fpp);
     }
 
-	fp1 = fopen_r ("parameters/orient.par");
+	fp1 = fopen ("parameters/orient.par", "r");
     fscanf (fp1,"%d", &useflag);
     fscanf (fp1,"%d", &ccflag);
     fscanf (fp1,"%d", &xhflag);
@@ -369,41 +386,29 @@ void orient_v5(int n_img, int nfix, Exterior *Ex, Interior *I, Glass *G, ap_52 *
     fscanf (fp1,"%d", &interfflag);
     fclose (fp1);
 	
-
-/*I[0].cc  = 45.0;
-I[1].cc  =I[0].cc;
-I[2].cc  =I[0].cc;
-I[3].cc  =I[0].cc; 
-
-I[0].xh = 0.0;
-I[1].xh = 0.0;
-I[2].xh = 0.0;
-I[3].xh = 0.0;
-
-I[0].yh = 0.0;
-I[1].yh = 0.0;
-I[2].yh = 0.0;
-I[3].yh = 0.0;*/
-
-
-  printf("\n\nbegin of iterations, orient_v5");
+  puts ("\n\nbegin of iterations");
   itnum = 0;  
   while (itnum < max_itnum){
     //printf ("\n\n%2d. iteration\n", ++itnum);
     itnum++;
 
-    eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+    eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix, 
+        &epi_miss, &dist, &residual, *(cpar->mm));
 	best_residual=residual;
     
-    for (i_img=0;i_img<n_img;i_img++) {
+    for (i_img = 0; i_img < cpar->num_cams; i_img++) {
 	     
-		 Ex[i_img].x0 += dm;
-	     eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+		 cal[i_img].ext_par.x0 += dm;
+	     eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix,
+            &epi_miss, &dist, &residual, *(cpar->mm));
+         
 		 if(best_residual-residual < 0){ //then try other direction
-			 Ex[i_img].x0 -= 2*dm;
-	         eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+			 cal[i_img].ext_par.x0 -= 2*dm;
+	         eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix, 
+                &epi_miss, &dist, &residual, *(cpar->mm));
+             
 			 if(best_residual-residual < 0){// then leave it unchanged
-                  Ex[i_img].x0 += dm;
+                  cal[i_img].ext_par.x0 += dm;
 			 }
 			 else{ // it was a success!
                   best_residual=residual;
@@ -414,13 +419,16 @@ I[3].yh = 0.0;*/
 		 }
 	     
 
-		 Ex[i_img].y0 += dm;
-	     eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+		 cal[i_img].ext_par.y0 += dm;
+	     eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix, 
+            &epi_miss, &dist, &residual, *(cpar->mm));
+
 		 if(best_residual-residual < 0){ //then try other direction
-			 Ex[i_img].y0 -= 2*dm;
-	         eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+			 cal[i_img].ext_par.y0 -= 2*dm;
+	         eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix, 
+                &epi_miss, &dist, &residual, *(cpar->mm));
 			 if(best_residual-residual < 0){// then leave it unchanged
-                  Ex[i_img].y0 += dm;
+                  cal[i_img].ext_par.y0 += dm;
 			 }
 			 else{ // it was a success!
                   best_residual=residual;
@@ -430,13 +438,15 @@ I[3].yh = 0.0;*/
 			 best_residual=residual;
 		 }
 
-		 Ex[i_img].z0 += dm;
-	     eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+		 cal[i_img].ext_par.z0 += dm;
+	     eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix, 
+            &epi_miss, &dist, &residual, *(cpar->mm));
 		 if(best_residual-residual < 0){ //then try other direction
-			 Ex[i_img].z0 -= 2*dm;
-	         eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+			 cal[i_img].ext_par.z0 -= 2*dm;
+	         eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix,
+                &epi_miss, &dist, &residual, *(cpar->mm));
 			 if(best_residual-residual < 0){// then leave it unchanged
-                  Ex[i_img].z0 += dm;
+                  cal[i_img].ext_par.z0 += dm;
 			 }
 			 else{ // it was a success!
                   best_residual=residual;
@@ -446,16 +456,18 @@ I[3].yh = 0.0;*/
 			 best_residual=residual;
 		 }
 
-		 Ex[i_img].omega += drad;
-		 rotation_matrix (&(Ex[i_img]));
-	     eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+		 cal[i_img].ext_par.omega += drad;
+		 rotation_matrix (&(cal[i_img].ext_par));
+	     eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix, 
+            &epi_miss, &dist, &residual, *(cpar->mm));
 		 if(best_residual-residual < 0){ //then try other direction
-			 Ex[i_img].omega -= 2*drad;
-			 rotation_matrix (&(Ex[i_img]));
-	         eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+			 cal[i_img].ext_par.omega -= 2*drad;
+			 rotation_matrix (&(cal[i_img].ext_par));
+	         eval_ori_v2(cal, db_scale, weight_scale, cpar->mm, nfix, 
+                &epi_miss, &dist, &residual, *(cpar->mm));
 			 if(best_residual-residual < 0){// then leave it unchanged
-                  Ex[i_img].omega += drad;
-				  rotation_matrix(&(Ex[i_img]));
+                  cal[i_img].ext_par.omega += drad;
+				  rotation_matrix(&(cal[i_img].ext_par));
 			 }
 			 else{ // it was a success!
                   best_residual=residual;
@@ -465,16 +477,18 @@ I[3].yh = 0.0;*/
 			 best_residual=residual;
 		 }
 
-		 Ex[i_img].phi += drad;
-		 rotation_matrix (&(Ex[i_img]));
-	     eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+		 cal[i_img].ext_par.phi += drad;
+		 rotation_matrix (&(cal[i_img].ext_par));
+	     eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix, 
+            &epi_miss, &dist, &residual, *(cpar->mm));
 		 if(best_residual-residual < 0){ //then try other direction
-			 Ex[i_img].phi -= 2*drad;
-			 rotation_matrix(&(Ex[i_img]));
-	         eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+			 cal[i_img].ext_par.phi -= 2*drad;
+			 rotation_matrix(&(cal[i_img].ext_par));
+	         eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix,
+                &epi_miss, &dist, &residual, *(cpar->mm));
 			 if(best_residual-residual < 0){// then leave it unchanged
-                  Ex[i_img].phi += drad;
-				  rotation_matrix(&(Ex[i_img]));
+                  cal[i_img].ext_par.phi += drad;
+				  rotation_matrix(&(cal[i_img].ext_par));
 			 }
 			 else{ // it was a success!
                   best_residual=residual;
@@ -484,16 +498,18 @@ I[3].yh = 0.0;*/
 			 best_residual=residual;
 		 }
 		 
-		 Ex[i_img].kappa += drad;
-		 rotation_matrix(&(Ex[i_img]));
-	     eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+		 cal[i_img].ext_par.kappa += drad;
+		 rotation_matrix(&(cal[i_img].ext_par));
+	     eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix,
+            &epi_miss, &dist, &residual, *(cpar->mm));
 		 if(best_residual-residual < 0){ //then try other direction
-			 Ex[i_img].kappa -= 2*drad;
-			 rotation_matrix(&(Ex[i_img]));
-	         eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+			 cal[i_img].ext_par.kappa -= 2*drad;
+			 rotation_matrix(&(cal[i_img].ext_par));
+	         eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix,
+                &epi_miss, &dist, &residual, *(cpar->mm));
 			 if(best_residual-residual < 0){// then leave it unchanged
-                  Ex[i_img].kappa+= drad;
-				  rotation_matrix(&(Ex[i_img]));
+                  cal[i_img].ext_par.kappa+= drad;
+				  rotation_matrix(&(cal[i_img].ext_par));
 			 }
 			 else{ // it was a success!
                   best_residual=residual;
@@ -505,13 +521,15 @@ I[3].yh = 0.0;*/
 		 
 		 if(ccflag==1){
 			 if (1<2){
-		    I[i_img].cc += dm;
-	        eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+		    cal[i_img].int_par.cc += dm;
+	        eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix, 
+                &epi_miss, &dist, &residual, *(cpar->mm));
 		    if(best_residual-residual < 0){ //then try other direction
-			    I[i_img].cc -= 2*dm;
-	            eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+			    cal[i_img].int_par.cc -= 2*dm;
+	            eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix, 
+                    &epi_miss, &dist, &residual, *(cpar->mm));
 			    if(best_residual-residual < 0){// then leave it unchanged
-                    I[i_img].cc += dm;
+                    cal[i_img].int_par.cc += dm;
 			    }
 			    else{ // it was a success!
                     best_residual=residual;
@@ -522,22 +540,24 @@ I[3].yh = 0.0;*/
 		    }
 			 }
 			 else{
-	        I[0].cc += dm;
-			I[1].cc  =I[0].cc;
-			I[2].cc  =I[0].cc;
-			I[3].cc  =I[0].cc;
-	        eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+	        cal[0].int_par.cc += dm;
+			cal[1].int_par.cc  =cal[0].int_par.cc;
+			cal[2].int_par.cc  =cal[0].int_par.cc;
+			cal[3].int_par.cc  =cal[0].int_par.cc;
+            eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix, 
+                    &epi_miss, &dist, &residual, *(cpar->mm));
 		    if(best_residual-residual < 0){ //then try other direction
-			    I[0].cc -= 2*dm;
-				I[1].cc  =I[0].cc;
-			    I[2].cc  =I[0].cc;
-			    I[3].cc  =I[0].cc;
-	            eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
+			    cal[0].int_par.cc -= 2*dm;
+				cal[1].int_par.cc  =cal[0].int_par.cc;
+			    cal[2].int_par.cc  =cal[0].int_par.cc;
+			    cal[3].int_par.cc  =cal[0].int_par.cc;
+                eval_ori_v2(cal, db_scale, weight_scale, cpar->num_cams, nfix, 
+                    &epi_miss, &dist, &residual, *(cpar->mm));
 			    if(best_residual-residual < 0){// then leave it unchanged
-                    I[0].cc += dm;
-					I[1].cc  =I[0].cc;
-			        I[2].cc  =I[0].cc;
-			        I[3].cc  =I[0].cc;
+                    cal[0].int_par.cc += dm;
+					cal[1].int_par.cc  =cal[0].int_par.cc;
+			        cal[2].int_par.cc  =cal[0].int_par.cc;
+			        cal[3].int_par.cc  =cal[0].int_par.cc;
 			    }
 			    else{ // it was a success!
                     best_residual=residual;
@@ -549,38 +569,6 @@ I[3].yh = 0.0;*/
 
 			 }
 		 }
-
-		 /*if(xhflag==1){
-		    old_val=I[i_img].xh;
-	        I[i_img].xh += dm;
-		    eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
-	        sens  = (best_residual-residual) / dm;
-	        I[i_img].xh -= dm;
-		    I[i_img].xh += dm*factor*best_residual/sens;
-		    eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
-	        if(best_residual<residual){
-	           I[i_img].xh=old_val;
-		    }
-		    else{
-               best_residual=residual;
-		    }
-		 }
-		 
-		 if(yhflag==1){
-            old_val=I[i_img].yh;
-	        I[i_img].yh += dm;
-		    eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
-	        sens  = (best_residual-residual) / dm;
-	        I[i_img].yh -= dm;
-		    I[i_img].yh += dm*factor*best_residual/sens;
-		    eval_ori_v2(db_scale,weight_scale,n_img, nfix, &epi_miss, &dist, &residual);
-	        if(best_residual<residual){
-	           I[i_img].yh=old_val;
-		    }
-		    else{
-               best_residual=residual;
-		    }
-		 }*/
 	}
 	
 	printf ("eps_tot: %8.7f, eps_epi: %7.5f, eps_dist: %7.5f, step: %d\n",best_residual, epi_miss,dist,itnum);
@@ -646,7 +634,12 @@ void num_deriv_exterior(int cam, Exterior ext, Interior I0, Glass G0, ap_52 ap0,
     rotation_matrix(&ext);
 }
 
-void orient_v3 (Ex0, I0, G0, ap0, mm, nfix, fix, crd, Ex, I, G, ap, nr)
+/*
+    Returns:
+    1 if iterative solution found, 0 otherwise.
+*/
+int orient_v3 (Ex0, I0, G0, ap0, mm, nfix, fix, crd, Ex, I, G, ap, nr, resid_x, resid_y,
+    pixnr, num_used)
 Exterior	Ex0, *Ex;	/* exterior orientation, approx and result */
 Interior	I0, *I;		/* interior orientation, approx and result */
 Glass   	G0, *G;		/* glass orientation, approx and result */
@@ -656,6 +649,9 @@ int	       	nfix;		/* # of object points */
 coord_3d	fix[];		/* object point data */
 coord_2d	crd[];		/* image coordinates */
 int	       	nr;  		/* image number for residual display */
+double      resid_x[], resid_y[]; /* return array for residuals */
+int         pixnr[]; /* indices of used detected points */
+int         *num_used;  /* Number of points used for orientation */
 {
   int  	i,j,n, itnum, stopflag, n_obs=0,convergeflag;
   int  	useflag, ccflag, scxflag, sheflag, interfflag, xhflag, yhflag,
@@ -665,14 +661,13 @@ int	       	nr;  		/* image number for residual display */
   double       	X[1800][19], Xh[1800][19], y[1800], yh[1800], ident[10],
     XPX[19][19], XPy[19], beta[19], Xbeta[1800],
     resi[1800], omega=0, sigma0, sigmabeta[19],
-    P[1800], p, sumP, pixnr[3600];
+    P[1800], p, sumP;
   double xp, yp, xpd, ypd, r, qq;
   FILE 	*fp1;
   int dummy, multi,numbers;
   double al,be,ga,nGl,e1_x,e1_y,e1_z,e2_x,e2_y,e2_z,n1,n2,safety_x,safety_y,safety_z;
   
   vec3d pos;
-
 
 
   /* read, which parameters shall be used */
@@ -920,10 +915,10 @@ int	       	nr;  		/* image number for residual display */
          numbers=18;
 	  }
 	  
-	  ata_v2 ((double *) Xh, (double *) XPX, n_obs, numbers, 19 );
-      matinv_v2 ((double *) XPX, numbers, 19);
-      atl_v2 ((double *) XPy, (double *) Xh, yh, n_obs, numbers, 19);
-      matmul_v2 ((double *) beta, (double *) XPX, (double *) XPy, numbers,numbers,1,19,19);
+	  ata ((double *) Xh, (double *) XPX, n_obs, numbers, 19 );
+      matinv ((double *) XPX, numbers, 19);
+      atl ((double *) XPy, (double *) Xh, yh, n_obs, numbers, 19);
+      matmul ((double *) beta, (double *) XPX, (double *) XPy, numbers,numbers,1,19,19);
 	  
       stopflag = 1;
 	  convergeflag = 1;
@@ -967,7 +962,7 @@ int	       	nr;  		/* image number for residual display */
 
   /* compute residuals etc. */
 
-  matmul_v2 ( (double *) Xbeta, (double *) X, (double *) beta, n_obs, numbers, 1, n_obs, 19);
+  matmul( (double *) Xbeta, (double *) X, (double *) beta, n_obs, numbers, 1, n_obs, 19);
   omega = 0;
   for (i=0; i<n_obs; i++)
     {
@@ -1016,56 +1011,34 @@ int	       	nr;  		/* image number for residual display */
   printf ("shearing      = %8.5f   +/- %8.5f\n", ap0.she*ro, sigmabeta[15]*ro);
 
 
-  //fp1 = fopen_r ("parameters/examine.par");
-  fp1 = fopen("parameters/examine.par","r");
-  if (fp1){
-  fscanf (fp1,"%d\n", &dummy);
-  fscanf (fp1,"%d\n", &multi);
-  fclose (fp1);
-  }
-  else{
-  printf("problem opening parameters/examine.par\n");
-  }
-  
-  if (dummy==1){
-      examine=4;
-  }
-  else{
-      examine=0;
-  }
-  
-  
-
   /* show original images with residual vectors (requires globals) */
-printf ("%d: %5.2f micron, ", nr+1, sigma0*1000);
-printf("\ntest 1 inside orientation\n");
-  for (i=0; i<n_obs-10; i+=2)
-    {
-      n = pixnr[i/2];
-      intx1 = (int) pix[nr][n].x;
-      inty1 = (int) pix[nr][n].y;
-      intx2 = intx1 + resi[i]*5000;
-      inty2 = inty1 + resi[i+1]*5000;
- 	orient_x1[nr][n]=intx1;
-	orient_y1[nr][n]=inty1;
-	orient_x2[nr][n]=intx2;
-	orient_y2[nr][n]=inty2;
-	orient_n[nr]=n;
-    }
-
+  for (i = 0; i < n_obs - 10; i += 2) {
+    n = pixnr[i/2];
+    //intx2 = intx1 + resi[i]*5000;
+    //inty2 = inty1 + resi[i+1]*5000;
+    resid_x[n]=resi[i];
+	resid_y[n]=resi[i+1];
+  }
+  *num_used = n; /* last n, maximal. */
 
 
   if (convergeflag){
       rotation_matrix (&Ex0);
       *Ex = Ex0;	*I = I0;	*ap = ap0; *G = G0;
+      return 1;
   }
   else{	
 	  puts ("orientation does not converge");
+      return 0;
   }
 }
 
 
-void raw_orient_v3 (Exterior Ex0, Interior I, Glass G0, ap_52 ap, mm_np mm, 
+/*
+    Returns:
+    1 if iterative solution found, 0 otherwise.
+*/
+int raw_orient_v3 (Exterior Ex0, Interior I, Glass G0, ap_52 ap, mm_np mm, 
     int nfix, coord_3d fix[], coord_2d crd[], Exterior *Ex, Glass *G,
     int nr, int only_show)
 {
@@ -1119,10 +1092,10 @@ void raw_orient_v3 (Exterior Ex0, Interior I, Glass G0, ap_52 ap, mm_np mm,
 
     /* Gauss Markoff Model */
 
-    ata_v2 ((double *) X, (double *) XPX, n_obs, 6, 6);
-    matinv ((double *) XPX, 6);
-    atl ((double *) XPy, (double *) X, y, n_obs, 6);
-    matmul ((double *) beta, (double *) XPX, (double *) XPy, 6,6,1);
+    ata ((double *) X, (double *) XPX, n_obs, 6, 6);
+    matinv ((double *) XPX, 6, 6);
+    atl ((double *) XPy, (double *) X, y, n_obs, 6, 6);
+    matmul ((double *) beta, (double *) XPX, (double *) XPy, 6, 6, 1, 6, 6);
 
     stopflag = 1;
 	for (i = 0; i < 6; i++){
@@ -1145,5 +1118,6 @@ void raw_orient_v3 (Exterior Ex0, Interior I, Glass G0, ap_52 ap, mm_np mm,
   else {
 	  puts ("raw orientation impossible");
     }
+    return stopflag;
 }
 

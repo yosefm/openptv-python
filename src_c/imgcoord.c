@@ -19,6 +19,7 @@ Routines contained:
 
 #include "ptv.h"
 #include <optv/parameters.h>
+#include "imgcoord.h"
 
 /* img_coord() calculates the coordinates on the iomage plane (metric) of a 3D
    point in the observed volume.

@@ -16,7 +16,9 @@ Routines contained:     pix_in_next, candsearch_in_pix, searchposition,
 
 ****************************************************************************/
 #include "ptv.h"
+#include "imgcoord.h"
 #include <optv/parameters.h>
+#include <optv/trafo.h>
 
 int pix_in_next (next, num, x, y, dl, dr, du, dd, found)
 target  next[];
@@ -57,12 +59,8 @@ int found[POSI];
 }
 
 
-int candsearch_in_pix (next, num, x, y, dl, dr, du, dd, p)
-target  next[];
-int     num;
-double  x, y, dl, dr, du, dd;
-int p[4];
-{
+int candsearch_in_pix (target next[], int num, double x, double y, double dl,
+    double dr, double du, double dd, int p[4], control_par *cpar) {
   /* search of four near candidates in targetlist */
 
   int  	  j, j0, dj, pnr = -999;
@@ -72,19 +70,23 @@ int p[4];
   xmin = x - dl;  xmax = x + dr;  ymin = y - du;  ymax = y + dd;
 
   if(xmin<0.0) xmin=0.0;
-  if(xmax>imx) xmax=imx;
+  if(xmax > cpar->imx)
+        xmax = cpar->imx;
   if(ymin<0.0) ymin=0.0;
-  if(ymax>imy) ymax=imy;
+  if(ymax > cpar->imy)
+    ymax = cpar->imy;
 
   if(x<0.0) x=0.0;
-  if(x>imx) x=imx;
+  if(x > cpar->imx)
+    x = cpar->imx;
   if(y<0.0) y=0.0;
-  if(y>imy) y=imy;
+  if(y > cpar->imy)
+    y = cpar->imy;
 
   p1 = p2 = p3 = p4 = -999;
   d1 = d2 = d3 = d4 = dmin;
 
-  if (x>=0.0 && x<=imx ) { if (y>=0.0 && y<=imy ) {
+  if (x >= 0.0 && x <= cpar->imx ) { if (y >= 0.0 && y <= cpar->imy ) {
 
   /* binarized search for start point of candidate search */
   for (j0=num/2, dj=num/4; dj>1; dj/=2)
@@ -138,12 +140,8 @@ int p[4];
 }
 
 
-int candsearch_in_pixrest (next, num, x, y, dl, dr, du, dd, p)
-target  next[];
-int     num;
-double  x, y, dl, dr, du, dd;
-int p[4];
-{
+int candsearch_in_pixrest(target  next[], int num, double x, double y,
+    double dl, double dr, double du, double dd, int p[4], control_par *cpar) {
   /* search of four near candidates in targetlist */
 
   int  	  j, j0, dj;
@@ -152,14 +150,18 @@ int p[4];
   xmin = x - dl;  xmax = x + dr;  ymin = y - du;  ymax = y + dd;
 
   if(xmin<0.0) xmin=0.0;
-  if(xmax>imx) xmax=imx;
+  if(xmax > cpar->imx) 
+    xmax = cpar->imx;
   if(ymin<0.0) ymin=0.0;
-  if(ymax>imy) ymax=imy;
+  if(ymax > cpar->imy)
+    ymax = cpar->imy;
 
   if(x<0.0) x=0.0;
-  if(x>imx) x=imx;
+  if(x > cpar->imx)
+    x = cpar->imx;
   if(y<0.0) y=0.0;
-  if(y>imy) y=imy;
+  if(y > cpar->imy)
+    y = cpar->imy;
 
   p1 = p2 = p3 = p4 = -999;
 
@@ -254,16 +256,17 @@ control_par *cpar;
   for (i = 0; i < cpar->num_cams; i++)
     {
       xr[i]=0;
-      xl[i]=imx;
+      xl[i] = cpar->imx;
       yd[i]=0;
-      yu[i]=imy;
-      img_coord (i, point.x, point.y, point.z, Ex[i], I[i], G[i], ap[i], mmp, &xz,&yz);
-      metric_to_pixel (xz,yz, imx,imy, pix_x,pix_y, &xz,&yz, chfield);
+      yu[i] = cpar->imy;
+      img_coord (i, point.x, point.y, point.z, 
+        Ex[i], I[i], G[i], ap[i], *(cpar->mm), &xz,&yz);
+      metric_to_pixel (&xz, &yz, xz, yz, cpar);
 
-      for (k=0; k<8; k++)
-	{
-	  img_coord (i, quader[k].x, quader[k].y, quader[k].z, Ex[i], I[i], G[i], ap[i], mmp, &x,&y);
-	  metric_to_pixel (x,y, imx,imy, pix_x,pix_y, &x,&y, chfield);
+      for (k=0; k<8; k++) {
+        img_coord (i, quader[k].x, quader[k].y, quader[k].z, 
+            Ex[i], I[i], G[i], ap[i], *(cpar->mm), &x,&y);
+	  metric_to_pixel (&x, &y, x, y, cpar);
 
 	  if (x <xl[i] ) xl[i]=x;
 	  if (y <yu[i] ) yu[i]=y;
@@ -272,8 +275,10 @@ control_par *cpar;
 	}
       if (xl[i] < 0 ) xl[i]=0;
       if (yu[i] < 0 ) yu[i]=0;
-      if (xr[i] > imx) xr[i]=imx;
-      if (yd[i] > imy) yd[i]=imy;
+      if (xr[i] > cpar->imx)
+        xr[i] = cpar->imx;
+      if (yd[i] > cpar->imy)
+        yd[i] = cpar->imy;
 
       xr[i]=xr[i]-xz;
       xl[i]=xz-xl[i];

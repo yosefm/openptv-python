@@ -14,6 +14,7 @@ References:
 
 #include <optv/calibration.h>
 #include <optv/parameters.h>
+#include <optv/trafo.h>
 
 /*  advance_nd_iterator() increments by 1 an iterator over n dimensions. The
     iterator is an array of counters, one for each dimension. Least significant
@@ -67,6 +68,7 @@ int advance_nd_iterator(int nd, int *current, int *count) {
         always NULL and is there for convenience only.
 */
 n_tupel **correspondences(frame *frm, Calibration **calib, volume_par *vpar) {
+    int chfield = 0; /* temporary replacement of obsolete global */
     int cam, part; /* loop counters */
     double img_x, img_y; /* image center */
     coord_2d **corrected;
@@ -114,10 +116,8 @@ n_tupel **correspondences(frame *frm, Calibration **calib, volume_par *vpar) {
         cam_set[cam] = 1 << cam;
         
         for (part = 0; part < frm->num_targets[cam]; part++) {
-            pixel_to_metric(
-                frm->targets[cam][part].x, frm->targets[cam][part].y,
-                imx, imy, pix_x, pix_y, 
-                &corrected[cam][part].x, &corrected[cam][part].y, chfield);
+            pixel_to_metric(&corrected[cam][part].x, &corrected[cam][part].y,
+                frm->targets[cam][part].x, frm->targets[cam][part].y, cpar);
             
             img_x = corrected[cam][part].x - calib[cam]->int_par.xh;
             img_y = corrected[cam][part].y - calib[cam]->int_par.yh;
@@ -152,7 +152,7 @@ n_tupel **correspondences(frame *frm, Calibration **calib, volume_par *vpar) {
                 epi_mm(epi_img, corrected[part_img][part].x, corrected[part_img][part].y,
                     calib[part_img]->ext_par, calib[part_img]->int_par,
                     calib[part_img]->glass_par, calib[epi_img]->ext_par, 
-                    calib[epi_img]->int_par, calib[epi_img]->glass_par, mmp, vpar,
+                    calib[epi_img]->int_par, calib[epi_img]->glass_par, *(cpar->mm), vpar,
                     &(epi_start[0]), &(epi_start[1]), &(epi_end[0]), &(epi_end[1]));
                 
                 /* Find candidates close to epipolar line */
@@ -160,7 +160,7 @@ n_tupel **correspondences(frame *frm, Calibration **calib, volume_par *vpar) {
                 find_candidate_plus (corrected[epi_img], frm->targets[epi_img],
                     frm->num_targets[epi_img], epi_start[0], epi_start[1],
                     epi_end[0], epi_end[1], targ->n, targ->nx, targ->ny,
-                    targ->sumg, cand, &num_cands, epi_img, vpar);
+                    targ->sumg, cand, &num_cands, epi_img, vpar, cpar);
                 
                 /* Copy candidate information to the adjacency matrix. */
                 if (num_cands > maxcand) num_cands = maxcand;

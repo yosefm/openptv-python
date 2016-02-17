@@ -16,7 +16,7 @@ Description:
 
 #include "ptv.h"
 
-int peak_fit_new ( img, par_file, xmin,xmax,ymin,ymax, pix, nr)
+int peak_fit_new ( img, par_file, xmin,xmax,ymin,ymax, pix, nr, cpar)
 
 //Tcl_Interp* interp;
 unsigned char	*img;		       	/* image data */
@@ -24,11 +24,13 @@ char	       	par_file[];	       	/* name of parameter file */
 int	       	xmin,xmax,ymin,ymax;	/* search area */
 target	       	pix[];		       	/* pixel coord array, global */
 int	       	nr;		       	/* image number for display */
+control_par *cpar;
 
 /*  newest peak fitting technique for particle coordinate determination  */
 /*  labeling with discontinuity,
 	reunification with distance and profile criteria  */
 {
+  int imx, imy; /* save dereferencing of same in cpar */
   int	       	n_peaks=0;	      /* # of peaks detected */
   int     		n_wait;	      	      /* size of waitlist for connectivity */
   int	       	x8[8], y8[8];  	      /* neighbours for connectivity */
@@ -52,7 +54,9 @@ int	       	nr;		       	/* image number for display */
   targpix       waitlist[2048];     /* pix to be tested for connectivity */
   FILE   	*fpp;	       	/* parameter file pointer */
   
-
+  imx = cpar->imx;
+  imy = cpar->imy;
+  
   /* read image name, threshold and shape limits from parameter file */
 
 /*------------------------------------------------------------------------*/

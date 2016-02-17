@@ -20,6 +20,8 @@ Routines contained:		-
 
 #include "ptv.h"
 #include <optv/parameters.h>
+#include <optv/ray_tracing.h>
+#include <optv/trafo.h>
 
 double get_mmf_from_mmLUT ();
 extern int lut_inited; /* temp. until optv multimed integ */
@@ -275,29 +277,31 @@ double multimed_r_nlay_v2 (Exterior ex, Exterior ex_o, mm_np mm,
 
 
 
-void init_mmLUT (i_cam)
-int    	i_cam;
+void init_mmLUT (int i_cam, Calibration *cal, control_par *cpar)
 {
   register int	i,j, nr, nz;
-  double       	X,Y,Z, R, X1,Y1,Z1, Zmin, Rmax=0,Zmax, a,b,c;
+  double       	X[3], R, X1[3], Zmin, Rmax=0,Zmax, a[3];
   double       	x,y, *Ri,*Zi;
   double       	rw = 2; //was 2, has unit [mm]??, Beat Lüthi Aug 1, 2007, is ok
-  Exterior	    Ex_t[4];
+  Exterior	    Ex, Ex_t;
+  Interior I;
+  Glass G;
+  ap_52 ap;
   double       	X_t,Y_t,Z_t,cross_p[3],cross_c[3],Zmin_t,Zmax_t;
+  
+  ap = cal->added_par;
+  Ex = cal->ext_par;
+  I = cal->int_par;
+  G = cal->glass_par;
+  
+  volume_par *vpar;
     
   /* find extrema of imaged object volume */
   /* ==================================== */
   
-  /* find extrema in depth */
-  
-  fpp = fopen ("parameters/criteria.par", "r");
-  fscanf (fpp, "%lf\n", &X);
-  fscanf (fpp, "%lf\n", &Zmin);
-  fscanf (fpp, "%lf\n", &Zmax);
-  fscanf (fpp, "%lf\n", &X);
-  fscanf (fpp, "%lf\n", &Z);	if (Z < Zmin)	Zmin = Z;
-  fscanf (fpp, "%lf\n", &Z);	if (Z > Zmax)	Zmax = Z;
-  fclose (fpp);
+  vpar = read_volume_par("parameters/criteria.par");
+  Zmin = (vpar->Zmin_lay[1] < vpar->Zmin_lay[0]) ? vpar->Zmin_lay[1] : vpar->Zmin_lay[0];
+  Zmax = (vpar->Zmax_lay[1] < vpar->Zmax_lay[0]) ? vpar->Zmax_lay[1] : vpar->Zmax_lay[0];
   
   Zmin -= fmod (Zmin, rw);
   Zmax += (rw - fmod (Zmax, rw));
@@ -305,110 +309,53 @@ int    	i_cam;
   Zmax_t=Zmax;
   
   /* intersect with image vertices rays */
+  // this is to cut down duplicate code without refactoring the function 
+  //totally which would happen later.
+#define UPDATE_R(p2mx, p2my) \
+  pixel_to_metric (&x, &y, (p2mx), (p2my), cpar); \
+  x = x - I.xh; \
+  y = y - I.yh; \
+  correct_brown_affin (x, y, ap, &x,&y); \
+  ray_tracing(x,y, cal, *(cpar->mm), X1, a); \
+  X[2] = Zmin; \
+  X[1] = X1[1] + (X[2] - X1[2]) * a[1]/a[2]; \
+  X[0] = X1[0] + (X[2] - X1[2]) * a[0]/a[2]; \
+  \
+  trans_Cam_Point(Ex, *(cpar->mm), G, X[0], X[1], X[2], &Ex_t, &X_t, &Y_t, &Z_t,\
+        &cross_p,&cross_c);\
+  if(Z_t<Zmin_t)Zmin_t=Z_t;\
+  if(Z_t>Zmax_t)Zmax_t=Z_t;\
+  \
+  R = sqrt (  (X_t - Ex_t.x0)*(X_t - Ex_t.x0)\
+	      + (Y_t - Ex_t.y0)*(Y_t - Ex_t.y0));\
+  \
+  if (R > Rmax)	Rmax = R;\
+  X[2] = Zmax;\
+  X[1] = X1[1] + (X[2] - X1[2]) * a[1]/a[2];\
+  X[0] = X1[0] + (X[2] - X1[2]) * a[0]/a[2];\
+  \
+  trans_Cam_Point(Ex, *(cpar->mm), G, X[0], X[1], X[2], &Ex_t, &X_t, &Y_t, &Z_t,\
+        &cross_p, &cross_c);\
+  if(Z_t<Zmin_t)Zmin_t=Z_t;\
+  if(Z_t>Zmax_t)Zmax_t=Z_t;\
+  \
+  R = sqrt (  (X_t - Ex_t.x0)*(X_t - Ex_t.x0)\
+	      + (Y_t - Ex_t.y0)*(Y_t - Ex_t.y0));
   
   //--00
-  pixel_to_metric (0., 0., imx,imy, pix_x,pix_y, &x,&y, chfield);
-  x = x - I[i_cam].xh;
-  y = y - I[i_cam].yh;
-  correct_brown_affin (x, y, ap[i_cam], &x,&y);
-  ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
-  Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-  //trans
-  trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
-  if(Z_t<Zmin_t)Zmin_t=Z_t;
-  if(Z_t>Zmax_t)Zmax_t=Z_t;
-  //
-  R = sqrt (  (X_t-Ex_t[i_cam].x0)*(X_t-Ex_t[i_cam].x0)
-	      + (Y_t-Ex_t[i_cam].y0)*(Y_t-Ex_t[i_cam].y0));	
-  
-  if (R > Rmax)	Rmax = R;
-  Z = Zmax;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-  //trans
-  trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
-  if(Z_t<Zmin_t)Zmin_t=Z_t;
-  if(Z_t>Zmax_t)Zmax_t=Z_t;
-  //
-  R = sqrt (  (X_t-Ex_t[i_cam].x0)*(X_t-Ex_t[i_cam].x0)
-	      + (Y_t-Ex_t[i_cam].y0)*(Y_t-Ex_t[i_cam].y0));
-  
+  UPDATE_R(0., 0.)
+
   //--0y
   if (R > Rmax)	Rmax = R;
-  pixel_to_metric (0., (double) imy, imx,imy, pix_x,pix_y, &x,&y, chfield);
-  x = x - I[i_cam].xh;
-  y = y - I[i_cam].yh;
-  correct_brown_affin (x, y, ap[i_cam], &x,&y);
-  ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
-  Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-  //trans
-  trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
-  if(Z_t<Zmin_t)Zmin_t=Z_t;
-  if(Z_t>Zmax_t)Zmax_t=Z_t;
-  //
-  R = sqrt (  (X_t-Ex_t[i_cam].x0)*(X_t-Ex_t[i_cam].x0)
-	      + (Y_t-Ex_t[i_cam].y0)*(Y_t-Ex_t[i_cam].y0));
-  
-  if (R > Rmax)	Rmax = R;
-  Z = Zmax;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-  //trans
-  trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
-  if(Z_t<Zmin_t)Zmin_t=Z_t;
-  if(Z_t>Zmax_t)Zmax_t=Z_t;
-  //
-  R = sqrt (  (X_t-Ex_t[i_cam].x0)*(X_t-Ex_t[i_cam].x0)
-	      + (Y_t-Ex_t[i_cam].y0)*(Y_t-Ex_t[i_cam].y0));
+  UPDATE_R(0., (double) cpar->imy)
   
   //--x0
   if (R > Rmax)	Rmax = R;  
-  pixel_to_metric ((double) imx, 0., imx,imy, pix_x,pix_y, &x,&y, chfield);
-  x = x - I[i_cam].xh;
-  y = y - I[i_cam].yh;
-  correct_brown_affin (x, y, ap[i_cam], &x,&y);
-  ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
-  Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-  //trans
-  trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
-  if(Z_t<Zmin_t)Zmin_t=Z_t;
-  if(Z_t>Zmax_t)Zmax_t=Z_t;
-  //
-  R = sqrt (  (X_t-Ex_t[i_cam].x0)*(X_t-Ex_t[i_cam].x0)
-	      + (Y_t-Ex_t[i_cam].y0)*(Y_t-Ex_t[i_cam].y0));
-  
-  if (R > Rmax)	Rmax = R;
-  Z = Zmax;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-  //trans
-  trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
-  if(Z_t<Zmin_t)Zmin_t=Z_t;
-  if(Z_t>Zmax_t)Zmax_t=Z_t;
-  //
-  R = sqrt (  (X_t-Ex_t[i_cam].x0)*(X_t-Ex_t[i_cam].x0)
-	      + (Y_t-Ex_t[i_cam].y0)*(Y_t-Ex_t[i_cam].y0));	
+  UPDATE_R((double) cpar->imx, 0.)
 
   //--xy
   if (R > Rmax)	Rmax = R;
-  pixel_to_metric ((double) imx, (double) imy,
-		   imx,imy, pix_x,pix_y, &x,&y, chfield);
-  x = x - I[i_cam].xh;
-  y = y - I[i_cam].yh;
-  correct_brown_affin (x, y, ap[i_cam], &x,&y);
-  ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
-  Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-  //trans
-  trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
-  if(Z_t<Zmin_t)Zmin_t=Z_t;
-  if(Z_t>Zmax_t)Zmax_t=Z_t;
-  //
-  R = sqrt (  (X_t-Ex_t[i_cam].x0)*(X_t-Ex_t[i_cam].x0)
-	      + (Y_t-Ex_t[i_cam].y0)*(Y_t-Ex_t[i_cam].y0));	
-  
-  if (R > Rmax)	Rmax = R;
-  Z = Zmax;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-  //trans
-  trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
-  if(Z_t<Zmin_t)Zmin_t=Z_t;
-  if(Z_t>Zmax_t)Zmax_t=Z_t;
-  //
-  R = sqrt (  (X_t-Ex_t[i_cam].x0)*(X_t-Ex_t[i_cam].x0)
-	      + (Y_t-Ex_t[i_cam].y0)*(Y_t-Ex_t[i_cam].y0));	
+  UPDATE_R((double) cpar->imx, (double) cpar->imy)
   
   if (R > Rmax)	Rmax = R;
   
@@ -421,11 +368,11 @@ int    	i_cam;
   nz = (int)((Zmax_t-Zmin_t)/rw + 1);
  
   /* create twodimensional mmLUT structure */
-  //trans
-  trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
+  trans_Cam_Point(Ex, *(cpar->mm), G, X[0], X[1], X[2], &Ex_t, &X_t, &Y_t, &Z_t,\
+        &cross_p, &cross_c);\
 
-  mmLUT[i_cam].origin.x = Ex_t[i_cam].x0;
-  mmLUT[i_cam].origin.y = Ex_t[i_cam].y0;
+  mmLUT[i_cam].origin.x = Ex_t.x0;
+  mmLUT[i_cam].origin.y = Ex_t.y0;
   mmLUT[i_cam].origin.z = Zmin_t;
   mmLUT[i_cam].nr = nr;
   mmLUT[i_cam].nz = nz;
@@ -440,19 +387,12 @@ int    	i_cam;
   Zi = (double *) malloc (nz * sizeof (double));
   for (i=0; i<nz; i++)	Zi[i] = Zmin_t + i*rw;
   
-  for (i=0; i<nr; i++)	for (j=0; j<nz; j++)
-    {
-	//old mmLUT[i_cam].data[i*nz + j]= multimed_r_nlay (Ex[i_cam], mmp, 
-	//      	                                        Ri[i]+Ex[i_cam].x0, Ex[i_cam].y0, Zi[j]);
-	//trans
-	trans_Cam_Point(Ex[i_cam],mmp,G[i_cam],X,Y,Z,&Ex_t[i_cam],&X_t,&Y_t,&Z_t,&cross_p,&cross_c);
-      mmLUT[i_cam].data[i*nz + j]
-	= multimed_r_nlay_v2 (Ex_t[i_cam], Ex[i_cam], mmp, 
-		                  Ri[i]+Ex_t[i_cam].x0, Ex_t[i_cam].y0, Zi[j], i_cam);
-    }
-    
-    free (Ri);	// preventing memory leaks, Ad Holten, 04-2013
-    free (Zi);
+  for (i=0; i<nr; i++)	for (j=0; j<nz; j++) {
+    trans_Cam_Point(Ex, *(cpar->mm), G, X[0], X[1], X[2], &Ex_t, &X_t, &Y_t, &Z_t,\
+        &cross_p, &cross_c);\
+    mmLUT[i_cam].data[i*nz + j] = multimed_r_nlay_v2 (Ex_t, Ex, *(cpar->mm), 
+        Ri[i] + Ex_t.x0, Ex_t.y0, Zi[j], i_cam);
+  }
 }
 
 
@@ -503,131 +443,75 @@ double	X,Y,Z;
 
 
 
-void volumedimension (xmax, xmin, ymax, ymin, zmax, zmin, num_cams)
-double *xmax, *xmin, *ymax, *ymin, *zmax, *zmin;
-int num_cams;
+void volumedimension (Calibration cal[4], double *xmax, double *xmin, 
+    double *ymax, double *ymin, double *zmax, double *zmin, control_par *cpar)
 {
   int	i_cam;
-  double X,Y,Z, R, X1,Y1,Z1, Zmin, Rmax=0,Zmax, a,b,c;
+  Exterior Ex;
+  double X[3], R, X1[3], Zmin, Rmax = 0, Zmax, a[3];
   double x,y;
+  
+  volume_par *vpar;
     
   /* find extrema of imaged object volume */
   /* ==================================== */
   
-  fpp = fopen ("parameters/criteria.par", "r");
-  fscanf (fpp, "%lf\n", &X);
-  fscanf (fpp, "%lf\n", &Zmin);
-  fscanf (fpp, "%lf\n", &Zmax);
-  fscanf (fpp, "%lf\n", &X);
-  fscanf (fpp, "%lf\n", &Z);	if (Z < Zmin)	Zmin = Z;
-  fscanf (fpp, "%lf\n", &Z);	if (Z > Zmax)	Zmax = Z;
-  fclose (fpp);
+  
+  vpar = read_volume_par("parameters/criteria.par");
+  Zmin = (vpar->Zmin_lay[1] < vpar->Zmin_lay[0]) ? vpar->Zmin_lay[1] : vpar->Zmin_lay[0];
+  Zmax = (vpar->Zmax_lay[1] < vpar->Zmax_lay[0]) ? vpar->Zmax_lay[1] : vpar->Zmax_lay[0];
 
   *zmin=Zmin;
   *zmax=Zmax;
 
-  for (i_cam = 0; i_cam < num_cams; i_cam++)
-    {  
-      /* intersect with image vertices rays */
-      pixel_to_metric (0.0, 0.0, imx,imy, pix_x,pix_y, &x,&y, chfield);
-      x = x - I[i_cam].xh;
-      y = y - I[i_cam].yh;
-      correct_brown_affin (x, y, ap[i_cam], &x,&y);
-      ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
-      Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-      R = sqrt (  (X-Ex[i_cam].x0)*(X-Ex[i_cam].x0)
-		  + (Y-Ex[i_cam].y0)*(Y-Ex[i_cam].y0));	
+  // this is to cut down duplicate code without refactoring the function 
+  //totally which would happen later.
+#define UPDATE_R_VD(p2mx, p2my) \
+  pixel_to_metric (&x, &y, (p2mx), (p2my), cpar); \
+  x = x - cal[i_cam].int_par.xh; \
+  y = y - cal[i_cam].int_par.yh; \
+  correct_brown_affin (x, y, cal[i_cam].added_par, &x,&y); \
+  ray_tracing(x,y, cal + i_cam, *(cpar->mm), X1, a); \
+  X[2] = Zmin; \
+  X[1] = X1[1] + (X[2] - X1[2]) * a[1]/a[2]; \
+  X[0] = X1[0] + (X[2] - X1[2]) * a[0]/a[2]; \
+  \
+  R = sqrt (  (X[0] - Ex.x0)*(X[0] - Ex.x0)\
+	      + (X[1] - Ex.y0)*(X[1] - Ex.y0));\
+  \
+  if ( X[0] > *xmax) *xmax=X[0];\
+  if ( X[0] < *xmin) *xmin=X[0];\
+  if ( X[1] > *ymax) *ymax=X[1];\
+  if ( X[1] < *ymin) *ymin=X[1];\
+  \
+  if (R > Rmax)	Rmax = R;\
+  X[2] = Zmax;\
+  X[1] = X1[1] + (X[2] - X1[2]) * a[1]/a[2];\
+  X[0] = X1[0] + (X[2] - X1[2]) * a[0]/a[2];\
+  \
+  R = sqrt (  (X[0] - Ex.x0)*(X[0] - Ex.x0)\
+	      + (X[1] - Ex.y0)*(X[1] - Ex.y0));\
+  if ( X[0] > *xmax) *xmax=X[0];\
+  if ( X[0] < *xmin) *xmin=X[0];\
+  if ( X[1] > *ymax) *ymax=X[1];\
+  if ( X[1] < *ymin) *ymin=X[1];\
 
-      if ( X > *xmax) *xmax=X;
-      if ( X < *xmin) *xmin=X;
-      if ( Y > *ymax) *ymax=Y;
-      if ( Y < *ymin) *ymin=Y;
+  for (i_cam = 0; i_cam < cpar->num_cams; i_cam++) {  
+    Ex = cal[i_cam].ext_par;
+    
+    //--00
+    UPDATE_R_VD(0., 0.)
 
-      if (R > Rmax)	Rmax = R;
-      Z = Zmax;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-      R = sqrt (  (X-Ex[i_cam].x0)*(X-Ex[i_cam].x0)
-		  + (Y-Ex[i_cam].y0)*(Y-Ex[i_cam].y0));
+    //--0y
+    if (R > Rmax)	Rmax = R;
+    UPDATE_R_VD(0., (double) cpar->imy)
+  
+    //--x0
+    if (R > Rmax)	Rmax = R;  
+    UPDATE_R_VD((double) cpar->imx, 0.)
 
-      if ( X > *xmax) *xmax=X;
-      if ( X < *xmin) *xmin=X;
-      if ( Y > *ymax) *ymax=Y;
-      if ( Y < *ymin) *ymin=Y;
-      
-      if (R > Rmax)	Rmax = R;
-      pixel_to_metric (0.0, (double) imy, imx,imy, pix_x,pix_y, &x,&y, chfield);
-      x = x - I[i_cam].xh;
-      y = y - I[i_cam].yh;
-      correct_brown_affin (x, y, ap[i_cam], &x,&y);
-      ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
-      Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-      R = sqrt (  (X-Ex[i_cam].x0)*(X-Ex[i_cam].x0)
-		  + (Y-Ex[i_cam].y0)*(Y-Ex[i_cam].y0));
-
-      if ( X > *xmax) *xmax=X;
-      if ( X < *xmin) *xmin=X;
-      if ( Y > *ymax) *ymax=Y;
-      if ( Y < *ymin) *ymin=Y;
-      
-      if (R > Rmax)	Rmax = R;
-      Z = Zmax;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-      R = sqrt (  (X-Ex[i_cam].x0)*(X-Ex[i_cam].x0)
-		  + (Y-Ex[i_cam].y0)*(Y-Ex[i_cam].y0));
-
-      if ( X > *xmax) *xmax=X;
-      if ( X < *xmin) *xmin=X;
-      if ( Y > *ymax) *ymax=Y;
-      if ( Y < *ymin) *ymin=Y;
-      
-      if (R > Rmax)	Rmax = R;
-      
-      pixel_to_metric ((double) imx, 0., imx,imy, pix_x,pix_y, &x,&y, chfield);
-      x = x - I[i_cam].xh;
-      y = y - I[i_cam].yh;
-      correct_brown_affin (x, y, ap[i_cam], &x,&y);
-      ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
-      Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-      R = sqrt (  (X-Ex[i_cam].x0)*(X-Ex[i_cam].x0)
-		  + (Y-Ex[i_cam].y0)*(Y-Ex[i_cam].y0));
-
-      if ( X > *xmax) *xmax=X;
-      if ( X < *xmin) *xmin=X;
-      if ( Y > *ymax) *ymax=Y;
-      if ( Y < *ymin) *ymin=Y;
-      
-      if (R > Rmax)	Rmax = R;
-      Z = Zmax;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-      R = sqrt (  (X-Ex[i_cam].x0)*(X-Ex[i_cam].x0)
-		  + (Y-Ex[i_cam].y0)*(Y-Ex[i_cam].y0));	
-
-      if ( X > *xmax) *xmax=X;
-      if ( X < *xmin) *xmin=X;
-      if ( Y > *ymax) *ymax=Y;
-      if ( Y < *ymin) *ymin=Y;
-      
-      if (R > Rmax)	Rmax = R;
-      pixel_to_metric ((double) imx, (double) imy,
-		       imx,imy, pix_x,pix_y, &x,&y, chfield);
-      x = x - I[i_cam].xh;
-      y = y - I[i_cam].yh;
-      correct_brown_affin (x, y, ap[i_cam], &x,&y);
-      ray_tracing_v2 (x,y, Ex[i_cam], I[i_cam], G[i_cam], mmp, &X1, &Y1, &Z1, &a, &b, &c);
-      Z = Zmin;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-      R = sqrt (  (X-Ex[i_cam].x0)*(X-Ex[i_cam].x0)
-		  + (Y-Ex[i_cam].y0)*(Y-Ex[i_cam].y0));	
-
-      if ( X > *xmax) *xmax=X;
-      if ( X < *xmin) *xmin=X;
-      if ( Y > *ymax) *ymax=Y;
-      if ( Y < *ymin) *ymin=Y;
-      
-      if (R > Rmax)	Rmax = R;
-      Z = Zmax;   X = X1 + (Z-Z1) * a/c;   Y = Y1 + (Z-Z1) * b/c;
-      R = sqrt (  (X-Ex[i_cam].x0)*(X-Ex[i_cam].x0)
-		  + (Y-Ex[i_cam].y0)*(Y-Ex[i_cam].y0));           
-
-      if ( X > *xmax) *xmax=X;
-      if ( X < *xmin) *xmin=X;
-      if ( Y > *ymax) *ymax=Y;
-      if ( Y < *ymin) *ymin=Y; 
-    }
+    //--xy
+    if (R > Rmax)	Rmax = R;
+    UPDATE_R_VD((double) cpar->imx, (double) cpar->imy)
+  }
 }

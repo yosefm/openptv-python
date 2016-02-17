@@ -14,62 +14,74 @@ Description:	  target recognition with adaptive threshold
 		  based on high pass filter and connectivity analysis
 						with peak fitting technique
 
-Routines contained:		unsharp_mask () ...
-
 ****************************************************************************/
 
 #include "ptv.h"
+#include <optv/image_processing.h>
 #include "image_processing.h"
 
-void highpass ( img, img_hp, dim_lp, filter_hp, field)
-unsigned char  *img;
-unsigned char  *img_hp;       	/* highpass filtered image */
-int             dim_lp;	       	/* dimension of subtracted lowpass image */
-int	        filter_hp;     	/* flag for additional filtering of _hp */
-int    		field;	       	/* field to be used */
+/* highpass() - perform an averaging (smoothing) filter on an image.
+   
+   Arguments:
+   unsigned char  *img - the source image to filter.
+   unsigned char  *img_hp - result buffer for filtered image. Same size as img.
+   int dim_lp - dimension of subtracted lowpass image.
+   int filter_hp - flag for additional filtering of _hp. 1 for lowpass, 2 for 
+      general filter given in file 'filter.par'
+   control_par *cpar - image details such as size and image half for interlaced
+      cases.
+*/
 
+void highpass (unsigned char  *img, unsigned char  *img_hp, int dim_lp, 
+    int filter_hp, control_par *cpar)
 {
-
   register int	i;
   FILE	       	*fp;
   unsigned char *img_lp;
   char	       	lp_name[256], hp_name[256];
+  filter_t filt; /* for when filter_hp == 2 */
 
   register unsigned char *ptr1, *ptr2, *ptr3;
 
-
   img_lp = (unsigned char *) calloc (imgsize, 1);
-  if ( ! img_lp)
-    {
+  if ( ! img_lp) {
       puts ("calloc for img_lp --> error");
       exit (1);
-    }
-  unsharp_mask (dim_lp, img, img_lp);
+  }
+  fast_box_blur(dim_lp, img, img_lp, cpar);
 
   for (ptr1=img, ptr2=img_lp, ptr3=img_hp, i=0; i<imgsize;
        ptr1++, ptr2++, ptr3++, i++)
-    {
-
-      if (*ptr1 > *ptr2)  *ptr3 = *ptr1 - *ptr2;
-	
-	
-      else  *ptr3 = 0;
-    }
+  {
+      if (*ptr1 > *ptr2)
+          *ptr3 = *ptr1 - *ptr2;
+      else  
+          *ptr3 = 0;
+  }
+  
   /* consider field mode */
-  if (field == 1 || field == 2)  split (img_hp, field);
-
+  if (cpar->chfield == 1 || cpar->chfield == 2)
+    split (img_hp, cpar->chfield, cpar);
 
   /* filter highpass image, if wanted */
-  switch (filter_hp)
-    {
+  switch (filter_hp) {
     case 0: break;
-    case 1: lowpass_3 (img_hp, img_hp);	break;
-    case 2: filter_3 (img_hp, img_hp);	break;
-    }
+    case 1: lowpass_3 (img_hp, img_hp, cpar);	break;
+    case 2: 
+        /* read filter elements from parameter file */
+        fp = fopen ("filter.par", "r");
+        for (i = 0; i < 9; i++) {
+            fscanf (fp, "%f", filt + i);
+        }
+        fclose (fp);
+        
+        filter_3 (img_hp, img_hp, filt, cpar);
+        break;
+  }
   free (img_lp);
 }
 
-void targ_rec (img0, img, par_file, xmin,xmax,ymin,ymax, pix, nr, num)
+void targ_rec (img0, img, par_file, xmin,xmax,ymin,ymax, pix, nr, num, cpar)
 
 unsigned char	*img, *img0;   	/* image data, image to be set to zero */
 char	       	par_file[];    	/* name of parameter file */
@@ -77,6 +89,7 @@ int    		xmin,xmax,ymin,ymax;	/* search area */
 target	       	pix[];		       	/* pixel coord array, global */
 int	       	nr;		       	/* image number for display */
 int	       	*num;	       		/* number of detections */
+control_par *cpar;
 
 /*  thresholding and center of gravity with a peak fitting technique  */
 /*  uses 4 neighbours for connectivity and 8 to find local maxima     */
@@ -95,6 +108,11 @@ int	       	*num;	       		/* number of detections */
   register unsigned char	gv, gvref;
 
   targpix	       	waitlist[2048];
+  
+  /* avoid many dereferences */
+  int imx, imy;
+  imx = cpar->imx;
+  imy = cpar->imy;
 
   /* read image name, filter dimension and threshold from parameter file */
   printf("inside targ_rec (segmentation.c) \n");
@@ -225,13 +243,14 @@ int	       	*num;	       		/* number of detections */
 
 
 
-void simple_connectivity (img0, img, par_file, xmin,xmax,ymin,ymax, pix, nr, num)
+void simple_connectivity (img0, img, par_file, xmin,xmax,ymin,ymax, pix, nr, num, cpar)
 unsigned char	*img, *img0;   	/* image data, image to be set to zero */
 char	       	par_file[];    	/* name of parameter file */
 int	       	xmin,xmax,ymin,ymax;	/* search area */
 target	       	pix[];        	/* pixel coord array, global */
 int    	       	nr;    	       	/* image number for display */
 int	       	*num;	       	/* number of detections */
+control_par *cpar;
 
 /*  thresholding and center of gravity with a peak fitting technique  */
 /*  uses 4 neighbours for connectivity and 8 to find local maxima     */
@@ -250,6 +269,11 @@ int	       	*num;	       	/* number of detections */
   register unsigned char  gv, gvref;
 
   targpix	waitlist[2048];
+
+  /* avoid many dereferences */
+  int imx, imy;
+  imx = cpar->imx;
+  imy = cpar->imy;
 
   /* read image name, threshold and shape limits from parameter file */
   fpp = fopen_r (par_file);

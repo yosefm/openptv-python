@@ -2,7 +2,8 @@
 
 #include "tracking_run.h"
 #include "typedefs.h"
-#include "optv/tracking_frame_buf.h"
+#include <optv/tracking_frame_buf.h>
+#include <optv/calibration.h>
 #include <stdio.h>
 
 #ifndef GLOBALS_H
@@ -13,11 +14,6 @@
 #include <optv/parameters.h>
 extern control_par *cpar; /* From jw_ptv.c, temporary Windows-build thing */
 
-extern int n_img;          /* no of images */
-extern int hp_flag;        /* flag for highpass */
-extern int allCam_flag;    /* flag for using all cams for points */
-extern int tiff_flag;      /* flag for tiff header */
-extern int chfield;	       /* flag for field mode */
 extern int nfix;           /* no. of control points */
 extern int num[];          /* no. of particles per image */
 extern int nump[4];        /* no. of particles in previous image */
@@ -58,7 +54,7 @@ extern int rclick_intx1[4], rclick_inty1[4], rclick_intx2[4], rclick_inty2[4],\
 // --------------------------------
 
 extern int nr[4][4];                       /* point numbers for man. ori */
-extern int imx, imy, imgsize;              /* image size */
+extern int imgsize;              /* image size */
 extern int zoom_x[], zoom_y[], zoom_f[];   /* zoom parameters */
 extern int pp1, pp2, pp3, pp4,pp5;         /* for man. orientation */
 extern int demo_nr;                        /* for demo purposes */
@@ -67,23 +63,12 @@ extern int dump_for_rdb;                   /* # of dumpfiles for rdb */
 extern int cr_sz;                          /* size of crosses */
 extern int display;                        /* display flag */
 
-extern double pix_x, pix_y;		     	/* pixel size */
-extern double pi, ro;
+extern double pi;
 extern double rmsX, rmsY, rmsZ, mean_sigma0;         /* a priori rms */
 extern double db_scale;           /*dumbbell length, Beat Mai 2010*/ 
 
 extern FILE	*fp1, *fp2, *fp3, *fp4, *fpp;	/* file pointers */
 
-extern char img_name[4][256];     /* original image names */
-extern char img_lp_name[4][256];  /* lowpass image names */
-extern char img_hp_name[4][256];  /* highpass image names */
-extern char img_cal[4][128];      /* calibration image names */
-extern char img_ori[4][128];      /* image orientation data */
-extern char img_ori0[4][128];     /* orientation approx. values */
-extern char img_addpar0[4][128];  /* approx. image additional parameters */
-extern char img_addpar[4][128];   /* image additional parameters */
-extern char fixp_name[128];       /* testfield fixpoints */
-extern char track_dir[128];       /* directory with dap track data */
 extern char res_name[128];        /* result destination */
 extern char buf[], val[];
 
@@ -94,7 +79,7 @@ extern Exterior Ex[];       /* exterior orientation */ //previous -  Exterior  E
 extern Interior I[];        /* interior orientation *///previous -  Exterior  I[];
 extern Glass    G[];        /* glass orientation *///previous -  Exterior  G[];
 extern ap_52    ap[];       /* add. parameters *///previous -  Exterior  ap[];
-extern mm_np    mmp;        /* 3-media parameters */
+Calibration glob_cal[4];  // Collect all the globals until it is safe to remove them.
 
 extern target   pix[4][nmax];  	/* target pixel data */
 extern target   pix0[4][12];    /* pixel data for man_ori points */
@@ -118,18 +103,11 @@ void trans_Cam_Point ();
 void back_trans_Point ();
 
 void img_xy_mm_geo ();
- void pixel_to_metric();
-void metric_to_pixel ();
- void correct_brown_affin();
-void distort_brown_affin ();
 void init_mmLUT ();
 
 void correspondences_4();
 void pos_from_ray();
- void ray_tracing();
-void point_line_line();
- void dot();
- void ray_tracing_v2();
+void dist_to_ray();
 void mid_point();
 void cross();
 void dotP();
