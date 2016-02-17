@@ -143,14 +143,23 @@ void prepare_eval_shake(control_par *cpar) {
         printf("found %d particles \n", frm.num_parts);
 
         for (i = 0; i < frm.num_parts; i++) {
-            part_used = 0;
+            if ((frm.path_info[i].prev == PREV_NONE) || \
+                (frm.path_info[i].next == NEXT_NONE) ) continue;
+            
+            part_used = 1;
             
             for (i_img = 0; i_img < cpar->num_cams; i_img++) {
                 part_pointer = frm.correspond[i].p[i_img];
-                if ((part_pointer != CORRES_NONE) && \
-                    (frm.path_info[i].prev != PREV_NONE) && \
-                    (frm.path_info[i].next != NEXT_NONE) ) 
-                {
+                if (part_pointer == CORRES_NONE) {
+                    part_used = 1;
+                    break;
+                }
+            }
+            
+            if (part_used == 1) {
+                frame_used = 1;
+                
+                for (i_img = 0; i_img < cpar->num_cams; i_img++) {
                     pix[i_img][count].x = frm.targets[i_img][part_pointer].x;
                     pix[i_img][count].y = frm.targets[i_img][part_pointer].y;
                     pix[i_img][count].pnr = count;
@@ -158,13 +167,14 @@ void prepare_eval_shake(control_par *cpar) {
                     pixel_to_metric(&crd[i_img][count].x, &crd[i_img][count].y,
                         pix[i_img][count].x, pix[i_img][count].y, cpar);
                     crd[i_img][count].pnr = count;
-                    
-                    frame_used = 1;
-                    part_used = 1;
                 }
+                
+                fix[count].x = frm.path_info[i].x[0];
+                fix[count].y = frm.path_info[i].x[1];
+                fix[count].z = frm.path_info[i].x[2];
+                fix[count].pnr = count++;
             }
-            if (part_used == 1) count++;
-            if (count >= max_shake_points) break;
+            if (count > max_shake_points) break;
         }
         if (frame_used == 1) frame_count++;
         if ((count >= max_shake_points) || (frame_count > max_shake_frames))
