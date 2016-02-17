@@ -211,18 +211,20 @@ track_par *tpar;
 control_par *cpar;
 {
   int i, pt, dim;
-  double X, Y, Z;
+  vec3d mins, maxes;
   double x, y, xz, yz;
   vec3d quader[8];
 
+  vec_set(mins, tpar->dvxmin, tpar->dvymin, tpar->dvzmin);
+  vec_set(maxes, tpar->dvxmax, tpar->dvymax, tpar->dvzmax);
   /* 3D positions of search volume - eight corners of a box */
   for (pt = 0; pt < 8; pt++) {
     vec_copy(quader[pt], point);
     for (dim = 0; dim < 3; dim++) {
         if (pt & 1<<dim) {
-            quader[pt][dim] += tpar->dvxmax;
+            quader[pt][dim] += maxes[dim];
         } else {
-            quader[pt][dim] += tpar->dvxmin;
+            quader[pt][dim] += mins[dim];
         }
     }
   }
