@@ -160,6 +160,7 @@ void prepare_eval_shake(control_par *cpar) {
                 frame_used = 1;
                 
                 for (i_img = 0; i_img < cpar->num_cams; i_img++) {
+                    part_pointer = frm.correspond[i].p[i_img];
                     pix[i_img][count].x = frm.targets[i_img][part_pointer].x;
                     pix[i_img][count].y = frm.targets[i_img][part_pointer].y;
                     pix[i_img][count].pnr = count;
