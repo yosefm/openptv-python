@@ -151,7 +151,7 @@ void prepare_eval_shake(control_par *cpar) {
             for (i_img = 0; i_img < cpar->num_cams; i_img++) {
                 part_pointer = frm.correspond[i].p[i_img];
                 if (part_pointer == CORRES_NONE) {
-                    part_used = 1;
+                    part_used = 0;
                     break;
                 }
             }
@@ -173,7 +173,8 @@ void prepare_eval_shake(control_par *cpar) {
                 fix[count].x = frm.path_info[i].x[0];
                 fix[count].y = frm.path_info[i].x[1];
                 fix[count].z = frm.path_info[i].x[2];
-                fix[count].pnr = count++;
+                fix[count].pnr = count;
+                count++;
             }
             if (count > max_shake_points) break;
         }
