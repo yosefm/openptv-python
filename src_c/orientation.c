@@ -1031,7 +1031,7 @@ int         *num_used;  /* Number of points used for orientation */
     resid_x[n]=resi[i];
 	resid_y[n]=resi[i+1];
   }
-  *num_used = n; /* last n, maximal. */
+  *num_used = (n_obs - 10)/2; 
 
 
   if (convergeflag){
