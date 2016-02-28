@@ -19,8 +19,5 @@ void targ_rec (unsigned char *img0, unsigned char *img, char par_file[],
     int xmin, int xmax, int ymin, int ymax,
     target pix[], int nr, int *num, control_par *cpar);
 
-void highpass(unsigned char *img, unsigned char *img_hp, int dim_lp,
-    int filter_hp, control_par *cpar);
-
 #endif
 

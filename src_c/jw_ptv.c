@@ -612,7 +612,7 @@ int calibration_proc_c (int sel)
             printf("\n after high pass inside detection");
             for (i = 0; i < cpar->num_cams; i++)
             {
-                copy_images (img[i], img0[i]);
+                copy_images (img[i], img0[i], cpar);
             }
             
             /* target recognition */

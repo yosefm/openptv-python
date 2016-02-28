@@ -50,8 +50,6 @@ cdef extern from "globals.h": # to lose the declspec
     
     void prepare_eval(control_par *cpar, int *n_fix)
 
-    void highpass(unsigned char *img, unsigned char *img_hp, int dim_lp, 
-        int filter_hp, control_par *cpar)
     int init_proc_c()
     int start_proc_c()
     int pre_processing_c ()
@@ -99,9 +97,13 @@ cdef extern from "globals.h": # to lose the declspec
 cdef extern from "globals.h":
     control_par *cpar
 
+cdef extern from "optv/image_processing.h":
+    void prepare_image(unsigned char *img, unsigned char *img_hp, 
+        int dim_lp, int filter_hp, char *filter_file, control_par *cpar)
+
 def py_highpass(np.ndarray img1, np.ndarray img2, dim_lp1, filter_lp1, field1 ):
-    highpass(<unsigned char *>img1.data, <unsigned char *>img2.data, dim_lp1, 
-        filter_lp1, cpar)
+    prepare_image(<unsigned char *>img1.data, <unsigned char *>img2.data, dim_lp1, 
+        filter_lp1, NULL, cpar)
 
 def py_set_img(np.ndarray img_one, i):
     global img

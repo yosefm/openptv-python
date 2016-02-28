@@ -20,67 +20,6 @@ Description:	  target recognition with adaptive threshold
 #include <optv/image_processing.h>
 #include "image_processing.h"
 
-/* highpass() - perform an averaging (smoothing) filter on an image.
-   
-   Arguments:
-   unsigned char  *img - the source image to filter.
-   unsigned char  *img_hp - result buffer for filtered image. Same size as img.
-   int dim_lp - dimension of subtracted lowpass image.
-   int filter_hp - flag for additional filtering of _hp. 1 for lowpass, 2 for 
-      general filter given in file 'filter.par'
-   control_par *cpar - image details such as size and image half for interlaced
-      cases.
-*/
-
-void highpass (unsigned char  *img, unsigned char  *img_hp, int dim_lp, 
-    int filter_hp, control_par *cpar)
-{
-  register int	i;
-  FILE	       	*fp;
-  unsigned char *img_lp;
-  char	       	lp_name[256], hp_name[256];
-  filter_t filt; /* for when filter_hp == 2 */
-
-  register unsigned char *ptr1, *ptr2, *ptr3;
-
-  img_lp = (unsigned char *) calloc (imgsize, 1);
-  if ( ! img_lp) {
-      puts ("calloc for img_lp --> error");
-      exit (1);
-  }
-  fast_box_blur(dim_lp, img, img_lp, cpar);
-
-  for (ptr1=img, ptr2=img_lp, ptr3=img_hp, i=0; i<imgsize;
-       ptr1++, ptr2++, ptr3++, i++)
-  {
-      if (*ptr1 > *ptr2)
-          *ptr3 = *ptr1 - *ptr2;
-      else  
-          *ptr3 = 0;
-  }
-  
-  /* consider field mode */
-  if (cpar->chfield == 1 || cpar->chfield == 2)
-    split (img_hp, cpar->chfield, cpar);
-
-  /* filter highpass image, if wanted */
-  switch (filter_hp) {
-    case 0: break;
-    case 1: lowpass_3 (img_hp, img_hp, cpar);	break;
-    case 2: 
-        /* read filter elements from parameter file */
-        fp = fopen ("filter.par", "r");
-        for (i = 0; i < 9; i++) {
-            fscanf (fp, "%f", filt + i);
-        }
-        fclose (fp);
-        
-        filter_3 (img_hp, img_hp, filt, cpar);
-        break;
-  }
-  free (img_lp);
-}
-
 void targ_rec (img0, img, par_file, xmin,xmax,ymin,ymax, pix, nr, num, cpar)
 
 unsigned char	*img, *img0;   	/* image data, image to be set to zero */
@@ -276,7 +215,7 @@ control_par *cpar;
   imy = cpar->imy;
 
   /* read image name, threshold and shape limits from parameter file */
-  fpp = fopen_r (par_file);
+  fpp = fopen (par_file, "r");
   fscanf (fpp, "%d", &thres);    	/* threshold for binarization  	 */
   fscanf (fpp, "%d", &n);		/* threshold value for discontinuity */
   fscanf (fpp, "%d  %d", &nnmin, &nnmax);	 /* min. and max. number of  */
