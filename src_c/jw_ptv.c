@@ -147,7 +147,7 @@ int init_proc_c()
     cpar = read_control_par("parameters/ptv.par");
     cpar->mm->nlay = 1;
     
-    for (i=0; i<4; i++)
+    for (i=0; i<cpar->num_cams; i++)
     {
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 128);
     }
@@ -227,7 +227,7 @@ int start_proc_c()
     cpar = read_control_par("parameters/ptv.par");
     cpar->mm->nlay = 1;
     
-    for (i=0; i<4; i++)
+    for (i=0; i<cpar->num_cams; i++)
     {
         strncpy(img_cal[i], cpar->cal_img_base_name[i], 128);
     }
