@@ -26,6 +26,7 @@
 
 #include "tools.h"
 #include "orientation.h"
+#include "correspondences.h"
 #include "track.h"
 
 /*  global declarations for ptv  */

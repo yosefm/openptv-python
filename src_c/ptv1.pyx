@@ -87,7 +87,6 @@ cdef extern from "globals.h": # to lose the declspec
     int rclick_points_intx1, rclick_points_inty1
 
     int imgsize
-    int dumbbell_pyptv
     int match4_g,match3_g,match2_g,match1_g
     unsigned char *img[4]
     int seq_step_shake

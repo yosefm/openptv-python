@@ -2,7 +2,7 @@
 #include <optv/parameters.h>
 #include <optv/trafo.h>
 #include <optv/calibration.h>
-#include "epi.h"
+#include <optv/epi.h>
 #include "tools.h"
 
 /* Variables used here and defined extern in 'globals.h' */
@@ -66,15 +66,15 @@ int mouse_proc_c (int click_x, int click_y, int kind, int num_image,
 	       	       	       
 	       for (i = 0; i < cpar->num_cams; i++) if (i != n) {
 		   /* calculate epipolar band in img[i] */
-		   epi_mm (geo[n][k].x, geo[n][k].y, &(cals[n]), &(cals[i]), cpar, vpar,
+		   epi_mm (geo[n][k].x, geo[n][k].y, &(cals[n]), &(cals[i]), cpar->mm, vpar,
 			   &xa12, &ya12, &xb12, &yb12);
 		   
 		   /* search candidate in img[i] */
 		   printf("\ncandidates in img: %d\n", i);
-		   find_candidate_plus_msg (geo[i], pix[i], num[i],
+		   count = find_candidate(geo[i], pix[i], num[i],
 					    xa12, ya12, xb12, yb12,
 					    pix[n][pt1].n, pix[n][pt1].nx, pix[n][pt1].ny,
-					    pix[n][pt1].sumg, cand, &count, i, vpar, cpar);
+					    pix[n][pt1].sumg, cand, vpar, cpar, &(cals[i]));
 
 		   distort_brown_affin (xa12,ya12, cals[i].added_par, &xa12,&ya12);
 		   distort_brown_affin (xb12,yb12, cals[i].added_par, &xb12,&yb12);
@@ -102,7 +102,7 @@ int mouse_proc_c (int click_x, int click_y, int kind, int num_image,
             rclick_count[i]=count;
                    for (j=0; j<count; j++)
                      {
-                       pt2 = cand[j].pnr;
+                       pt2 = geo[i][cand[j].pnr].pnr;
                        intx2 = (int) ( cpar->imx/2 + zoom_f[i] * (pix[i][pt2].x - zoom_x[i]));
                        inty2 = (int) ( cpar->imy/2 + zoom_f[i] * (pix[i][pt2].y - zoom_y[i]));
                          rclick_points_x1[i][j]=intx2;

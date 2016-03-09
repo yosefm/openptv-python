@@ -97,7 +97,6 @@ extern corres  	*corrc;
 extern corres  	*corrn;
 
 // General functions:
-void correspondences_4();
 void pos_from_ray();
 void dist_to_ray();
 void mid_point();
