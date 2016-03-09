@@ -41,6 +41,7 @@ void just_plot (Calibration *cal, int nfix, coord_3d fix[], int n_img,
      and search a detected target nearby */
   
   for (i=0; i<nfix; i++) {
+      vec_set(pos, fix[i].x, fix[i].y, fix[i].z);
       img_coord (pos, cal, cpar->mm, &xp, &yp);
       metric_to_pixel (&xp, &yp, xp, yp, cpar);
       
