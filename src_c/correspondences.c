@@ -18,6 +18,46 @@ Description:	       	establishment of correspondences for 2/3/4 cameras
 #include "correspondences.h"
 #include "tools.h"
 
+/* quicksort for list of correspondences in order of match quality */
+/* 4 camera version */
+
+
+void qs_con (con, left, right)
+n_tupel	*con;
+int    	left, right;
+{
+  register int	i, j;
+  double       	xm;
+  n_tupel      	temp;
+
+  i = left;	j = right;	xm = con[(left+right)/2].corr;
+
+  do
+    {
+      while (con[i].corr > xm  &&  i<right)	i++;
+      while (xm > con[j].corr  &&  j>left)	j--;
+
+      if (i <= j)
+	{
+	  temp = con[i];
+	  con[i] = con[j];
+	  con[j] = temp;
+	  i++;	j--;
+	}
+    }
+  while (i <= j);
+
+  if (left < j)	qs_con (con, left, j);
+  if (i < right)	qs_con (con, i, right);
+}
+
+void quicksort_con (con, num)
+n_tupel	*con;
+int    	num;
+{
+  qs_con (con, 0, num-1);
+}
+
 /****************************************************************************/
 /*--------------- 4 camera model: consistent quadruplets -------------------*/
 /****************************************************************************/
