@@ -23,7 +23,8 @@ Description:	       	establishment of correspondences for 2/3/4 cameras
 /****************************************************************************/
 
 void correspondences_4 (target pix[][nmax], coord_2d geo[][nmax], 
-    volume_par *vpar, control_par *cpar, Calibration cals[])
+    volume_par *vpar, control_par *cpar, Calibration cals[], n_tupel *con, 
+    int match_counts[])
 {
   int 	i,j,k,l,m,n,o,  i1,i2,i3;
   int   count, match0=0, match4=0, match3=0, match2=0, match1=0;
@@ -380,12 +381,11 @@ void correspondences_4 (target pix[][nmax], coord_2d geo[][nmax],
 printf("unidentified objects = %d\n",count1);
   }
 
-// fill globals for cython postprocessing
-// denis
-match4_g=match4;
-match3_g=match3;
-match2_g=match2;
-match1_g=match1;
+/* Retun values: match counts of each clique size */
+  match_counts[3] = match4;
+  match_counts[2] = match3;
+  match_counts[1] = match2;
+  match_counts[0] = match1;
 
   /* ----------------------------------------------------------------------- */
   /* free memory for lists of correspondences */

@@ -429,7 +429,7 @@ int detection_proc_c(char **image_names)
 */
 int correspondences_proc_c (char **img_base_names, int frame)
 {
-    int	i, i_img;
+    int	i, i_img, match_counts[4];
     double x,y;
     
     puts ("\nTransformation to metric coordinates\n");
@@ -470,7 +470,12 @@ int correspondences_proc_c (char **img_base_names, int frame)
         lut_inited = 1;
     }
     
-    correspondences_4 (pix, geo, vpar, cpar, glob_cal);
+    correspondences_4 (pix, geo, vpar, cpar, glob_cal, con, match_counts);
+    /* This is needed for the UI, previously set within correspondences_4 */
+    match4_g = match_counts[3];
+    match3_g = match_counts[2];
+    match2_g = match_counts[1];
+    match1_g = match_counts[0]; 
     
     /* --------------- */
     /* save pixel coords for tracking */
