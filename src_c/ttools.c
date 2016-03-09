@@ -214,7 +214,7 @@ control_par *cpar;
   int i, pt, dim;
   vec3d mins, maxes;
   double x, y, xz, yz;
-  vec3d quader[8];
+  vec3d quader[8], pos;
 
   vec_set(mins, tpar->dvxmin, tpar->dvymin, tpar->dvzmin);
   vec_set(maxes, tpar->dvxmax, tpar->dvymax, tpar->dvzmax);
@@ -237,13 +237,11 @@ control_par *cpar;
       yd[i]=0;
       yu[i] = cpar->imy;
       
-      vec_set(pos, point.x, point.y, point.z);
-      img_coord (pos, &(glob_cal[i]), cpar->mm, &xz, &yz);
+      img_coord (point, &(glob_cal[i]), cpar->mm, &xz, &yz);
       metric_to_pixel (&xz, &yz, xz, yz, cpar);
-
-      for (k=0; k<8; k++) {
-        vec_set(pos, quader[k].x, quader[k].y, quader[k].z);
-        img_coord (pos, &(glob_cal[i]), cpar->mm, &x, &y);
+      
+      for (pt = 0; pt < 8; pt++) {
+        img_coord (quader[pt], &(glob_cal[i]), cpar->mm, &x, &y);
 	    metric_to_pixel (&x, &y, x, y, cpar);
 
 	    if (x <xl[i] ) xl[i]=x;

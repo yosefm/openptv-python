@@ -74,7 +74,7 @@ void correspondences_4 (volume_par *vpar, control_par *cpar, Calibration cals[])
 		fprintf (fp1, "%4d\n", num[0]);
 	  for (i=0; i<num[0]; i++){
           epi_mm_2D (geo[0][i].x,geo[0][i].y, &(cals[0]), 
-            *(cpar->mm), vpar, out);
+            cpar->mm, vpar, out);
           pix[0][geo[0][i].pnr].tnr=i;
 		  fprintf (fp1, "%4d", i+1);
 		  fprintf (fp1, " %9.3f %9.3f %9.3f", X, Y, Z);
@@ -96,7 +96,7 @@ void correspondences_4 (volume_par *vpar, control_par *cpar, Calibration cals[])
 
       for (i=0; i<num[i1]; i++)	if (geo[i1][i].x != -999) {
           epi_mm (geo[i1][i].x, geo[i1][i].y, &(cals[i1]), &(cals[i2]), 
-          *(cpar->mm), vpar, &xa12, &ya12, &xb12, &yb12);
+          cpar->mm, vpar, &xa12, &ya12, &xb12, &yb12);
 	  
     /////ich glaube, da muss ich einsteigen, wenn alles erledigt ist.
 	  ///////mit bild_1 x,y Epipole machen und dann selber was schreiben um die Distanz zu messen.
@@ -106,10 +106,10 @@ void correspondences_4 (volume_par *vpar, control_par *cpar, Calibration cals[])
 	  p1 = i;  list[i1][i2][p1].p1 = p1;	pt1 = geo[i1][p1].pnr;
 
 	  /* search for a conjugate point in geo[i2] */
-      find_candidate (geo[i2], pix[i2], num[i2],
-			       xa12, ya12, xb12, yb12, 
-			       pix[i1][pt1].n,pix[i1][pt1].nx,pix[i1][pt1].ny,
-			       pix[i1][pt1].sumg, cand, &count, vpar, cpar, &(cals[i2]), 1);
+      count = find_candidate (geo[i2], pix[i2], num[i2],
+            xa12, ya12, xb12, yb12, 
+            pix[i1][pt1].n,pix[i1][pt1].nx,pix[i1][pt1].ny,
+            pix[i1][pt1].sumg, cand, vpar, cpar, &(cals[i2]) );
 	  /* write all corresponding candidates to the preliminary list */
 	  /* of correspondences */
 	  if (count > maxcand)	{ count = maxcand; }
