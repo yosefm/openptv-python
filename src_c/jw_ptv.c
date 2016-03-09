@@ -470,7 +470,7 @@ int correspondences_proc_c (char **img_base_names, int frame)
         lut_inited = 1;
     }
     
-    correspondences_4 (vpar, cpar, glob_cal);
+    correspondences_4 (pix, geo, vpar, cpar, glob_cal);
     
     /* --------------- */
     /* save pixel coords for tracking */

@@ -14,15 +14,16 @@ Description:	       	establishment of correspondences for 2/3/4 cameras
 
 ****************************************************************************/
 
-#include "ptv.h"
 #include <optv/epi.h>
+#include "correspondences.h"
 #include "tools.h"
 
 /****************************************************************************/
 /*--------------- 4 camera model: consistent quadruplets -------------------*/
 /****************************************************************************/
 
-void correspondences_4 (volume_par *vpar, control_par *cpar, Calibration cals[])
+void correspondences_4 (target pix[][nmax], coord_2d geo[][nmax], 
+    volume_par *vpar, control_par *cpar, Calibration cals[])
 {
   int 	i,j,k,l,m,n,o,  i1,i2,i3;
   int   count, match0=0, match4=0, match3=0, match2=0, match1=0;
