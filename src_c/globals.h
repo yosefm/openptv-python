@@ -21,7 +21,6 @@ extern int nump[4];        /* no. of particles in previous image */
 extern int numc[4];        /* no. of particles in current image */
 extern int numn[4];        /* no. of particles in next image */
 extern int n_trac[];       /* no. of tracks */
-extern int match;          /* no. of matches */
 extern int match2;         /* no. of matches in 2nd pass */
 extern int match4_g, match3_g, match2_g, match1_g;
 extern int corp, corc, corn;              /* no. of correspondences in p,c,n */

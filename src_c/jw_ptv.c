@@ -470,7 +470,7 @@ int correspondences_proc_c (char **img_base_names, int frame)
         lut_inited = 1;
     }
     
-    correspondences_4 (pix, geo, vpar, cpar, glob_cal, con, match_counts);
+    match = correspondences_4 (pix, geo, num, vpar, cpar, glob_cal, con, match_counts);
     /* This is needed for the UI, previously set within correspondences_4 */
     match4_g = match_counts[3];
     match3_g = match_counts[2];

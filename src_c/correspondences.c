@@ -22,12 +22,12 @@ Description:	       	establishment of correspondences for 2/3/4 cameras
 /*--------------- 4 camera model: consistent quadruplets -------------------*/
 /****************************************************************************/
 
-void correspondences_4 (target pix[][nmax], coord_2d geo[][nmax], 
+int correspondences_4 (target pix[][nmax], coord_2d geo[][nmax], int num[], 
     volume_par *vpar, control_par *cpar, Calibration cals[], n_tupel *con, 
     int match_counts[])
 {
   int 	i,j,k,l,m,n,o,  i1,i2,i3;
-  int   count, match0=0, match4=0, match3=0, match2=0, match1=0;
+  int   count, match, match0=0, match4=0, match3=0, match2=0, match1=0;
   int 	p1,p2,p3,p4, p31, p41, p42;
   int  	pt1;
   int 	tim[4][nmax];
@@ -37,6 +37,7 @@ void correspondences_4 (target pix[][nmax], coord_2d geo[][nmax],
   n_tupel     	*con0;
   correspond  	*list[4][4];
   vec3d out;
+  FILE *fp1;
 
   for (j=0; j<4; j++) for (i=0; i<nmax; i++) tim[j][i] = 0;
 
@@ -48,7 +49,6 @@ void correspondences_4 (target pix[][nmax], coord_2d geo[][nmax],
   con0 = (n_tupel *) malloc (4*nmax * sizeof (n_tupel));
 
   /*  initialize ...  */
-  sprintf (buf,"Establishing correspondences");
   match=0; match0=0; match2=0;
 
   for (i1 = 0; i1 < cpar->num_cams - 1; i1++)
@@ -67,6 +67,7 @@ void correspondences_4 (target pix[][nmax], coord_2d geo[][nmax],
   }
 
   /* -------------if only one cam and 2D--------- */ //by Beat Lüthi June 2007
+/*
   if(cpar->num_cams == 1){
 	  if(res_name[0]==0){
           sprintf (res_name, "rt_is");
@@ -87,6 +88,7 @@ void correspondences_4 (target pix[][nmax], coord_2d geo[][nmax],
 	  fclose (fp1);
 	  match1=num[0];
   }
+*/
   /* -------------end of only one cam and 2D ------------ */
 
   /* matching  1 -> 2,3,4  +  2 -> 3,4  +  3 -> 4 */
@@ -205,7 +207,7 @@ void correspondences_4 (target pix[][nmax], coord_2d geo[][nmax],
 	}
 
       match4 = match;
-      printf ("%d consistent quadruplets, \n", match4);	puts (buf);
+      printf ("%d consistent quadruplets, \n", match4);	
     }
 
   /* ----------------------------------------------------------------------- */
@@ -367,7 +369,6 @@ void correspondences_4 (target pix[][nmax], coord_2d geo[][nmax],
     }
 
   /* draw crosses on canvas */
-  if (display) {
     int count1=0;
 	j=0;
 	for (i=0; i<num[j]; i++)
@@ -379,7 +380,6 @@ void correspondences_4 (target pix[][nmax], coord_2d geo[][nmax],
 	      }
 	  }
 printf("unidentified objects = %d\n",count1);
-  }
 
 /* Retun values: match counts of each clique size */
   match_counts[3] = match4;
@@ -394,5 +394,7 @@ printf("unidentified objects = %d\n",count1);
         free (list[i1][i2]);
 
   free (con0);
+
+  return match;
 }
 
