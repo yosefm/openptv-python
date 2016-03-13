@@ -58,6 +58,42 @@ int    	num;
   qs_con (con, 0, num-1);
 }
 
+
+/* quicksort of 2d coordinates in x-order */
+
+void qs_coord2d_x (crd, left, right)
+coord_2d	*crd;
+int			left, right;
+{
+	register int	i, j;
+	double			xm;
+	coord_2d		temp;
+
+	i = left;	j = right;	xm = crd[(left+right)/2].x;
+
+	do
+	{
+		while (crd[i].x < xm  &&  i<right)	i++;
+		while (xm < crd[j].x  &&  j>left)	j--;
+
+		if (i <= j)
+		{
+			temp = crd[i];
+			crd[i] = crd[j];
+			crd[j] = temp;
+			i++;	j--;
+		}
+	}
+	while (i <= j);
+
+	if (left < j)	qs_coord2d_x (crd, left, j);
+	if (i < right)	qs_coord2d_x (crd, i, right);
+}
+
+void quicksort_coord2d_x (coord_2d *crd, int num) {
+	qs_coord2d_x (crd, 0, num-1);
+}
+
 /****************************************************************************/
 /*--------------- 4 camera model: consistent quadruplets -------------------*/
 /****************************************************************************/
@@ -134,7 +170,7 @@ int correspondences_4 (target pix[][nmax], coord_2d geo[][nmax], int num[],
   /* matching  1 -> 2,3,4  +  2 -> 3,4  +  3 -> 4 */
   for (i1 = 0; i1 < cpar->num_cams - 1; i1++)
     for (i2 = i1 + 1; i2 < cpar->num_cams; i2++) {
-     printf ("Establishing correspondences  %d - %d\n", i1, i2);
+     //printf ("Establishing correspondences  %d - %d\n", i1, i2);
      /* establish correspondences from num[i1] points of img[i1] to img[i2] */
 
       for (i=0; i<num[i1]; i++)	if (geo[i1][i].x != -999) {
@@ -256,8 +292,7 @@ int correspondences_4 (target pix[][nmax], coord_2d geo[][nmax], int num[],
   /* search consistent triplets :  123, 124, 134, 234 */
   if ((cpar->num_cams == 4 && cpar->allCam_flag == 0) || cpar->num_cams == 3)
     {
-   //   puts ("Search consistent triplets");
-      printf("Search consistent triplets \n");
+      //printf("Search consistent triplets \n");
       match0 = 0;
       for (i1 = 0; i1 < cpar->num_cams - 2; i1++)
         for (i2 = i1 + 1; i2 < cpar->num_cams - 1; i2++)
@@ -334,9 +369,6 @@ int correspondences_4 (target pix[][nmax], coord_2d geo[][nmax], int num[],
   /* search consistent pairs :  12, 13, 14, 23, 24, 34 */
   /* only if an object model is available or if only 2 images are used */
       if(cpar->num_cams > 1 && cpar->allCam_flag == 0){
-	printf("Search pairs");
-
-
 		  match0 = 0;
 		  for (i1 = 0; i1 < cpar->num_cams - 1; i1++)
 			if ( cpar->num_cams == 2 || (num[0] < 64 && num[1] < 64 && num[2] < 64 && num[3] < 64))
@@ -422,10 +454,10 @@ int correspondences_4 (target pix[][nmax], coord_2d geo[][nmax], int num[],
 printf("unidentified objects = %d\n",count1);
 
 /* Retun values: match counts of each clique size */
-  match_counts[3] = match4;
-  match_counts[2] = match3;
-  match_counts[1] = match2;
-  match_counts[0] = match1;
+  match_counts[0] = match4;
+  match_counts[1] = match3;
+  match_counts[2] = match2;
+  match_counts[3] = match1;
 
   /* ----------------------------------------------------------------------- */
   /* free memory for lists of correspondences */

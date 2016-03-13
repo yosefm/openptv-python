@@ -3,10 +3,8 @@
 #include "tools.h"
 
 /* declaration */
-void qs_coord2d_x ();
 void qs_target_y ();
 void qs_coord2d_pnr ();
-void qs_con ();
 
 FILE *fopen_r (filename)
 char *filename;
@@ -164,46 +162,6 @@ int    		count;
 /* quicksort algorithms for several issues */
 
 /***********************************************************************/
-
-/* quicksort of 2d coordinates in x-order */
-
-void quicksort_coord2d_x (crd, num)
-coord_2d	*crd;
-int			num;
-{
-	qs_coord2d_x (crd, 0, num-1);
-}
-
-
-
-void qs_coord2d_x (crd, left, right)
-coord_2d	*crd;
-int			left, right;
-{
-	register int	i, j;
-	double			xm;
-	coord_2d		temp;
-
-	i = left;	j = right;	xm = crd[(left+right)/2].x;
-
-	do
-	{
-		while (crd[i].x < xm  &&  i<right)	i++;
-		while (xm < crd[j].x  &&  j>left)	j--;
-
-		if (i <= j)
-		{
-			temp = crd[i];
-			crd[i] = crd[j];
-			crd[j] = temp;
-			i++;	j--;
-		}
-	}
-	while (i <= j);
-
-	if (left < j)	qs_coord2d_x (crd, left, j);
-	if (i < right)	qs_coord2d_x (crd, i, right);
-}
 
 
 /***********************************************************************/
