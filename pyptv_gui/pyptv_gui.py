@@ -8,8 +8,8 @@ http://opensource.org/licenses/MIT
 
 """
 from traits.etsconfig.api import ETSConfig
-ETSConfig.toolkit = 'qt4'
-# ETSConfig.toolkit = 'wx'
+# ETSConfig.toolkit = 'qt4'
+ETSConfig.toolkit = 'wx'
 
 from traits.api \
     import HasTraits, Str, Int, List, Bool, Enum, Instance, Any
@@ -275,7 +275,7 @@ class CameraWindow (HasTraits):
             returned coordinates:
             x1=[200,300]; y1=[200,300]; x2=[200,300]; y2=[210,320]
         """
-        dx,dy=2,2 #minimum allowable dx,dy
+        dx,dy=0,0 #minimum allowable dx,dy
         x1f,y1f,x2f,y2f=[],[],[],[]
         for i in range(len(x1)):
             if abs(x1[i]-x2[i])>dx or abs(y1[i]-y2[i])>dy:
@@ -405,7 +405,7 @@ class TreeMenuHandler (Handler):
         experiment = editor.get_parent(object)
         paramset = object
         # rename
-        # import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         editor._menu_rename_node()
         new_name = object.name
         new_dir_path = general.par_dir_prefix + new_name

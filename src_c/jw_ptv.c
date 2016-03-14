@@ -344,7 +344,6 @@ int detection_proc_c(char **image_names)
     fpp = fopen ("parameters/pft_version.par", "r");
     if (fpp){
         fscanf (fpp, "%d\n", &pft_version);
-        pft_version = pft_version + 3;
         printf(" Peak fitting version is %d\n", pft_version);
         fclose (fpp);
     }
@@ -472,10 +471,10 @@ int correspondences_proc_c (char **img_base_names, int frame)
     
     match = correspondences_4 (pix, geo, num, vpar, cpar, glob_cal, con, match_counts);
     /* This is needed for the UI, previously set within correspondences_4 */
-    match4_g = match_counts[3];
-    match3_g = match_counts[2];
-    match2_g = match_counts[1];
-    match1_g = match_counts[0]; 
+    match4_g = match_counts[0];
+    match3_g = match_counts[1];
+    match2_g = match_counts[2];
+    match1_g = match_counts[3]; 
     
     /* --------------- */
     /* save pixel coords for tracking */
@@ -1206,7 +1205,6 @@ int sequence_proc_loop_c  (int dumbbell,int i)
     if (fpp)
     {
         fscanf (fpp, "%d\n", &pft_version);
-        pft_version=pft_version+3;
         fclose (fpp);
     }
     
