@@ -108,6 +108,5 @@ void getabcFromRot();
 void sortgrid_man();
 void just_plot();
 void det_lsq_3d ();
-void orient();
 
 #endif

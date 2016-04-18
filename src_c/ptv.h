@@ -7,5 +7,4 @@
 #include "globals.h"
 #include "tools.h"
 #include "image_processing.h"
-#include "orientation.h"
 
