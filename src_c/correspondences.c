@@ -283,7 +283,6 @@ int correspondences_4 (target pix[][nmax], coord_2d geo[][nmax], int num[],
 	}
 
       match4 = match;
-      printf ("%d consistent quadruplets, \n", match4);	
     }
 
   /* ----------------------------------------------------------------------- */
@@ -357,8 +356,6 @@ int correspondences_4 (target pix[][nmax], coord_2d geo[][nmax], int num[],
 
       match3 = match - match4;
 
-	  printf ( "%d consistent quadruplets, %d triplets \n", match4, match3);
- 		
       /* repair artifact (?) */
       if (cpar->num_cams == 3) for (i=0; i<match; i++)	con[i].p[3] = -1;
     }
@@ -432,6 +429,9 @@ int correspondences_4 (target pix[][nmax], coord_2d geo[][nmax], int num[],
     {
       for (j = 0; j < cpar->num_cams; j++)
 	{
+      /* Skip cameras without a correspondence obviously. */
+      if (con[i].p[j] < 0) continue;
+
 	  p1 = geo[j][con[i].p[j]].pnr;
 	  if (p1 > -1 && p1 < 1202590843)
 	    {
@@ -439,7 +439,6 @@ int correspondences_4 (target pix[][nmax], coord_2d geo[][nmax], int num[],
 	    }
 	}
     }
-
   /* draw crosses on canvas */
     int count1=0;
 	j=0;
@@ -457,7 +456,7 @@ printf("unidentified objects = %d\n",count1);
   match_counts[0] = match4;
   match_counts[1] = match3;
   match_counts[2] = match2;
-  match_counts[3] = match1;
+  match_counts[3] = match;
 
   /* ----------------------------------------------------------------------- */
   /* free memory for lists of correspondences */

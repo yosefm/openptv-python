@@ -52,7 +52,7 @@ cdef extern from "globals.h": # to lose the declspec
 
     int init_proc_c()
     int start_proc_c()
-    int pre_processing_c ()
+    int pre_processing_c (int)
     int detection_proc_c(char **image_names) 
     int correspondences_proc_c(char **image_names, int frame) 
     int calibration_proc_c(int sel) 
@@ -135,7 +135,7 @@ def py_init_proc_c():
     init_proc_c()  #initialize general globals 
     
 def py_pre_processing_c():
-    pre_processing_c()
+    pre_processing_c(0)
 
 def py_detection_proc_c():
     detection_proc_c(cpar[0].img_base_name)
