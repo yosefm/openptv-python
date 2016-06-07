@@ -3,7 +3,6 @@
 #include "tools.h"
 
 /* declaration */
-void qs_target_y ();
 void qs_coord2d_pnr ();
 
 FILE *fopen_r (filename)
@@ -212,46 +211,7 @@ int    		left, right;
 /***********************************************************************/
 
 
-/* quicksort of targets in y-order */
 
-void quicksort_target_y (pix, num)
-target 	*pix;
-int    	num;
-{
-  qs_target_y (pix, 0, num-1);
-}
-
-
-
-
-void qs_target_y (pix, left, right)
-target 	*pix;
-int    	left, right;
-{
-  register int	i, j;
-  double			ym;
-  target			temp;
-
-  i = left;	j = right;	ym = pix[(left+right)/2].y;
-
-  do
-    {
-      while (pix[i].y < ym  &&  i<right)	i++;
-      while (ym < pix[j].y  &&  j>left)	j--;
-
-      if (i <= j)
-	{
-	  temp = pix[i];
-	  pix[i] = pix[j];
-	  pix[j] = temp;
-	  i++;	j--;
-	}
-    }
-  while (i <= j);
-
-  if (left < j)	qs_target_y (pix, left, j);
-  if (i < right)	qs_target_y (pix, i, right);
-}
 
 
 
