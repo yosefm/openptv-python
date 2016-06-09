@@ -899,7 +899,7 @@ class PftVersionParams(Parameters):
         try:
             f = open(self.filepath(), 'w')
 
-            f.write("%d\n" % self.Existing_Target)
+            f.write("%d\n" % (4 if self.Existing_Target else 0))
             
             f.close()
             return True
