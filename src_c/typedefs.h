@@ -30,16 +30,6 @@ mm_3p;
 
 typedef struct
 {
-  int 	pos, status;
-  short	xmin, xmax, ymin, ymax;
-  int   n, sumg;
-  double  x, y;
-  int   unr, touch[4], n_touch;	/* unified with target unr, touching ... */
-}
-peak;
-
-typedef struct
-{
   short	       	x,y;
   unsigned char	g;
   short	       	tnr;

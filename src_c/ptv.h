@@ -6,5 +6,4 @@
 #include "typedefs.h"
 #include "globals.h"
 #include "tools.h"
-#include "image_processing.h"
 

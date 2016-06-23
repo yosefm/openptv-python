@@ -20,6 +20,18 @@ Description:	  target recognition with adaptive threshold
 #include <optv/image_processing.h>
 #include "image_processing.h"
 
+
+typedef struct
+{
+  int 	pos, status;
+  short	xmin, xmax, ymin, ymax;
+  int   n, sumg;
+  double  x, y;
+  int   unr, touch[4], n_touch;	/* unified with target unr, touching ... */
+}
+peak;
+
+
 void targ_rec (img0, img, par_file, xmin,xmax,ymin,ymax, pix, nr, num, cpar)
 
 unsigned char	*img, *img0;   	/* image data, image to be set to zero */
